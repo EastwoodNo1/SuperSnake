@@ -58,7 +58,7 @@ Each was checked on 2026-10-22/23. Re-run the check command and fix anything tha
 | Android cmdline-tools | `~/Library/Android/sdk/cmdline-tools/latest/bin/android --version` | 23.0 (Android CLI 1.0.16625370) ✅, updated from 20.0 on 2026-10-23. In 23.0, `sdkmanager` is deprecated; use `android sdk install|list|update` instead, for example `android sdk install platforms/android-37.0` |
 | Android build-tools 37 | `ls ~/Library/Android/sdk/build-tools` | `37.0.0` ✅ |
 | `gh` logged in as `EastwoodNo1` | `gh auth status` | gh 2.102.0, account `EastwoodNo1` ✅ |
-| `gh-stack` extension | `gh extension list` | not installed. Task 7's `bootstrap.sh` installs it with `gh extension install github/gh-stack` |
+| `gh-stack` extension | `gh stack --version` | 0.2.1 ✅ (latest stable, released 2026-10-09), installed 2026-10-23. Task 7's `bootstrap.sh` still installs it when missing, for other machines |
 | git ≥ 2.36 | `git --version` | 2.56.0 ✅ |
 
 ### How the owner works

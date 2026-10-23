@@ -54,7 +54,7 @@ Each was checked on 2026-10-22/23. Re-run the check command and fix anything tha
 | Need | Check | Last seen |
 |------|-------|-----------|
 | JDK 21 | `java -version` | Temurin 21.0.12.1 ✅ |
-| Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | **missing**: only `android-34` and `android-36.1`. Install with `~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-37"` (or Android Studio SDK Manager) |
+| Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | `android-37.0` ✅. Installed 2026-10-23 with `sdkmanager "platforms;android-37.0"` (package `platform-37.0_r02`). 37.1 and 37.2 also exist; `compileSdk = 37` needs only 37.0. sdkmanager warned that the local cmdline-tools only understand SDK XML up to v3; if a later install misbehaves, update cmdline-tools first |
 | Android build-tools 37 | `ls ~/Library/Android/sdk/build-tools` | `37.0.0` ✅ |
 | `gh` logged in as `EastwoodNo1` | `gh auth status` | gh 2.102.0, account `EastwoodNo1` ✅ |
 | `gh-stack` extension | `gh extension list` | not installed. Task 7's `bootstrap.sh` installs it with `gh extension install github/gh-stack` |

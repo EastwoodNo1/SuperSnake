@@ -12,7 +12,7 @@
 - Git hooks and GitHub Actions call the same Gradle tasks, so local and CI agree.
 - GitHub rulesets and repo settings are applied with `gh api`.
 
-**Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 25, mise, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
+**Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 25, mise, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), zizmor 1.31.1, Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
 
 **Spec:** `docs/superpowers/specs/2026-10-22-supersnake-design.md`. Approved by the owner on 2026-10-22 at commit `e900708`. Later commits only add owner decisions confirmed on 2026-10-23 (the mockup location, and that Claude reviews run locally); `git log -- docs/superpowers/specs` lists them.
 
@@ -159,9 +159,10 @@ These are copied from the spec and apply to every task.
   | androidx.test ext-junit | 1.3.0 |
   | espresso | 3.7.0 |
   | ktlint | 1.8.0 |
+  | zizmor | 1.31.1 |
 
   If a newer **stable** version exists on the day a task adds a dependency, re-verify, use it (Kotlin only up to the CodeQL-supported maximum), and record it in `docs/versions.md` with source URL and date.
-- **Third-party:** nothing beyond ktlint and `ReactiveCircus/android-emulator-runner` (Plan 3). No Gradle plugins other than AGP, Kotlin and Kover. The scaffold's `org.gradle.toolchains.foojay-resolver-convention` is removed.
+- **Third-party:** nothing beyond ktlint, zizmor (owner-approved 2026-10-23, §6 evidence in the spec) and `ReactiveCircus/android-emulator-runner` (Plan 3). No Gradle plugins other than AGP, Kotlin and Kover. The scaffold's `org.gradle.toolchains.foojay-resolver-convention` is removed.
 
 **Android**
 - **Android:**
@@ -184,13 +185,13 @@ These are copied from the spec and apply to every task.
   - both public
   - both names were verified free on 2026-10-22
 - **Gradle deprecations [owner-decided 2026-10-23]:** wherever this plan says `--warning-mode=fail`, run the command through `scripts/gradle-strict.sh` instead. AGP 9.4.1, the latest stable, emits one deprecation (`Configuration.setVisible(boolean)`, from `BasePlugin.createAndroidJdkImageConfiguration`), so `--warning-mode=fail` fails every cold build. The script allows exactly that message and fails on any other deprecation. Remove the allowlist when a stable AGP no longer emits it.
-
 - **Tools via mise [owner-decided 2026-10-23]:**
   - Dev tools (JDK, gh) are installed and run through mise, not system installs.
   - Every tool is SHA-pinned in a committed `mise.lock` and installs only with `mise install --locked`. Provenance is verified where mise can: gh via GitHub attestations. Temurin 25.0.5+8 is SHA pin only (GPG-signed, which mise can't verify for Java), cross-checked against the Adoptium API and the `.sha256.txt` assets.
   - The Android SDK stays outside mise (vfox-android-sdk has 4 stars and skips checksums; sdkmanager checks SHA-1).
   - Every Gradle and gh command runs under mise: an activated shell or `mise exec --`.
   - Ruling R9: CI installs the same pinned mise, with its release archive SHA-256 pinned, and runs `mise install --locked` instead of `actions/setup-java`.
+  - Locked platforms are macos-arm64, linux-x64 and linux-arm64. Intel macOS is unsupported because Adoptium publishes no macOS x64 JDK 25.0.5+8.
 
 ## Review Focus
 
@@ -799,6 +800,7 @@ These are copied from the spec and apply to every task.
   | (f) | `git rebase` in the worktree (detached HEAD) replaying a valid commit | accepted, not treated as main |
   | (g) | worktree path containing a space | accepted |
   | (h) | `pre-push` with a failing unit test | refused |
+  | (i) | `pre-push` with a workflow zizmor flags (e.g. an unpinned action) | refused |
 
 - [ ] **Step 2: Run it and confirm it fails**
 
@@ -811,14 +813,14 @@ These are copied from the spec and apply to every task.
   - `on_main_branch`: `[ "$(git symbolic-ref -q --short HEAD)" = main ]`. A detached HEAD is not main.
   - **pre-commit:** runs `checkNoComments` and `ktlintCheck` on the whole repo, quietly, with the configuration cache.
   - **commit-msg:** runs `checkCommitMessage -PmessageFile="$1"`.
-  - **pre-push:** refuses pushes to `refs/heads/main`, then runs `./gradlew check`.
+  - **pre-push:** refuses pushes to `refs/heads/main`, then runs `zizmor` on `.github/workflows/` through mise, then `./gradlew check`.
   - The scripts are POSIX sh, start with `#!/bin/sh`, and have no other comments.
 
 - [ ] **Step 4: Run the tests and confirm they pass**
 
   Run: `scripts/test-hooks.sh`
 
-  Expected: `8/8 passed`.
+  Expected: `9/9 passed`.
 
 - [ ] **Step 5: Commit and PR**
 
@@ -841,7 +843,9 @@ These are copied from the spec and apply to every task.
 - Modify:
   - `scripts/github/apply-repo-settings.sh`
   - `scripts/github/expected-settings.json`
-  - `docs/versions.md`, adding action SHAs and versions
+  - `mise.toml`
+  - `mise.lock`
+  - `docs/versions.md`, adding action SHAs and versions and the zizmor version
 
 **Interfaces:**
 - Consumes: all Gradle check tasks from Tasks 3–6.
@@ -857,14 +861,17 @@ These are copied from the spec and apply to every task.
 
   Dereference annotated tags with `gh api repos/<o>/<r>/git/tags/<sha> --jq .object.sha`. Record each SHA and version in `docs/versions.md`.
 
+  Also re-verify zizmor's latest stable release. Add it to `mise.toml` as `aqua:zizmorcore/zizmor`, run `mise lock`, and confirm the lock entry has a sha256 per locked platform and `provenance = "github-attestations"`. Record version, source and date in `docs/versions.md`.
+
 - [ ] **Step 2: Write `ci.yml`**
   - **Triggers:** `pull_request` and `push` to `main`. Top-level `permissions: {}`.
   - **Job `checks`** (`contents: read`), steps:
     1. checkout
     2. install the pinned mise per Ruling R9 (release archive SHA-256 pinned), then `mise install --locked`
-    3. `gradle/actions/setup-gradle` with `cache-provider: basic`
-    4. `./gradlew check checkNoComments checkWorkflows checkReleaseManifest --warning-mode=fail`
-    5. `./gradlew -p build-logic/checks check koverVerify`
+    3. `zizmor` on `.github/workflows/` through mise, with zero findings
+    4. `gradle/actions/setup-gradle` with `cache-provider: basic`
+    5. `./gradlew check checkNoComments checkWorkflows checkReleaseManifest --warning-mode=fail`
+    6. `./gradlew -p build-logic/checks check koverVerify`
   - **Job `pr-rules`** (PRs only, `contents: read`, `pull-requests: read`):
     - checkout with `fetch-depth: 0`
     - write the inputs through `env:`, never inline:
@@ -904,6 +911,8 @@ These are copied from the spec and apply to every task.
 
   Expected: success on the new YAML.
 
+  Also run `zizmor` on `.github/workflows/` through mise. Expected: zero findings, with no ignore or suppression config.
+
 - [ ] **Step 7: Open the PR and confirm every job runs**
 
   Branch `ci/pipeline`. Open the PR.
@@ -915,6 +924,7 @@ These are copied from the spec and apply to every task.
 - [ ] **Step 8: Prove the PR gates bite on a throwaway PR**
   - Use a throwaway PR with commit message `update stuff` and no `Closes #`.
   - Expected: `pr-rules` fails, with both errors in the log. Paste the URL.
+  - Also prove zizmor bites: on the throwaway PR (or locally, pasted), a workflow change zizmor flags makes `checks` fail. Paste the output.
   - Close the PR and delete the branch.
 
 - [ ] **Step 9: Merge, then require the checks**
@@ -1010,6 +1020,8 @@ These are copied from the spec and apply to every task.
 - `skills/android-ci/SKILL.md`
 - `skills/android-ci/templates/**`: copies of:
   - `.github/workflows/*`
+  - `mise.toml`
+  - `mise.lock`
   - `.github/dependabot.yml`
   - `.github/pull_request_template.md`
   - `SECURITY.md`
@@ -1039,7 +1051,7 @@ These are copied from the spec and apply to every task.
   Read the current Claude Code plugin and marketplace documentation, and record the doc URLs. Use the `plugin-dev`/`write-a-skill` skills for structure. Each SKILL.md:
   - has a `description` that states when to trigger it
   - has numbered steps, with the evidence the agent must show at each step
-  - for `android-ci`, tells the agent to re-verify action SHAs and versions instead of trusting the templates
+  - for `android-ci`, tells the agent to re-verify action SHAs and versions, and zizmor's version, instead of trusting the templates
   - for `sdlc-rules`, encodes spec §6–§7 and §13.12–13 plus the evidence rule
 
 - [ ] **Step 2: Create the repo**
@@ -1062,7 +1074,7 @@ These are copied from the spec and apply to every task.
   - Start a fresh subagent that only has the plugin installed, and ask it to "set up hooks and CI for this project".
   - Expected:
     - the subagent ran the `git-hooks` and `android-ci` skills
-    - `scripts/test-hooks.sh` reports `8/8 passed`
+    - `scripts/test-hooks.sh` reports `9/9 passed`
     - `./gradlew check checkNoComments checkWorkflows` succeeds
   - Paste the outputs. Don't create a GitHub repo for the scratch project.
 

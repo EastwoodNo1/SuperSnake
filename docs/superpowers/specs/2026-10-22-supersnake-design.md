@@ -240,7 +240,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
   - open/closed issue activity
 - A brief ADR is required for every new runtime dependency.
 - Current third-party runtime dependencies: **libGDX only**.
-- Build/CI tools in use: ktlint (`pinterest/ktlint`: 6,767 stars, last commit 2026-10-22, latest stable 1.8.0 from 2025-11-14) and GitHub Actions from verified publishers (the `reactivecircus` emulator runner is the exception and needs the same evidence).
+- Build/CI tools in use: ktlint (`pinterest/ktlint`: 6,767 stars, last commit 2026-10-22, latest stable 1.8.0 from 2025-11-14), zizmor **[owner, 2026-10-23]** (`zizmorcore/zizmor`: MIT, 6,759 stars, last push 2026-10-23, latest stable v1.31.1 from 2026-10-15, 171 open issues, 18 opened and 12 closed in the last 30 days) and GitHub Actions from verified publishers (the `reactivecircus` emulator runner is the exception and needs the same evidence).
 
 ---
 
@@ -283,7 +283,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 | 16 KB page-size support | — | `zipalign -c -P 16 -v 4` on the release APK passes (Play requirement from 2027-02-01; libGDX ships native `.so` files) | — |
 | Evidence section present and non-empty | — | PR body check | PR template |
 | Linear history, rebase merge only | — | — | Ruleset: require linear history; the only allowed merge method is rebase |
-| Workflows are safe | — | A workflow lint check fails on:<br>• any `pull_request_target` or `workflow_run` trigger<br>• `${{ github.event.* }}` interpolated inside a `run:` script<br>• an action not pinned by full commit SHA<br>• a missing top-level `permissions: {}` | Fork PR workflows require approval for all outside contributors; default `GITHUB_TOKEN` permission is read-only |
+| Workflows are safe | — | A workflow lint check fails on:<br>• any `pull_request_target` or `workflow_run` trigger<br>• `${{ github.event.* }}` interpolated inside a `run:` script<br>• an action not pinned by full commit SHA<br>• a missing top-level `permissions: {}`<br>and zizmor (latest stable, pinned via mise) reports no findings | Fork PR workflows require approval for all outside contributors; default `GITHUB_TOKEN` permission is read-only |
 | Release tags are trustworthy | — | The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags. Immutable releases on. No "prevent self-review" setting, since solo |
 
 ### 7.3 Practices (taught, not gated)
@@ -405,7 +405,9 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 - Every tool mise installs is SHA-pinned in a committed `mise.lock` and installs only in locked mode (`mise install --locked`). Signature or provenance is verified wherever mise can.
 - Java is Eclipse Temurin 25.0.5+8 from `github:adoptium/temurin25-binaries` (tag `jdk-25.0.5+8`). mise's built-in `core:java` catalog lags. Temurin is GPG-signed only and mise can't verify GPG for Java, so it is SHA pin only, cross-checked against the Adoptium API and the release's `.sha256.txt` assets.
 - gh 2.103.0 comes from `aqua:cli/cli`, and its lock entries record `provenance = "github-attestations"`.
+- zizmor (latest stable, v1.31.1 on 2026-10-23) comes from `aqua:zizmorcore/zizmor`, and its lock entries record per-platform sha256 checksums with `provenance = "github-attestations"`.
 - The Android SDK stays outside mise: the only backend, vfox-android-sdk, has 4 stars and skips checksums. Google doesn't sign SDK packages, and sdkmanager checks SHA-1.
+- Locked platforms are macos-arm64, linux-x64 and linux-arm64. Intel macOS is unsupported because Adoptium publishes no macOS x64 JDK 25.0.5+8.
 
 ### AndroidX and Kotlin libraries
 
@@ -433,6 +435,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 |------|---------|----------|--------|
 | ktlint | 1.8.0 | 2025-11-14 | github.com/pinterest/ktlint/releases. Run standalone, through a small Gradle task or the ktlint CLI **[builder]**. No third-party Gradle wrapper plugin unless it passes §6 |
 | Kover | 0.9.11 | 2026-09-29 | github.com/Kotlin/kotlinx-kover/releases/tag/v0.9.11 |
+| zizmor | 1.31.1 | 2026-10-15 | github.com/zizmorcore/zizmor/releases/tag/v1.31.1. Static checks for GitHub Actions workflows, installed through mise from `aqua:zizmorcore/zizmor`. Recheck the latest stable when it is added |
 
 ### Testing
 

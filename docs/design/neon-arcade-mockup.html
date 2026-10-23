@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperSnake neon arcade mockup</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#111; font-family:system-ui, sans-serif; }
+  .phone { width:240px; height:480px; border-radius:30px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.35); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; background:radial-gradient(circle at 50% 30%, #1b1446, #07061a 70%); color:#eafcff; }
+  .stage { flex:0 0 190px; display:flex; align-items:center; justify-content:center; width:100%; }
+  .title { font-weight:800; letter-spacing:2px; margin:4px 0 14px; font-size:22px; color:#5ef2ff; text-shadow:0 0 10px #5ef2ff, 0 0 22px #2a8cff; }
+  .menu { display:flex; flex-direction:column; gap:10px; width:85%; }
+  .menu button { min-height:48px; border-radius:14px; font-size:15px; font-weight:700; background:transparent; color:#eafcff; border:2px solid #ff4fd8; box-shadow:0 0 10px rgba(255,79,216,.5); }
+  .menu button.primary { background:#ff4fd8; color:#1a0a24; }
+  .foot { position:absolute; bottom:12px; font-size:11px; opacity:.7; }
+  .snake { width:140px; height:140px; }
+  .snake path { fill:none; stroke:#5ef2ff; stroke-width:12; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 6px #5ef2ff); stroke-dasharray:60 400; animation:slither 2.4s linear infinite; }
+  .snake circle { fill:#ff4fd8; filter:drop-shadow(0 0 6px #ff4fd8); animation:pulse 1.2s ease-in-out infinite; transform-origin:center; transform-box:fill-box; }
+  @keyframes slither { to { stroke-dashoffset:-460; } }
+  @keyframes pulse { 50% { transform:scale(1.35); } }
+  @media (prefers-reduced-motion: reduce) { .phone * { animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="stage"><svg class="snake" viewBox="0 0 140 140" role="img" aria-label="SuperSnake animated icon"><path d="M20 110 L20 30 L70 30 L70 110 L120 110 L120 30"/><circle cx="120" cy="18" r="8"/></svg></div>
+  <div class="title">SUPERSNAKE</div>
+  <div class="menu"><button class="primary">Play</button><button>High scores</button><button>Settings</button></div>
+  <div class="foot">Best: 2 140</div>
+</div>
+</body>
+</html>

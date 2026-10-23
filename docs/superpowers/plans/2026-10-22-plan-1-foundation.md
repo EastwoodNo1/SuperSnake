@@ -1,6 +1,6 @@
 # SuperSnake Plan 1: Foundation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task (owner's choice). Every subagent runs on model Sonnet 5.5: pass `model: "sonnet"` on each Agent call. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A public GitHub repo where every SDLC rule in spec §7.2 that applies before game code exists is enforced by a machine and proven with evidence. The CI, hooks and SDLC rules are extracted as a Claude Code plugin in a second repo.
 
@@ -15,6 +15,81 @@
 **Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 21, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
 
 **Spec:** `docs/superpowers/specs/2026-10-22-supersnake-design.md` (approved, commit `e900708`).
+
+## Start here (for a fresh session)
+
+This plan is self-contained. A new session needs nothing from the brainstorming or planning conversations. Everything decided there is in the spec, in this plan, or in `docs/design/neon-arcade-mockup.html`.
+
+### To start or resume
+
+Open Claude Code in `/Users/r03418/AndroidStudioProjects/SuperSnake` and say:
+
+> Execute `docs/superpowers/plans/2026-10-22-plan-1-foundation.md` with superpowers:subagent-driven-development, starting at the first task whose boxes are unchecked.
+
+### Read first, in this order
+
+1. This file, all of it.
+2. The spec.
+3. The mockup, in a browser: the chosen neon look.
+
+### Progress lives in git
+
+- Each task's PR ticks that task's checkboxes in this file, so the plan on `main` always shows what is done.
+- Before Task 2 the repo is local only. After Task 2, run `git pull` in the main checkout before starting.
+
+### State at handoff (2026-10-23)
+
+- **Repo:** local git repo at `/Users/r03418/AndroidStudioProjects/SuperSnake`, branch `main`, no remote yet.
+- **Commits:** `e900708` (spec), `7ca0478` (this plan), and the commit that added this section and the mockup.
+- **Untracked Android Studio starter files from 2026-10-20**, which Task 1 consumes:
+  - `app/`
+  - `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`
+  - `gradle/`, `gradlew`, `gradlew.bat`
+- **Never commit** `local.properties`, `.idea/`, `.gradle/` or `.superpowers/`.
+
+### Machine prerequisites
+
+Each was checked on 2026-10-22/23. Re-run the check command and fix anything that differs before Task 1.
+
+| Need | Check | Last seen |
+|------|-------|-----------|
+| JDK 21 | `java -version` | Temurin 21.0.12.1 ✅ |
+| Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | **missing**: only `android-34` and `android-36.1`. Install with `~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-37"` (or Android Studio SDK Manager) |
+| Android build-tools 37 | `ls ~/Library/Android/sdk/build-tools` | `37.0.0` ✅ |
+| `gh` logged in as `EastwoodNo1` | `gh auth status` | gh 2.102.0, account `EastwoodNo1` ✅ |
+| `gh-stack` extension | `gh extension list` | not installed. Task 7's `bootstrap.sh` installs it with `gh extension install github/gh-stack` |
+| git ≥ 2.36 | `git --version` | 2.56.0 ✅ |
+
+### How the owner works
+
+Carry these into every task. They are also in the spec.
+
+- The owner works **solo**.
+- **Evidence for every claim:** the command and its real output, or a CI link. Never "should work".
+- **No comments in code.** Why and what go in commit messages.
+- **Only the latest stable versions**, re-verified with a source on the day they're used.
+- **Minimal third-party dependencies.**
+- **Plan approval covers creating the two public repos** in Tasks 2 and 10, and the GitHub settings in this plan.
+- **Stop and ask the owner before:**
+  - anything outward-facing that this plan doesn't list
+  - deleting anything that isn't in the plan
+  - any change to a decision in the spec
+
+### Confirmed at plan review
+
+All three were confirmed by the owner on 2026-10-23.
+
+- **App ID:** `applicationId`/`namespace` = `io.github.eastwoodno1.supersnake`. It is permanent from the first signed release.
+- **Repos:** `EastwoodNo1/SuperSnake` and `EastwoodNo1/android-sdlc-skills`, both public.
+- **Execution:** superpowers:subagent-driven-development.
+  - **Every subagent** (implementer, reviewer, or any other dispatched agent) **must run on model Sonnet 5.5.** In practice, pass `model: "sonnet"` on every Agent tool call; that alias resolves to `claude-sonnet-5-5`.
+  - The orchestrating session may run on any model.
+
+### After Plan 1 is merged
+
+- Start a fresh session and use superpowers:writing-plans to write Plan 2 (Game engine) from the spec and the Roadmap below.
+- Re-verify versions as part of that.
+- Give Plan 2 the same "Start here" section, updated with the state at that point.
 
 ## Roadmap (this plan is 1 of 4)
 
@@ -72,7 +147,7 @@ These are copied from the spec and apply to every task.
 
 **Android**
 - **Android:**
-  - `applicationId` and `namespace` are `io.github.eastwoodno1.supersnake` **[call: permanent once released; owner confirms at plan review]**
+  - `applicationId` and `namespace` are `io.github.eastwoodno1.supersnake` **[owner-confirmed 2026-10-23; permanent once released]**
   - minSdk 31, compileSdk and targetSdk 37
   - JVM toolchain 21
   - Kotlin `allWarningsAsErrors = true`
@@ -87,7 +162,7 @@ These are copied from the spec and apply to every task.
 - **From Task 2 on, every task gets its own GitHub issue and is done in its own worktree on a branch `<type>/<name>`.** It merges through a PR with rebase merge only, and the PR body contains `Closes #<issue>` and a filled `## Evidence` section.
 - **GitHub:**
   - owner `EastwoodNo1` (the authenticated `gh` account)
-  - repos `EastwoodNo1/SuperSnake` and `EastwoodNo1/android-sdlc-skills` **[call]**
+  - repos `EastwoodNo1/SuperSnake` and `EastwoodNo1/android-sdlc-skills` **[owner-confirmed 2026-10-23]**
   - both public
   - both names were verified free on 2026-10-22
 

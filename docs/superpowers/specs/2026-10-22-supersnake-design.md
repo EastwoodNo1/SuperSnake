@@ -101,7 +101,7 @@ Neon arcade style:
 - pulsing magenta food
 - glowing outlined buttons, with the primary action filled
 
-The reference mockup is option A from the brainstorm (kept in `.superpowers/brainstorm/`, which is not committed).
+The reference mockup is option A from the brainstorm: `docs/design/neon-arcade-mockup.html`. Open it in a browser to see the animated icon and the main menu.
 
 ### Flow
 

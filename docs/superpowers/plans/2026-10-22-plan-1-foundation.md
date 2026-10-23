@@ -14,17 +14,21 @@
 
 **Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 21, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
 
-**Spec:** `docs/superpowers/specs/2026-10-22-supersnake-design.md` (approved, commit `e900708`).
+**Spec:** `docs/superpowers/specs/2026-10-22-supersnake-design.md`. Approved by the owner on 2026-10-22 at commit `e900708`. Later commits only add owner decisions confirmed on 2026-10-23 (the mockup location, and that Claude reviews run locally); `git log -- docs/superpowers/specs` lists them.
 
 ## Start here (for a fresh session)
 
-This plan is self-contained. A new session needs nothing from the brainstorming or planning conversations. Everything decided there is in the spec, in this plan, or in `docs/design/neon-arcade-mockup.html`.
+Together with the spec and `docs/design/neon-arcade-mockup.html`, this plan is self-contained. A new session needs nothing from the brainstorming or planning conversations: every decision made there is written in one of those three files. Statements marked "confirmed by the owner" record decisions the owner made in those conversations. Treat them as settled.
+
+`README.md` (for humans) and `CLAUDE.md` (for agents) at the repo root point here. Both are temporary bootstrap versions, and Task 9 replaces them.
 
 ### To start or resume
 
-Open Claude Code in `/Users/r03418/AndroidStudioProjects/SuperSnake` and say:
+**AI agent (Claude Code):** open Claude Code in `/Users/r03418/AndroidStudioProjects/SuperSnake` and say:
 
-> Execute `docs/superpowers/plans/2026-10-22-plan-1-foundation.md` with superpowers:subagent-driven-development, starting at the first task whose boxes are unchecked.
+> Execute `docs/superpowers/plans/2026-10-22-plan-1-foundation.md` with superpowers:subagent-driven-development, starting at the first task that is not done.
+
+**Human:** work through the tasks in order, by hand. Every step gives the exact command and the output that means it passed. The only parts that need Claude Code are the subagent instructions and Task 10 Step 4.
 
 ### Read first, in this order
 
@@ -34,18 +38,28 @@ Open Claude Code in `/Users/r03418/AndroidStudioProjects/SuperSnake` and say:
 
 ### Progress lives in git
 
-- Each task's PR ticks that task's checkboxes in this file, so the plan on `main` always shows what is done.
-- Before Task 2 the repo is local only. After Task 2, run `git pull` in the main checkout before starting.
+- **A task is done** when all of its checkboxes are ticked in this file on `main`. The task's own commit (Task 1) or PR (Tasks 2–10) ticks them, so the ticks land on `main` together with the work.
+- **A task is in progress** if any of these exists for it:
+  - a worktree (`git worktree list`)
+  - a branch named in its last step
+  - an open PR (`gh pr list`)
+
+  Continue in that worktree. Ticked steps there are done; re-run the first unticked step's verification before moving on.
+- **A task is not started** if none of those exist.
+- **Before Task 2**, the repo is local only and `main` is the record. **From Task 2 on**, run `git pull` in the main checkout first, and use `origin/main` as the record.
+- **Start from the first task that is not done.** Never skip a task.
 
 ### State at handoff (2026-10-23)
 
 - **Repo:** local git repo at `/Users/r03418/AndroidStudioProjects/SuperSnake`, branch `main`, no remote yet.
-- **Commits:** `e900708` (spec), `7ca0478` (this plan), and the commit that added this section and the mockup.
+- **Commits:** documentation only (spec, this plan, the mockup, the bootstrap `README.md`/`CLAUDE.md`, and prerequisite updates). Run `git log --oneline` to see them. No build or code commit exists yet.
+- **Next action:** Task 1, Step 1.
 - **Untracked Android Studio starter files from 2026-10-20**, which Task 1 consumes:
   - `app/`
   - `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`
   - `gradle/`, `gradlew`, `gradlew.bat`
-- **Never commit** `local.properties`, `.idea/`, `.gradle/` or `.superpowers/`.
+- **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/` or `.claude/settings.local.json`. All five are in `.gitignore`.
+- **Local leftovers you can ignore:** `.superpowers/` holds brainstorming mockups, and `.claude/settings.local.json` holds local Claude Code permissions.
 
 ### Machine prerequisites
 
@@ -54,8 +68,8 @@ Each was checked on 2026-10-22/23. Re-run the check command and fix anything tha
 | Need | Check | Last seen |
 |------|-------|-----------|
 | JDK 21 | `java -version` | Temurin 21.0.12.1 ✅ |
-| Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | `android-37.0` revision 2 ✅, installed 2026-10-23. 37.1 and 37.2 also exist, but `compileSdk = 37` needs only 37.0 |
-| Android cmdline-tools | `~/Library/Android/sdk/cmdline-tools/latest/bin/android --version` | 23.0 (Android CLI 1.0.16625370) ✅, updated from 20.0 on 2026-10-23. In 23.0, `sdkmanager` is deprecated; use `android sdk install|list|update` instead, for example `android sdk install platforms/android-37.0` |
+| Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | `android-37.0` revision 2 ✅, installed 2026-10-23. The SDK also offers 37.1 and 37.2, which are not installed and not needed: `compileSdk = 37` needs only 37.0 |
+| Android cmdline-tools | `~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager --list_installed \| grep cmdline` shows `23.0.0`; `android --version` prints `1.0.16625370` | 23.0 (Android CLI 1.0.16625370) ✅, updated from 20.0 on 2026-10-23. In 23.0, `sdkmanager` is deprecated; use `android sdk install|list|update` instead, for example `android sdk install platforms/android-37.0` |
 | Android build-tools 37 | `ls ~/Library/Android/sdk/build-tools` | `37.0.0` ✅ |
 | Official GitHub CLI `gh`, logged in as `EastwoodNo1` | `gh --version && gh auth status` | gh 2.103.0 (latest stable, 2026-10-21) via Homebrew `gh` (the macOS method on cli.github.com), upgraded from 2.102.0 on 2026-10-23; account `EastwoodNo1` ✅ |
 | `gh-stack` extension | `gh stack --version` | 0.2.1 ✅ (latest stable, released 2026-10-09), installed 2026-10-23. Task 7's `bootstrap.sh` still installs it when missing, for other machines |
@@ -121,7 +135,7 @@ These are copied from the spec and apply to every task.
   - Conventional Commits.
   - A body is required for `feat`, `fix`, `refactor` and `perf`, and should be added to the others whenever there is a why to say.
   - The body states **Why:** and **What:**.
-  - Every commit ends with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` when an agent wrote it.
+  - When an agent wrote a commit, it ends with a `Co-Authored-By:` trailer naming the model that actually wrote it, using the attribution line that Claude Code's system reminder gives in that session. Subagents run on Sonnet 5.5, so their commits use `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`. Never copy another model's line.
 - **Evidence:**
   - Every "passes / works / done" claim in a PR or a report includes the exact command and its real output, or a CI run link.
   - Never infer a result.
@@ -905,10 +919,11 @@ These are copied from the spec and apply to every task.
 ### Task 9: Onboarding docs and ADRs
 
 **Files:**
-- Create:
+- Rewrite (bootstrap versions already exist):
   - `README.md`
-  - `CONTRIBUTING.md`
   - `CLAUDE.md`
+- Create:
+  - `CONTRIBUTING.md`
   - `docs/game-rules.md`
   - `docs/adr/0001-native-kotlin-libgdx.md`
   - `docs/adr/0002-no-ktx.md`

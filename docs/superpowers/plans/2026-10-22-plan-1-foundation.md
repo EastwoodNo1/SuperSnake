@@ -72,6 +72,7 @@ Carry these into every task. They are also in the spec.
 - **Only the latest stable versions**, re-verified with a source on the day they're used.
 - **Minimal third-party dependencies.**
 - **Plan approval covers creating the two public repos** in Tasks 2 and 10, and the GitHub settings in this plan.
+- **Claude reviews are run locally from Claude Code.** Do not install the Claude GitHub App or the Claude Code GitHub Action, and don't add an Anthropic API key secret.
 - **Stop and ask the owner before:**
   - anything outward-facing that this plan doesn't list
   - deleting anything that isn't in the plan

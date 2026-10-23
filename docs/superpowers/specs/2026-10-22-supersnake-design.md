@@ -259,6 +259,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 7. **Evidence.** The PR description contains an Evidence section: commands run with their output, CI links, and screenshots/recordings for UI changes.
 8. **AI review (optional).**
    - The owner starts a GitHub Copilot or Claude review by hand, on the PRs where they want one. It is not required and not on every PR **[owner]**.
+   - Claude reviews run **locally from Claude Code** (for example `/code-review` or `/review` on the branch or PR). **No Claude GitHub App or Claude Code GitHub Action is installed** on either repo, and no Anthropic API key is stored in GitHub **[owner, 2026-10-23]**.
    - When a review is run, every comment thread must be resolved before merge. This is enforced by the "require conversation resolution" setting **[call]**.
 9. **Merge.** Only via the PR, once all required checks are green.
 10. **Release.** As in §8.

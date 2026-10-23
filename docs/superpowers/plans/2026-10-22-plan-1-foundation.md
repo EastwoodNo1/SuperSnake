@@ -60,6 +60,7 @@ Each was checked on 2026-10-22/23. Re-run the check command and fix anything tha
 | `gh` logged in as `EastwoodNo1` | `gh auth status` | gh 2.102.0, account `EastwoodNo1` ✅ |
 | `gh-stack` extension | `gh stack --version` | 0.2.1 ✅ (latest stable, released 2026-10-09), installed 2026-10-23. Task 7's `bootstrap.sh` still installs it when missing, for other machines |
 | git ≥ 2.36 | `git --version` | 2.56.0 ✅ |
+| GitHub Copilot CLI (optional; used only for the owner's own optional reviews, not required by any task) | `copilot --version` | 1.0.103 ✅ (latest stable, 2026-10-22), installed 2026-10-23 with `brew install --cask copilot-cli`, one of the methods on docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli. Needs a Copilot subscription and a one-time `/login` |
 
 ### How the owner works
 

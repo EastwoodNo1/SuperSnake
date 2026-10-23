@@ -395,9 +395,17 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 | Gradle | 9.8.2 | 2026-10-19 | github.com/gradle/gradle/releases/tag/v9.8.2 |
 | Android Gradle Plugin | 9.4.1 | 2026-09-18 | G/com/android/tools/build/gradle (9.4 needs Gradle ≥ 9.6, JDK ≥ 17, supports API ≤ 37) |
 | Kotlin | **2.4.20** | 2026-09-07 | github.com/JetBrains/kotlin/releases/tag/v2.4.20. Capped by CodeQL, which supports "Kotlin 1.8.0 to 2.4.20" (codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/). 2.4.21 (2026-10-08) waits until CodeQL lists it **[owner, ADR-0006]** |
-| JDK toolchain | 21 **[call]** | — | AGP documents only "≥ 17". JDK 25 (latest LTS) is not confirmed as AGP-tested, so use 21 LTS until proven on 25 |
+| JDK toolchain | 25 (Temurin 25.0.5+8) **[owner, 2026-10-23]**, installed via mise | 2026-10-22 | github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8. Latest LTS. CodeQL supports Java 7 to 26 (codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/, read 2026-10-23) |
 | compileSdk / targetSdk | 37 (Android 17) | 2026-06 | android-developers.googleblog.com/2026/06/Android-17.html. Play requires target ≥ 36 for new apps and updates (developer.android.com/google/play/requirements/target-sdk) |
 | minSdk | **31** (Android 12) **[owner]** | — | Animated SplashScreen icon on every supported device, so no fallback is needed. Devices on Android 8–11 can't install the game |
+
+### Tool installation [owner, 2026-10-23]
+
+- Dev tools are installed and run through mise (2026.10.18), not system installs.
+- Every tool mise installs is SHA-pinned in a committed `mise.lock` and installs only in locked mode (`mise install --locked`). Signature or provenance is verified wherever mise can.
+- Java is Eclipse Temurin 25.0.5+8 from `github:adoptium/temurin25-binaries` (tag `jdk-25.0.5+8`). mise's built-in `core:java` catalog lags. Temurin is GPG-signed only and mise can't verify GPG for Java, so it is SHA pin only, cross-checked against the Adoptium API and the release's `.sha256.txt` assets.
+- gh 2.103.0 comes from `aqua:cli/cli`, and its lock entries record `provenance = "github-attestations"`.
+- The Android SDK stays outside mise: the only backend, vfox-android-sdk, has 4 stars and skips checksums. Google doesn't sign SDK packages, and sdkmanager checks SHA-1.
 
 ### AndroidX and Kotlin libraries
 

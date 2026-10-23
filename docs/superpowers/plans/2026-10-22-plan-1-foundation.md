@@ -12,7 +12,7 @@
 - Git hooks and GitHub Actions call the same Gradle tasks, so local and CI agree.
 - GitHub rulesets and repo settings are applied with `gh api`.
 
-**Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 21, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
+**Tech Stack:** Gradle 9.8.2, AGP 9.4.1, Kotlin 2.4.20, JDK 25, mise, Compose BOM 2026.09.00, JUnit 6.1.3 + kotlin-test, Kover 0.9.11, ktlint 1.8.0 (CLI artifact), Android Lint, CodeQL, GitHub Actions, plain shell git hooks.
 
 **Spec:** `docs/superpowers/specs/2026-10-22-supersnake-design.md`. Approved by the owner on 2026-10-22 at commit `e900708`. Later commits only add owner decisions confirmed on 2026-10-23 (the mockup location, and that Claude reviews run locally); `git log -- docs/superpowers/specs` lists them.
 
@@ -67,11 +67,12 @@ Each was checked on 2026-10-22/23. Re-run the check command and fix anything tha
 
 | Need | Check | Last seen |
 |------|-------|-----------|
-| JDK 21 | `java -version` | Temurin 21.0.12.1 ✅ |
+| mise | `~/.local/bin/mise --version` | 2026.10.18 ✅ (latest stable, 2026-10-23). Install with `curl -fsSL https://mise.run \| sh` |
+| JDK 25 (provided by mise) | `mise exec -- java -version` | 25.0.5, Temurin-25.0.5+8 ✅ |
 | Android SDK platform 37 | `ls ~/Library/Android/sdk/platforms` | `android-37.0` revision 2 ✅, installed 2026-10-23. The SDK also offers 37.1 and 37.2, which are not installed and not needed: `compileSdk = 37` needs only 37.0 |
 | Android cmdline-tools | `~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager --list_installed \| grep cmdline` shows `23.0.0`; `android --version` prints `1.0.16625370` | 23.0 (Android CLI 1.0.16625370) ✅, updated from 20.0 on 2026-10-23. In 23.0, `sdkmanager` is deprecated; use `android sdk install|list|update` instead, for example `android sdk install platforms/android-37.0` |
 | Android build-tools 37 | `ls ~/Library/Android/sdk/build-tools` | `37.0.0` ✅ |
-| Official GitHub CLI `gh`, logged in as `EastwoodNo1` | `gh --version && gh auth status` | gh 2.103.0 (latest stable, 2026-10-21) via Homebrew `gh` (the macOS method on cli.github.com), upgraded from 2.102.0 on 2026-10-23; account `EastwoodNo1` ✅ |
+| Official GitHub CLI `gh`, logged in as `EastwoodNo1` | `gh --version && gh auth status` | gh 2.103.0 (latest stable, 2026-10-21), provided by mise (`mise exec -- gh --version`). The Homebrew `gh` may remain, but the project uses mise's; account `EastwoodNo1` ✅ |
 | `gh-stack` extension | `gh stack --version` | 0.2.1 ✅ (latest stable, released 2026-10-09), installed 2026-10-23. Task 7's `bootstrap.sh` still installs it when missing, for other machines |
 | git ≥ 2.36 | `git --version` | 2.56.0 ✅ |
 | GitHub Copilot CLI (optional; used only for the owner's own optional reviews, not required by any task) | `copilot --version` | 1.0.103 ✅ (latest stable, 2026-10-22), installed 2026-10-23 with `brew install --cask copilot-cli`, one of the methods on docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli. Needs a Copilot subscription and a one-time `/login` |
@@ -166,7 +167,7 @@ These are copied from the spec and apply to every task.
 - **Android:**
   - `applicationId` and `namespace` are `io.github.eastwoodno1.supersnake` **[owner-confirmed 2026-10-23; permanent once released]**
   - minSdk 31, compileSdk and targetSdk 37
-  - JVM toolchain 21
+  - JVM toolchain 25
   - Kotlin `allWarningsAsErrors = true`
   - no `INTERNET` permission
 - **Packages:**
@@ -183,6 +184,13 @@ These are copied from the spec and apply to every task.
   - both public
   - both names were verified free on 2026-10-22
 - **Gradle deprecations [owner-decided 2026-10-23]:** wherever this plan says `--warning-mode=fail`, run the command through `scripts/gradle-strict.sh` instead. AGP 9.4.1, the latest stable, emits one deprecation (`Configuration.setVisible(boolean)`, from `BasePlugin.createAndroidJdkImageConfiguration`), so `--warning-mode=fail` fails every cold build. The script allows exactly that message and fails on any other deprecation. Remove the allowlist when a stable AGP no longer emits it.
+
+- **Tools via mise [owner-decided 2026-10-23]:**
+  - Dev tools (JDK, gh) are installed and run through mise, not system installs.
+  - Every tool is SHA-pinned in a committed `mise.lock` and installs only with `mise install --locked`. Provenance is verified where mise can: gh via GitHub attestations. Temurin 25.0.5+8 is SHA pin only (GPG-signed, which mise can't verify for Java), cross-checked against the Adoptium API and the `.sha256.txt` assets.
+  - The Android SDK stays outside mise (vfox-android-sdk has 4 stars and skips checksums; sdkmanager checks SHA-1).
+  - Every Gradle and gh command runs under mise: an activated shell or `mise exec --`.
+  - Ruling R9: CI installs the same pinned mise, with its release archive SHA-256 pinned, and runs `mise install --locked` instead of `actions/setup-java`.
 
 ## Review Focus
 
@@ -774,7 +782,7 @@ These are copied from the spec and apply to every task.
 **Interfaces:**
 - Consumes: Gradle tasks `checkNoComments`, `ktlintCheck`, `checkCommitMessage`, `check`.
 - Produces:
-  - `scripts/bootstrap.sh`: sets `core.hooksPath=.githooks`, checks JDK 21 and `gh`, and installs the `gh-stack` extension if missing
+  - `scripts/bootstrap.sh`: sets `core.hooksPath=.githooks`, checks mise (at least 2026.10.18), runs `mise install --locked`, re-runs the Temurin SHA cross-check, checks the pinned Android SDK packages are installed, and installs the `gh-stack` extension through mise's `gh` if missing
   - `lib.sh` functions `is_main_checkout` and `on_main_branch`
 
 - [ ] **Step 1: Write `scripts/test-hooks.sh`**
@@ -853,7 +861,7 @@ These are copied from the spec and apply to every task.
   - **Triggers:** `pull_request` and `push` to `main`. Top-level `permissions: {}`.
   - **Job `checks`** (`contents: read`), steps:
     1. checkout
-    2. setup-java (temurin 21)
+    2. install the pinned mise per Ruling R9 (release archive SHA-256 pinned), then `mise install --locked`
     3. `gradle/actions/setup-gradle` with `cache-provider: basic`
     4. `./gradlew check checkNoComments checkWorkflows checkReleaseManifest --warning-mode=fail`
     5. `./gradlew -p build-logic/checks check koverVerify`
@@ -965,7 +973,7 @@ These are copied from the spec and apply to every task.
 - `README.md` contains:
   - what SuperSnake is
   - the four purposes
-  - the toolchain (JDK 21, Android SDK 37, `gh` with `gh-stack`)
+  - the toolchain (JDK 25 via mise, Android SDK 37, `gh` with `gh-stack`)
   - a quick start: `scripts/bootstrap.sh`, then `./gradlew check`
 
 **Steps:**

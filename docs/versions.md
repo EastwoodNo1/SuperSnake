@@ -3,7 +3,9 @@
 | Item | Version | Release date | Source | Verified on |
 |------|---------|--------------|--------|-------------|
 | Gradle | 9.8.2 (distribution SHA-256 `21bd5da2de49b642904077f38c0efdc7778e92b3ed0889392dca61b97e389607`) | 2026-10-19 | https://services.gradle.org/versions/current | 2026-10-23 |
-| JDK toolchain | Temurin 21.0.12.1 (toolchain 21) | n/a | `java -version` line: openjdk version "21.0.12.1" 2026-08-18 LTS (Temurin-21.0.12.1+1) | 2026-10-23 |
+| JDK toolchain | Temurin 25.0.5+8 (toolchain 25), installed via mise | 2026-10-22 | https://github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8 | 2026-10-23 |
+| mise | 2026.10.18 | 2026-10-23 | https://github.com/jdx/mise/releases/tag/v2026.10.18 | 2026-10-23 |
+| gh | 2.103.0 (via `aqua:cli/cli`) | 2026-10-21 | https://github.com/cli/cli/releases/tag/v2.103.0 | 2026-10-23 |
 | AGP | 9.4.1 | 2026-09-18 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-23 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
@@ -14,6 +16,23 @@
 | ktlint | 1.8.0 | 2025-11-14 | https://repo1.maven.org/maven2/com/pinterest/ktlint/ktlint-cli/maven-metadata.xml | 2026-10-23 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
+
+## Tool pinning
+
+- `mise.toml` pins every dev tool to an exact version. `mise.lock` records the download URL and SHA-256 of each tool for each platform. Install only with `mise install --locked`, which fails when the lock has no matching entry.
+- Locked platforms: macos-arm64, linux-x64, linux-arm64. Adoptium publishes no macOS x64 build of Temurin 25.0.5+8, so macos-x64 is not locked for Java.
+- gh: provenance is `github-attestations`, recorded in `mise.lock` and verified by mise at install time.
+- Temurin: SHA pin only. The release is GPG-signed and mise can't verify GPG signatures for Java. Each locked checksum was cross-checked against two sources:
+  - Adoptium API: https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-25.0.5%2B8?image_type=jdk&jvm_impl=hotspot&project=jdk
+  - the release's `.sha256.txt` asset: https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/<archive name>.sha256.txt
+
+| Platform | Archive | SHA-256 (lock, API and .sha256.txt agree) |
+|----------|---------|-------------------------------------------|
+| macos-arm64 | OpenJDK25U-jdk_aarch64_mac_hotspot_25.0.5_8.tar.gz | `36dc14d797aaff6d89aab302cd053fdba6207dfdcf772052fa7b023a94b0e857` |
+| linux-x64 | OpenJDK25U-jdk_x64_linux_hotspot_25.0.5_8.tar.gz | `68982529869257d0ee6b824ec5aa270ff8b118bb438670da0b97ebdab178d7fb` |
+| linux-arm64 | OpenJDK25U-jdk_aarch64_linux_hotspot_25.0.5_8.tar.gz | `bb5b2ded252f21c6090cf780b0a408ad0d83bbb557e702955643557f13231880` |
+
+- Android SDK stays outside mise: the only backend, vfox-android-sdk, has 4 stars and skips checksums. Google doesn't sign SDK packages, and sdkmanager checks SHA-1.
 
 ## Known issues
 

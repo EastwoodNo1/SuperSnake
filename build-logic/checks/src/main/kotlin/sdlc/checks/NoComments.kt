@@ -80,6 +80,10 @@ private fun scanKotlin(
                 skipKotlinChar(scan)
             }
 
+            c == '`' -> {
+                skipKotlinBacktick(scan)
+            }
+
             c == '{' -> {
                 depth++
                 scan.advance()
@@ -148,6 +152,12 @@ private fun skipKotlinString(
         }
     }
     scan.advance(terminator.length)
+}
+
+private fun skipKotlinBacktick(scan: Scan) {
+    scan.advance()
+    while (!scan.atEnd && scan.text[scan.pos] != '`' && scan.text[scan.pos] != '\n') scan.advance()
+    if (!scan.atEnd && scan.text[scan.pos] == '`') scan.advance()
 }
 
 private fun skipKotlinChar(scan: Scan) {

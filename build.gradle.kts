@@ -21,7 +21,7 @@ val noCommentsExtensions = setOf("kt", "kts", "xml", "toml", "yml", "yaml", "sh"
 val trackedFiles =
     providers
         .exec {
-            commandLine("git", "ls-files", "-co", "--exclude-standard")
+            commandLine("git", "ls-files", "-z", "-co", "--exclude-standard")
         }.standardOutput.asText
 
 val checkNoComments =
@@ -35,7 +35,8 @@ val checkNoComments =
             listOf("no-comments") +
                 trackedFiles
                     .get()
-                    .lines()
+                    .split('\u0000')
+                    .filter { it.isNotEmpty() }
                     .filter { it.substringAfterLast('.', "") in noCommentsExtensions }
                     .filter { root.file(it).asFile.isFile },
         )

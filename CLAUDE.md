@@ -46,3 +46,15 @@ The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1
 - `android-sdlc:sdlc-rules`: the workflow, the evidence rule, dependencies, versions, Dependabot, releases.
 
 The templates in the plugin are copies of this repo's files. After changing a file they copy, update the plugin repo and run its `scripts/verify-templates.sh <path to this repo>`: it must print `0 drift`. `CONTRIBUTING.md` stays the human-readable source.
+
+### Install the plugin once per machine
+
+Project settings declare the plugin but do not install it. Run these once from the repo root (the commands are pinned to `v0.1.0`):
+
+```sh
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.0 --scope project
+claude plugin install android-sdlc@android-sdlc-skills --scope project
+claude plugin list
+```
+
+Accept the workspace trust prompt the first time you open the folder in Claude Code, because `.claude/settings.json` is only honored in a trusted folder. `claude plugin list` must show `android-sdlc@android-sdlc-skills`, `Version: 0.1.0`, `Status: ✔ enabled`. A newer plugin version is adopted by changing the `ref` in `.claude/settings.json` in a PR.

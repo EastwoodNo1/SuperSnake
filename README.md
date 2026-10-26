@@ -15,7 +15,7 @@ A neon, classic Snake game for Android phones and tablets (minSdk 31). The rules
 |------|---------|---------------------|
 | mise | 2026.10.18 or newer | `curl -fsSL https://mise.run \| sh` |
 | JDK | Temurin 25.0.5+8 | `mise install --locked` (SHA-pinned, cross-checked against Adoptium by bootstrap) |
-| `gh` | 2.103.0 | `mise install --locked` (SHA-pinned, attestation-checked) |
+| `gh` | 2.103.2 | `mise install --locked` (SHA-pinned, attestation-checked) |
 | zizmor | 1.31.1 | `mise install --locked` (SHA-pinned, attestation-checked) |
 | `gh-stack` extension | v0.2.1 | `scripts/bootstrap.sh` |
 | Android SDK | platform `android-37.0`, build-tools `37.0.0`, cmdline-tools `23.0` | Android Studio or `sdkmanager`, outside mise |
@@ -39,6 +39,18 @@ scripts/bootstrap.sh
 `scripts/bootstrap.sh` sets `core.hooksPath=.githooks`, checks the mise version, the Temurin checksum and the Android SDK packages, runs `mise install --locked` and installs `gh-stack`. It prints `hooks installed` once the hooks are active.
 
 Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails on any Gradle deprecation except one allowlisted AGP 9.4.1 message.
+
+### Claude Code plugin (once per machine)
+
+The SDLC skills come from the `android-sdlc` plugin. `.claude/settings.json` declares it, but each contributor installs it once:
+
+```sh
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.0 --scope project
+claude plugin install android-sdlc@android-sdlc-skills --scope project
+claude plugin list
+```
+
+Accept the workspace trust prompt when you open the folder in Claude Code. `claude plugin list` must show `android-sdlc@android-sdlc-skills` as `✔ enabled`.
 
 ## Contributing
 

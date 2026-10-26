@@ -643,12 +643,14 @@ These are copied from the spec and apply to every task.
   | `fixup!` | `fixup! feat: x` | CI | error contains `autosquash` |
   | Breaking change | `feat!: x` + body | — | `[]` |
 
-  `CommitMessageTest` title rows (`validateTitle` applies the header rules only: type list, 72 characters, no `Revert "`, no `fixup!`):
+  `CommitMessageTest` title rows (`validateTitle` applies the header rules only: type list, 64 characters so that GitHub's squash suffix ` (#NNNNN)` keeps the subject within 72, no `Revert "`, no `fixup!`):
 
   | Case | Title | Expected |
   |------|-------|----------|
   | Valid title | `feat(domain): add x` | `[]` |
   | Invalid title | `Feat: x` | error contains `type must be one of` |
+  | 64-character title | `feat: ` + 58 × `x` | `[]` |
+  | 65-character title | `feat: ` + 59 × `x` | error contains `64` |
 
   `PullRequestBodyTest`:
 
@@ -657,6 +659,7 @@ These are copied from the spec and apply to every task.
   | Valid | contains `Closes #12` and `## Evidence` followed by a fenced block | — | `[]` |
   | No issue link | no `Closes #n` | none | error `link an issue` |
   | Dependabot | no `Closes #n` | `dependencies` | no link error |
+  | Heading inside a fence | Evidence fenced block contains the line `## main...origin/main` | — | `[]` |
   | Template placeholder | Evidence section contains only the placeholder text from `.github/pull_request_template.md` | — | error `Evidence` |
   | Missing Evidence | no Evidence heading | — | error `Evidence` |
 

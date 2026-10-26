@@ -9,6 +9,7 @@ object CommitMessage {
     private val header = Regex("^(${types.joinToString("|")})(\\([a-z0-9-]+\\))?!?: \\S.*$")
     private val trailer = Regex("^[A-Za-z]+(-[A-Za-z]+)+: .+$")
     private const val MAX_HEADER = 72
+    private const val MAX_TITLE = 64
     private const val FIXUP = "fixup! "
     private const val DEFAULT_REVERT = "Revert \""
 
@@ -42,9 +43,12 @@ object CommitMessage {
         }
     }
 
-    fun validateTitle(title: String) = headerErrors(title.trim())
+    fun validateTitle(title: String) = headerErrors(title.trim(), MAX_TITLE)
 
-    private fun headerErrors(head: String): List<String> =
+    private fun headerErrors(
+        head: String,
+        limit: Int = MAX_HEADER,
+    ): List<String> =
         when {
             head.startsWith(DEFAULT_REVERT) -> {
                 listOf("use \"revert:\" (for example revert: add x), not the default Revert \"...\" message")
@@ -56,7 +60,7 @@ object CommitMessage {
 
             else -> {
                 buildList {
-                    if (head.length > MAX_HEADER) add("header is ${head.length} characters, the limit is $MAX_HEADER")
+                    if (head.length > limit) add("header is ${head.length} characters, the limit is $limit")
                     if (!header.matches(head)) {
                         add("type must be one of ${types.joinToString(", ")}, in the form type(scope)!: description")
                     }

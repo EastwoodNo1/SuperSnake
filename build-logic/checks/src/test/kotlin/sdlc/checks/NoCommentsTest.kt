@@ -230,4 +230,24 @@ class NoCommentsTest {
         assertEquals(emptyList<Int>(), lines("Makefile", "# x"))
         assertEquals(emptyList<Int>(), lines("dir.kt/Makefile", "# x"))
     }
+
+    @Test
+    fun backtickIdentifierWithApostropheDoesNotHideALaterComment() {
+        assertEquals(listOf(1), kotlin("fun `doesn't throw`() {} // x"))
+    }
+
+    @Test
+    fun commentMarkerInsideBacktickIdentifierIsNotAComment() {
+        assertEquals(emptyList(), kotlin("fun `a // b`() {}"))
+    }
+
+    @Test
+    fun unterminatedBacktickEndsAtTheLine() {
+        assertEquals(listOf(2), kotlin("val a = `b\nval c = 1 // x"))
+    }
+
+    @Test
+    fun unterminatedBacktickEndsAtEndOfFile() {
+        assertEquals(emptyList(), kotlin("val a = `b"))
+    }
 }

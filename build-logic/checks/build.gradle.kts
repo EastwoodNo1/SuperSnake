@@ -23,6 +23,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    systemProperty("repoRoot", projectDir.resolve("../..").canonicalPath)
 }
 
 kover {

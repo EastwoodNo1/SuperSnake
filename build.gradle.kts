@@ -21,7 +21,7 @@ val noCommentsExtensions = setOf("kt", "kts", "xml", "toml", "yml", "yaml", "sh"
 val trackedFiles =
     providers
         .exec {
-            commandLine("git", "ls-files", "-co", "--exclude-standard")
+            commandLine("git", "ls-files", "-z", "-co", "--exclude-standard")
         }.standardOutput.asText
 
 val checkNoComments =
@@ -35,11 +35,71 @@ val checkNoComments =
             listOf("no-comments") +
                 trackedFiles
                     .get()
-                    .lines()
+                    .split('\u0000')
+                    .filter { it.isNotEmpty() }
                     .filter { it.substringAfterLast('.', "") in noCommentsExtensions }
                     .filter { root.file(it).asFile.isFile },
         )
     }
+
+class ProvidedArguments(
+    @get:Input val arguments: Provider<List<String>>,
+) : CommandLineArgumentProvider {
+    override fun asArguments(): Iterable<String> = arguments.get()
+}
+
+fun registerCheck(
+    name: String,
+    summary: String,
+    arguments: Provider<List<String>>,
+) = tasks.register<JavaExec>(name) {
+    group = "verification"
+    description = summary
+    classpath = checks
+    mainClass = "sdlc.checks.CliKt"
+    argumentProviders.add(ProvidedArguments(arguments))
+}
+
+fun property(name: String) = providers.gradleProperty(name)
+
+registerCheck(
+    "checkCommitMessage",
+    "Validates one commit message file (-PmessageFile).",
+    property("messageFile").map { listOf("commit-message", it) },
+)
+
+registerCheck(
+    "checkCommitMessages",
+    "Validates NUL-separated commit messages (-PmessagesFile).",
+    property("messagesFile").map { listOf("commit-messages", it) },
+)
+
+val checkPullRequestTitle =
+    registerCheck(
+        "checkPullRequestTitle",
+        "Validates the PR title (-PtitleFile).",
+        property("titleFile").map { listOf("pr-title", it) },
+    )
+
+val checkPullRequestBody =
+    registerCheck(
+        "checkPullRequestBody",
+        "Validates the PR body (-PbodyFile, -PlabelsFile).",
+        property("bodyFile").zip(property("labelsFile")) { body, labels -> listOf("pr-body", body, labels) },
+    )
+
+val checkTestsChanged =
+    registerCheck(
+        "checkTestsChanged",
+        "Requires test changes beside production changes (-PpathsFile).",
+        property("pathsFile").map { listOf("tests-changed", it, "domain", "data") },
+    )
+
+tasks.register("checkPullRequest") {
+    group = "verification"
+    description = "Runs the PR title, body and tests-changed checks."
+    dependsOn(checkPullRequestTitle, checkPullRequestBody, checkTestsChanged)
+}
 
 tasks.named("check") {
     dependsOn(checkNoComments)

@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "SuperSnake"
 include(":app")
 include(":domain")
+includeBuild("build-logic/checks")

@@ -39,4 +39,10 @@ The full list is in the plan's Global Constraints, the spec and `CONTRIBUTING.md
 
 ## Skills
 
-The SDLC skills (CI, git hooks and the rules) come from the separate plugin repo, which is installed in Task 10 of Plan 1. Until then, `CONTRIBUTING.md` is the source for the workflow. The skill names the spec plans are `android-ci`, `git-hooks` and `sdlc-rules` (spec §10); they are calls and may change.
+The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1/android-sdlc-skills` at tag `v0.1.0` through `.claude/settings.json`. Use them:
+
+- `android-sdlc:git-hooks`: hooks, `scripts/bootstrap.sh`, `scripts/test-hooks.sh`.
+- `android-sdlc:android-ci`: workflows, mise pins, Dependabot, `build-logic/checks`, repo settings. It re-verifies every pin before use.
+- `android-sdlc:sdlc-rules`: the workflow, the evidence rule, dependencies, versions, Dependabot, releases.
+
+The templates in the plugin are copies of this repo's files. After changing a file they copy, update the plugin repo and run its `scripts/verify-templates.sh <path to this repo>`: it must print `0 drift`. `CONTRIBUTING.md` stays the human-readable source.

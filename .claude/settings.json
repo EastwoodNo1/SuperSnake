@@ -1,0 +1,14 @@
+{
+  "enabledPlugins": {
+    "android-sdlc@android-sdlc-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "android-sdlc-skills": {
+      "source": {
+        "source": "github",
+        "repo": "EastwoodNo1/android-sdlc-skills",
+        "ref": "v0.1.0"
+      }
+    }
+  }
+}

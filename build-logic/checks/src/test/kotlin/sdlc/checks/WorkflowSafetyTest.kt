@@ -96,6 +96,20 @@ class WorkflowSafetyTest {
     }
 
     @Test
+    fun quotedPinnedActionIsAccepted() {
+        assertEquals(emptyList(), scan("uses: \"actions/checkout@$sha\"\n"))
+        assertEquals(emptyList(), scan("uses: 'actions/checkout@$sha'\n"))
+    }
+
+    @Test
+    fun quotedLocalActionIsExempt() {
+        assertEquals(emptyList(), scan("uses: './x'\n"))
+    }
+
+    @Test
+    fun quotedUnpinnedActionIsFlagged() = assertOne("pin to a full commit SHA", 2, "uses: \"actions/checkout@v7\"\n")
+
+    @Test
     fun localActionsAreExempt() {
         assertEquals(emptyList(), scan("uses: ./.github/actions/setup\n"))
     }

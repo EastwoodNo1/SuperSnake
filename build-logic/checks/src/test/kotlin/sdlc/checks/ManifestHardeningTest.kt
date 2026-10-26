@@ -106,9 +106,67 @@ class ManifestHardeningTest {
         assertEquals(emptyList(), ManifestHardening.validate(manifest(components = launcher + extra)))
     }
 
+    private val profileReceiver = "androidx.profileinstaller.ProfileInstallReceiver"
+
+    private fun receiver(
+        name: String,
+        permission: String,
+    ) = """<receiver android:name="$name" android:exported="true" android:permission="$permission" />"""
+
     @Test
-    fun exportedComponentGuardedByAPermissionIsAccepted() {
-        val extra = """<receiver android:name=".R" android:exported="true" android:permission="android.permission.DUMP" />"""
+    fun allowlistedReceiverWithItsRequiredPermissionIsAccepted() {
+        val extra = receiver(profileReceiver, "android.permission.DUMP")
+        assertEquals(emptyList(), ManifestHardening.validate(manifest(components = launcher + extra)))
+    }
+
+    @Test
+    fun allowlistedReceiverWithAnotherPermissionIsRejected() {
+        val extra = receiver(profileReceiver, "android.permission.VIBRATE")
+        assertOneError("exported", manifest(components = launcher + extra))
+    }
+
+    @Test
+    fun otherReceiverWithTheDumpPermissionIsRejected() {
+        val extra = receiver("com.example.Other", "android.permission.DUMP")
+        assertOneError("exported", manifest(components = launcher + extra))
+    }
+
+    @Test
+    fun exportedProviderWithReadAndWritePermissionsIsRejected() {
+        val extra =
+            """
+            <provider android:name=".P" android:exported="true"
+                android:readPermission="android.permission.DUMP"
+                android:writePermission="android.permission.DUMP" />
+            """.trimIndent()
+        assertOneError("exported", manifest(components = launcher + extra))
+    }
+
+    @Test
+    fun exportedServiceWithLauncherFilterIsRejected() {
+        val extra =
+            """
+            <service android:name=".S" android:exported="true">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+            </service>
+            """.trimIndent()
+        assertOneError("exported", manifest(components = launcher + extra))
+    }
+
+    @Test
+    fun exportedActivityAliasWithLauncherFilterIsAccepted() {
+        val extra =
+            """
+            <activity-alias android:name=".Alias" android:targetActivity=".Main" android:exported="true">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+            </activity-alias>
+            """.trimIndent()
         assertEquals(emptyList(), ManifestHardening.validate(manifest(components = launcher + extra)))
     }
 

@@ -23,11 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - language: java-kotlin
-            build-mode: manual
-          - language: actions
-            build-mode: none
+        language: [java-kotlin, actions]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -61,7 +57,7 @@ jobs:
       - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
         with:
           languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
+          build-mode: ${{ matrix.language == 'java-kotlin' && 'manual' || 'none' }}
       - if: matrix.language == 'java-kotlin'
         name: Build
         run: mise exec -- ./gradlew --no-daemon --no-build-cache --no-configuration-cache assembleDebug

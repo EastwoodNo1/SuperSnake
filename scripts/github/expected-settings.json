@@ -1,0 +1,39 @@
+{
+  "repo": {
+    "allow_rebase_merge": true,
+    "allow_squash_merge": false,
+    "allow_merge_commit": false,
+    "delete_branch_on_merge": true,
+    "secret_scanning": "enabled",
+    "secret_scanning_push_protection": "enabled"
+  },
+  "dependabot_alerts": true,
+  "private_vulnerability_reporting": true,
+  "workflow_permissions": {
+    "default_workflow_permissions": "read",
+    "can_approve_pull_request_reviews": false
+  },
+  "fork_pr_approval": {
+    "approval_policy": "all_external_contributors"
+  },
+  "ruleset": {
+    "name": "main-protection",
+    "target": "branch",
+    "enforcement": "active",
+    "bypass_actors": [],
+    "include": ["~DEFAULT_BRANCH"],
+    "exclude": [],
+    "rule_types": ["deletion", "non_fast_forward", "pull_request", "required_linear_history"],
+    "pull_request": {
+      "required_approving_review_count": 0,
+      "required_review_thread_resolution": true,
+      "dismiss_stale_reviews_on_push": false,
+      "require_code_owner_review": false,
+      "require_last_push_approval": false,
+      "allowed_merge_methods": ["rebase"]
+    }
+  },
+  "label": {
+    "name": "dependencies"
+  }
+}

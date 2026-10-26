@@ -443,8 +443,8 @@ These are copied from the spec and apply to every task.
   - Then prove the gate bites: temporarily add an untested branch to `Direction`, run `koverVerify`, and paste the FAILED output. Revert the branch.
 
 - [ ] **Step 6: Add ktlint without a third-party Gradle plugin**
-  - In `gradle/ktlint.gradle.kts`, add a `ktlint` configuration that depends on `com.pinterest.ktlint:ktlint-cli:1.8.0`.
-  - `ktlintCheck` is a `JavaExec` with `mainClass = "com.pinterest.ktlint.Main"` and args `"**/*.kt" "**/*.kts" "!**/build/**"`.
+  - In `gradle/ktlint.gradle.kts`, add a `ktlint` configuration that depends on `libs.versions.toml`'s `ktlint-cli` library (version `ktlint`, 1.8.0).
+  - `ktlintCheck` is a `JavaExec` with `mainClass = "com.pinterest.ktlint.Main"` and, as args, the `.kt` and `.kts` files that exist in the `git ls-files -z -co --exclude-standard` list shared with `checkNoComments` (explicit relative paths, so ktlint never walks `build/` directories). The `--sun-misc-unsafe-memory-access=allow` jvmArg is defined once.
   - `ktlintFormat` is the same task plus `-F`.
   - `.editorconfig`: `root = true`, then `[*.{kt,kts}]` with `ktlint_code_style = ktlint_official`.
   - Wire `ktlintCheck` into `check`.

@@ -21,13 +21,19 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_25
         targetCompatibility = JavaVersion.VERSION_25
+    }
+    lint {
+        warningsAsErrors = true
+        abortOnError = true
+        checkDependencies = true
+        disable += "NewerVersionAvailable"
     }
     buildFeatures {
         compose = true

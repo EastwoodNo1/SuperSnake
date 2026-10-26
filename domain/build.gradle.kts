@@ -1,5 +1,8 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -18,4 +21,15 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+kover {
+    reports {
+        verify {
+            rule {
+                minBound(100, CoverageUnit.LINE)
+                minBound(100, CoverageUnit.BRANCH)
+            }
+        }
+    }
 }

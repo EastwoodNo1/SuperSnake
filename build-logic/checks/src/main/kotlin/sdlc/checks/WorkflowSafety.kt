@@ -32,7 +32,7 @@ object WorkflowSafety {
             if ((inBlock || run != null) && eventData.containsMatchIn(line)) {
                 findings += Finding(path, number, "pass event data through env, never interpolate it in run")
             }
-            val action = usesValue.find(line)?.let { it.groupValues[1] }
+            val action = usesValue.find(line)?.let { it.groupValues[1].trim('"', '\'') }
             if (action != null && !action.startsWith("./") && !pinned.containsMatchIn(action)) {
                 findings += Finding(path, number, "pin to a full commit SHA: $action")
             }

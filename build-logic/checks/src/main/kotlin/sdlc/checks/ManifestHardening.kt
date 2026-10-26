@@ -12,6 +12,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 object ManifestHardening {
     private const val ANDROID = "http://schemas.android.com/apk/res/android"
     private val permissionTags = listOf("uses-permission", "uses-permission-sdk-23")
+    private val launcherTags = listOf("activity", "activity-alias")
+    private val guardedExports =
+        setOf("androidx.profileinstaller.ProfileInstallReceiver" to "android.permission.DUMP")
     private val componentTags = listOf("activity", "activity-alias", "service", "receiver", "provider")
 
     fun validate(mergedManifestXml: String): List<String> {
@@ -56,14 +59,17 @@ object ManifestHardening {
     private fun componentErrors(root: Element) =
         componentTags
             .flatMap { root.getElementsByTagName(it).elements() }
-            .filter { it.android("exported") == "true" && it.android("permission").isEmpty() && !isLauncher(it) }
+            .filter { it.android("exported") == "true" && !isGuardedExport(it) && !isLauncher(it) }
             .map { "${it.tagName} ${it.android("name")} is exported without being the launcher" }
 
+    private fun isGuardedExport(component: Element) = (component.android("name") to component.android("permission")) in guardedExports
+
     private fun isLauncher(component: Element) =
-        component.getElementsByTagName("intent-filter").elements().any { filter ->
-            "android.intent.action.MAIN" in filter.names("action") &&
-                "android.intent.category.LAUNCHER" in filter.names("category")
-        }
+        component.tagName in launcherTags &&
+            component.getElementsByTagName("intent-filter").elements().any { filter ->
+                "android.intent.action.MAIN" in filter.names("action") &&
+                    "android.intent.category.LAUNCHER" in filter.names("category")
+            }
 
     private fun Element.names(tag: String) = getElementsByTagName(tag).elements().map { it.android("name") }
 

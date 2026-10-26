@@ -43,7 +43,7 @@ Every rule is machine-enforced. CI re-runs everything the hooks run, so `--no-ve
 | Conventional Commits | `commit-msg` runs `:checkCommitMessage` | `pr-rules`: `:checkCommitMessages` over all PR commits, and the PR title check | none |
 | No comments in source | pre-commit runs `:checkNoComments` | `checks` runs it as part of `check` | none |
 | Formatting and static analysis | pre-commit runs `:ktlintCheck` | `checks`: Android Lint and ktlint with zero issues, Kotlin warnings as errors | none |
-| Tests pass, 100% line and branch coverage on `:domain` and `build-logic/checks` | pre-push runs strict `check` | `checks` | none |
+| Tests pass, 100% line and branch coverage on `:domain` (`:data` once it exists) and on `build-logic/checks` | pre-push runs strict `check`, which covers `:domain` | `checks` runs strict `check`, and `:checks:check :checks:koverVerify` for `build-logic/checks` | none |
 | Dependency integrity | none | Gradle dependency verification (`gradle/verification-metadata.xml`) and wrapper validation | none |
 | Security scanning | none | `analyze (java-kotlin)` and `analyze (actions)` (CodeQL) | Secret scanning with push protection, Dependabot alerts |
 | Manifest hardening | none | `checks` runs `:checkReleaseManifest` on the merged release manifest | none |

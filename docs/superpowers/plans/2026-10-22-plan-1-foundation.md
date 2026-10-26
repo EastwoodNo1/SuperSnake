@@ -124,6 +124,7 @@ The spec covers four separable deliverables. Each gets its own plan, written whe
    - `android-ci` skill gains the UI-test job.
 4. **Release.**
    - Signing key (ADR-0005), tag ruleset, `release` environment, immutable releases, release workflow with attestation, `docs/release.md`, first `v1.0.0`.
+   - release-please with a GitHub App token (owner decision 2026-10-26, spec §8): the owner creates the App (contents and pull-requests write, this repo only) and stores its ID and private key as secrets in the `release` environment. Builder adds the release-please config and manifest files, the version mechanism that keeps `versionCode` deterministic, and an ADR.
    - `android-ci` skill gains the release workflow.
 
 ## Global Constraints
@@ -162,7 +163,7 @@ These are copied from the spec and apply to every task.
   | zizmor | 1.31.1 |
 
   If a newer **stable** version exists on the day a task adds a dependency, re-verify, use it (Kotlin only up to the CodeQL-supported maximum), and record it in `docs/versions.md` with source URL and date.
-- **Third-party:** nothing beyond ktlint, zizmor (owner-approved 2026-10-23, §6 evidence in the spec) and `ReactiveCircus/android-emulator-runner` (Plan 3). No Gradle plugins other than AGP, Kotlin and Kover. The scaffold's `org.gradle.toolchains.foojay-resolver-convention` is removed.
+- **Third-party:** nothing beyond ktlint, zizmor (owner-approved 2026-10-23, §6 evidence in the spec), `ReactiveCircus/android-emulator-runner` (Plan 3) and `googleapis/release-please-action` (Plan 4, owner-approved 2026-10-26, §6 evidence in the spec). No Gradle plugins other than AGP, Kotlin and Kover. The scaffold's `org.gradle.toolchains.foojay-resolver-convention` is removed.
 
 **Android**
 - **Android:**

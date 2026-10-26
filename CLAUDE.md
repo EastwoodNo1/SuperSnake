@@ -39,7 +39,7 @@ The full list is in the plan's Global Constraints, the spec and `CONTRIBUTING.md
 
 ## Skills
 
-The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1/android-sdlc-skills` at tag `v0.1.0` through `.claude/settings.json`. Use them:
+The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1/android-sdlc-skills` at tag `v0.1.1` through `.claude/settings.json`. Use them:
 
 - `android-sdlc:git-hooks`: hooks, `scripts/bootstrap.sh`, `scripts/test-hooks.sh`.
 - `android-sdlc:android-ci`: workflows, mise pins, Dependabot, `build-logic/checks`, repo settings. It re-verifies every pin before use.
@@ -49,12 +49,12 @@ The templates in the plugin are copies of this repo's files. After changing a fi
 
 ### Install the plugin once per machine
 
-Project settings declare the plugin but do not install it. Run these once from the repo root (the commands are pinned to `v0.1.0`):
+Project settings declare the plugin but do not install it. Run these once from the repo root (the commands are pinned to `v0.1.1`):
 
 ```sh
-claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.0 --scope project
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.1 --scope project
 claude plugin install android-sdlc@android-sdlc-skills --scope project
 claude plugin list
 ```
 
-Accept the workspace trust prompt the first time you open the folder in Claude Code, because `.claude/settings.json` is only honored in a trusted folder. `claude plugin list` must show `android-sdlc@android-sdlc-skills`, `Version: 0.1.0`, `Status: ✔ enabled`. A newer plugin version is adopted by changing the `ref` in `.claude/settings.json` in a PR.
+Accept the workspace trust prompt the first time you open the folder in Claude Code, because `.claude/settings.json` is only honored in a trusted folder. `claude plugin list` must show `android-sdlc@android-sdlc-skills`, `Version: 0.1.1`, `Status: ✔ enabled`. A newer plugin version is adopted by changing the `ref` in `.claude/settings.json` in a PR.

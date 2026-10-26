@@ -17,9 +17,11 @@ api() { gh api -H "X-GitHub-Api-Version: 2022-11-28" "$@"; }
 
 api -X PATCH "repos/$repo" --input - >/dev/null <<JSON
 {
-  "allow_rebase_merge": true,
-  "allow_squash_merge": false,
+  "allow_squash_merge": true,
+  "allow_rebase_merge": false,
   "allow_merge_commit": false,
+  "squash_merge_commit_title": "PR_TITLE",
+  "squash_merge_commit_message": "COMMIT_MESSAGES",
   "delete_branch_on_merge": true,
   "security_and_analysis": {
     "secret_scanning": {"status": "enabled"},
@@ -55,7 +57,7 @@ ruleset_body='{
       "dismiss_stale_reviews_on_push": false,
       "require_code_owner_review": false,
       "require_last_push_approval": false,
-      "allowed_merge_methods": ["rebase"]
+      "allowed_merge_methods": ["squash"]
     }}
   ]
 }'
@@ -94,6 +96,8 @@ actual="$(jq -n \
       allow_rebase_merge: $repo.allow_rebase_merge,
       allow_squash_merge: $repo.allow_squash_merge,
       allow_merge_commit: $repo.allow_merge_commit,
+      squash_merge_commit_title: $repo.squash_merge_commit_title,
+      squash_merge_commit_message: $repo.squash_merge_commit_message,
       delete_branch_on_merge: $repo.delete_branch_on_merge,
       secret_scanning: $repo.security_and_analysis.secret_scanning.status,
       secret_scanning_push_protection: $repo.security_and_analysis.secret_scanning_push_protection.status

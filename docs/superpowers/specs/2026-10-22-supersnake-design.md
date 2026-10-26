@@ -272,7 +272,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 | Work happens in a linked worktree | pre-commit refuses commits made in the main checkout (where `git rev-parse --git-dir` equals `--git-common-dir`). The main checkout stays on `main` and is only used for syncing | — | — |
 | Every PR links an issue | — | PR body must contain `Closes #n`, or the PR carries the `dependencies` label (Dependabot) | — |
 | Production changes come with tests | — | A PR that changes `src/main` in `:domain` or `:data` must also change `src/test` in that module | — |
-| Conventional Commits, with a body required for `feat`, `fix`, `refactor`, `perf` | `commit-msg` hook | Commit-message check over all PR commits | — |
+| Conventional Commits, with a body required for `feat`, `fix`, `refactor`, `perf` | `commit-msg` hook | Commit-message check over all PR commits; PR title header check | — |
 | No comments in source | `pre-commit` | A syntax-aware check (strings and URLs never count as comments) over `*.kt`, `*.kts`, `*.xml`, `*.toml`, `*.yml`/`*.yaml`, `*.sh`, `*.pro`, `*.properties`. Exceptions: none. Shebang lines are not comments | — |
 | Formatting and static analysis | `pre-commit` (changed files) | Android Lint + ktlint, zero issues, no baseline; Kotlin warnings as errors | — |
 | Tests pass; 100% line + branch coverage on `:domain` and `:data` | `pre-push` | Unit tests + `koverVerify` | — |

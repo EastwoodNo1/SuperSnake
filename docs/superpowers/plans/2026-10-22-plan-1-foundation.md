@@ -178,7 +178,7 @@ These are copied from the spec and apply to every task.
 
 **Process**
 - **Coverage:** 100% line and branch on `:domain` and `build-logic/checks`, with no exclusions. Any Kotlin code that holds a decision belongs in a gated module.
-- **From Task 2 on, every task gets its own GitHub issue and is done in its own worktree on a branch `<type>/<name>`.** It merges through a PR with rebase merge only, and the PR body contains `Closes #<issue>` and a filled `## Evidence` section.
+- **From Task 2 on, every task gets its own GitHub issue and is done in its own worktree on a branch `<type>/<name>`.** It merges through a PR with squash merge only; the PR title is a Conventional Commit header and becomes the subject on main. The PR body contains `Closes #<issue>` and a filled `## Evidence` section.
 - **GitHub:**
   - owner `EastwoodNo1` (the authenticated `gh` account)
   - repos `EastwoodNo1/SuperSnake` and `EastwoodNo1/android-sdlc-skills` **[owner-confirmed 2026-10-23]**
@@ -331,7 +331,8 @@ These are copied from the spec and apply to every task.
 
   It takes `<owner/repo>` and idempotently applies the settings below using `gh api`. Before writing each call, look up the endpoint in the GitHub REST docs and record the doc URL in the PR evidence.
   - **Repo settings:**
-    - `allow_rebase_merge=true`, `allow_squash_merge=false`, `allow_merge_commit=false`
+    - `allow_squash_merge=true`, `allow_rebase_merge=false`, `allow_merge_commit=false`
+    - `squash_merge_commit_title="PR_TITLE"`, `squash_merge_commit_message="COMMIT_MESSAGES"`
     - `delete_branch_on_merge=true`
     - secret scanning and push protection enabled
   - **Security features:**
@@ -345,7 +346,7 @@ These are copied from the spec and apply to every task.
     - `deletion`
     - `non_fast_forward`
     - `required_linear_history`
-    - `pull_request` with 0 required approvals, `required_review_thread_resolution: true`, `allowed_merge_methods: ["rebase"]`
+    - `pull_request` with 0 required approvals, `required_review_thread_resolution: true`, `allowed_merge_methods: ["squash"]`
     - required status checks are added in Task 8
   - **Label:** `dependencies`
 
@@ -374,9 +375,9 @@ These are copied from the spec and apply to every task.
   - Subject: `chore: add repo security policy, PR template and settings script`.
   - Open an issue, "Repo rules, security policy and PR template".
   - `gh pr create`, with a body containing `Closes #<that issue>` and the Evidence from Steps 3–4.
-  - `gh pr merge --rebase`.
+  - `gh pr merge --squash`. The PR title equals the commit subject.
 
-  Expected: merged. `git log origin/main --oneline` shows the commit with the same subject.
+  Expected: merged. `git log origin/main --oneline` shows one commit with the PR title as its subject, and its body holds the commit message.
 
 ---
 
@@ -468,7 +469,7 @@ These are copied from the spec and apply to every task.
   - `feat(domain): add Direction with opposite`
   - `build: add Kover 100% gate, ktlint CLI and strict Lint`
 
-  Merge via PR, with Evidence (Steps 4, 5, 6 and 8).
+  Merge via PR with `--squash`, with Evidence (Steps 4, 5, 6 and 8). The PR title is the first subject above.
 
 ---
 
@@ -611,18 +612,19 @@ These are copied from the spec and apply to every task.
 - Consumes: `Finding`, `Cli` from Task 4.
 - Produces:
   - `enum class CommitContext { LOCAL, CI }`
-  - `object CommitMessage { fun validate(message: String, context: CommitContext): List<String> }`
+  - `object CommitMessage { fun validate(message: String, context: CommitContext): List<String>; fun validateTitle(title: String): List<String> }`
   - `object PullRequestBody { fun validate(body: String, labels: Set<String>): List<String> }`
   - `object TestsChanged { fun validate(changedPaths: List<String>, gatedModules: Set<String>): List<String> }`
   - CLI subcommands:
     - `commit-message <file>` (LOCAL)
     - `commit-messages <file>` (CI; messages separated by `\u0000`)
     - `pr-body <bodyFile> <labelsFile>`
+    - `pr-title <titleFile>`
     - `tests-changed <pathsFile> <module...>`
   - Gradle tasks:
     - `checkCommitMessage -PmessageFile=`
     - `checkCommitMessages -PmessagesFile=`
-    - `checkPullRequest -PbodyFile= -PlabelsFile= -PpathsFile=`, which runs both `pr-body` and `tests-changed` with modules `domain`, `data`
+    - `checkPullRequest -PtitleFile= -PbodyFile= -PlabelsFile= -PpathsFile=`, which runs `pr-title`, `pr-body` and `tests-changed` with modules `domain`, `data`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -640,6 +642,13 @@ These are copied from the spec and apply to every task.
   | `fixup!` | `fixup! feat: x` | LOCAL | `[]` |
   | `fixup!` | `fixup! feat: x` | CI | error contains `autosquash` |
   | Breaking change | `feat!: x` + body | — | `[]` |
+
+  `CommitMessageTest` title rows (`validateTitle` applies the header rules only: type list, 72 characters, no `Revert "`, no `fixup!`):
+
+  | Case | Title | Expected |
+  |------|-------|----------|
+  | Valid title | `feat(domain): add x` | `[]` |
+  | Invalid title | `Feat: x` | error contains `type must be one of` |
 
   `PullRequestBodyTest`:
 
@@ -875,11 +884,12 @@ These are copied from the spec and apply to every task.
   - **Job `pr-rules`** (PRs only, `contents: read`, `pull-requests: read`):
     - checkout with `fetch-depth: 0`
     - write the inputs through `env:`, never inline:
+      - `PR_TITLE: ${{ github.event.pull_request.title }}` → `title.txt`
       - `PR_BODY: ${{ github.event.pull_request.body }}` → `body.txt`
       - labels via `gh pr view --json labels` → `labels.txt`
       - `git log -z --format=%B origin/$BASE..HEAD` → `messages.bin`
       - `git diff --name-only origin/$BASE...HEAD` → `paths.txt`
-    - run `checkCommitMessages` and `checkPullRequest`
+    - run `checkCommitMessages` and `checkPullRequest -PtitleFile=title.txt` with the other inputs
   - In job `checks`, also run `./gradlew :app:assembleRelease`, then `test -s app/build/outputs/mapping/release/mapping.txt`. This proves R8 ran (spec §7.2, manifest and build hardening).
   - **Workflow-level `concurrency`:** cancel in-progress runs for the same ref.
 
@@ -950,7 +960,7 @@ These are copied from the spec and apply to every task.
   - `docs/adr/0004-no-detekt.md`
   - `docs/adr/0005-signing-key.md`
   - `docs/adr/0006-kotlin-capped-by-codeql.md`
-  - `docs/adr/0007-rebase-merge-unsigned.md`
+  - `docs/adr/0007-squash-merge.md`
 
 **Interfaces:**
 - Consumes:

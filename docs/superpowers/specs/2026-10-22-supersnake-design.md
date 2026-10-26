@@ -282,7 +282,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 | Manifest and build hardening | — | Automated check on the merged release manifest and APK:<br>• no `INTERNET` permission<br>• `debuggable` false<br>• R8 on<br>• only the launcher activity exported<br>• `allowBackup` true, with `dataExtractionRules` and `fullBackupContent` that include only the DataStore files for high scores and settings | — |
 | 16 KB page-size support | — | `zipalign -c -P 16 -v 4` on the release APK passes (Play requirement from 2027-02-01; libGDX ships native `.so` files) | — |
 | Evidence section present and non-empty | — | PR body check | PR template |
-| Linear history, rebase merge only | — | — | Ruleset: require linear history; the only allowed merge method is rebase |
+| Linear history, squash merge only | — | — | Ruleset: require linear history; the only allowed merge method is squash |
 | Workflows are safe | — | A workflow lint check fails on:<br>• any `pull_request_target` or `workflow_run` trigger<br>• `${{ github.event.* }}` interpolated inside a `run:` script<br>• an action not pinned by full commit SHA<br>• a missing top-level `permissions: {}`<br>and zizmor (latest stable, pinned via mise) reports no findings | Fork PR workflows require approval for all outside contributors; default `GITHUB_TOKEN` permission is read-only |
 | Release tags are trustworthy | — | The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags. Immutable releases on. No "prevent self-review" setting, since solo |
 
@@ -341,7 +341,7 @@ Files in the SuperSnake repo **[call]**:
 | `CONTRIBUTING.md` | Humans | The SDLC flow and rules in §7, with how each is enforced |
 | `CLAUDE.md` | AI agents | Points to the plugin skills, and restates the evidence rule and the no-comments rule |
 | `docs/game-rules.md` | Both | §2, with sources |
-| `docs/adr/` | Both | One file per decision, plus one for each later decision:<br>• ADR-0001 stack<br>• ADR-0002 no KTX<br>• ADR-0003 no DI framework<br>• ADR-0004 no detekt<br>• ADR-0005 signing key<br>• ADR-0006 Kotlin version capped by CodeQL support<br>• ADR-0007 rebase merge and no required commit signatures |
+| `docs/adr/` | Both | One file per decision, plus one for each later decision:<br>• ADR-0001 stack<br>• ADR-0002 no KTX<br>• ADR-0003 no DI framework<br>• ADR-0004 no detekt<br>• ADR-0005 signing key<br>• ADR-0006 Kotlin version capped by CodeQL support<br>• ADR-0007 squash merge and no required commit signatures |
 | `SECURITY.md` | Everyone | How to report a vulnerability privately |
 | `docs/versions.md` | Both | Every version, with source URL and verification date |
 | `docs/release.md` | Owner | Signing key lifecycle, how to cut a release |
@@ -468,12 +468,13 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
   - `init` / `add` to build the stack
   - `submit` opens one PR per layer
   - `sync` / `rebase` to update
-  - `merge --rebase` merges the stack up to the selected PR, all or nothing
+  - `merge` merges the stack up to the selected PR, all or nothing, using the repo's squash method (flags verified when stacked PRs are first used)
   - Branch protection still applies to every PR in the stack.
-- **Merge method [call, ADR-0007]:** rebase merge only, with linear history required. Each commit and its why/what message survives on `main`. Squash would collapse them into the PR body.
-  - Consequence: GitHub rewrites commits on rebase merge, so their signatures are dropped (docs.github.com, "About merge methods on GitHub").
-  - Signed commits are therefore **not** required.
-  - Release integrity comes instead from the CI-only build, provenance attestation and immutable releases.
+- **Merge method [owner, 2026-10-26, ADR-0007]:** squash merge only, with linear history required.
+  - The PR title, a Conventional Commit header, becomes the subject on `main`.
+  - The commit messages of the PR become the body, keeping their why/what and trailers.
+  - Signed commits are still **not** required.
+  - Release integrity comes from the CI-only build, provenance attestation and immutable releases.
 
 ### Why no detekt (record as ADR-0004) **[owner]**
 

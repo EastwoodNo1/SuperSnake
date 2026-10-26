@@ -15,7 +15,7 @@ A neon, classic Snake game for Android phones and tablets (minSdk 31). The rules
 |------|---------|---------------------|
 | mise | 2026.10.18 or newer | `curl -fsSL https://mise.run \| sh` |
 | JDK | Temurin 25.0.5+8 | `mise install --locked` (SHA-pinned, cross-checked against Adoptium by bootstrap) |
-| `gh` | 2.103.0 | `mise install --locked` (SHA-pinned, attestation-checked) |
+| `gh` | 2.103.2 | `mise install --locked` (SHA-pinned, attestation-checked) |
 | zizmor | 1.31.1 | `mise install --locked` (SHA-pinned, attestation-checked) |
 | `gh-stack` extension | v0.2.1 | `scripts/bootstrap.sh` |
 | Android SDK | platform `android-37.0`, build-tools `37.0.0`, cmdline-tools `23.0` | Android Studio or `sdkmanager`, outside mise |

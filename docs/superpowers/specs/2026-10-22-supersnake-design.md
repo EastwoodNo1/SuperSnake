@@ -416,7 +416,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 - Dev tools are installed and run through mise (2026.10.18), not system installs.
 - Every tool mise installs is SHA-pinned in a committed `mise.lock` and installs only in locked mode (`mise install --locked`). Signature or provenance is verified wherever mise can.
 - Java is Eclipse Temurin 25.0.5+8 from `github:adoptium/temurin25-binaries` (tag `jdk-25.0.5+8`). mise's built-in `core:java` catalog lags. Temurin is GPG-signed only and mise can't verify GPG for Java, so it is SHA pin only, cross-checked against the Adoptium API and the release's `.sha256.txt` assets.
-- gh 2.103.0 comes from `aqua:cli/cli`, and its lock entries record `provenance = "github-attestations"`.
+- gh 2.103.2 comes from `aqua:cli/cli`, and its lock entries record `provenance = "github-attestations"`.
 - zizmor (latest stable, v1.31.1 on 2026-10-23) comes from `aqua:zizmorcore/zizmor`, and its lock entries record per-platform sha256 checksums with `provenance = "github-attestations"`.
 - The Android SDK stays outside mise: the only backend, vfox-android-sdk, has 4 stars and skips checksums. Google doesn't sign SDK packages, and sdkmanager checks SHA-1.
 - Locked platforms are macos-arm64, linux-x64 and linux-arm64. Intel macOS is unsupported because Adoptium publishes no macOS x64 JDK 25.0.5+8.

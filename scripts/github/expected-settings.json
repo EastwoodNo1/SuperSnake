@@ -25,7 +25,7 @@
     "bypass_actors": [],
     "include": ["~DEFAULT_BRANCH"],
     "exclude": [],
-    "rule_types": ["deletion", "non_fast_forward", "pull_request", "required_linear_history"],
+    "rule_types": ["deletion", "non_fast_forward", "pull_request", "required_linear_history", "required_status_checks"],
     "pull_request": {
       "required_approving_review_count": 0,
       "required_review_thread_resolution": true,
@@ -33,6 +33,15 @@
       "require_code_owner_review": false,
       "require_last_push_approval": false,
       "allowed_merge_methods": ["squash"]
+    },
+    "required_status_checks": {
+      "strict_required_status_checks_policy": true,
+      "required_status_checks": [
+        {"context": "analyze (actions)", "integration_id": 15368},
+        {"context": "analyze (java-kotlin)", "integration_id": 15368},
+        {"context": "checks", "integration_id": 15368},
+        {"context": "pr-rules", "integration_id": 15368}
+      ]
     }
   },
   "label": {

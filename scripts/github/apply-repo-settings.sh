@@ -58,6 +58,16 @@ ruleset_body='{
       "require_code_owner_review": false,
       "require_last_push_approval": false,
       "allowed_merge_methods": ["squash"]
+    }},
+    {"type": "required_status_checks", "parameters": {
+      "strict_required_status_checks_policy": true,
+      "do_not_enforce_on_create": false,
+      "required_status_checks": [
+        {"context": "checks", "integration_id": 15368},
+        {"context": "pr-rules", "integration_id": 15368},
+        {"context": "analyze (java-kotlin)", "integration_id": 15368},
+        {"context": "analyze (actions)", "integration_id": 15368}
+      ]
     }}
   ]
 }'
@@ -120,7 +130,10 @@ actual="$(jq -n \
       pull_request: ($rs.rules[] | select(.type == "pull_request") | .parameters
         | {required_approving_review_count, required_review_thread_resolution,
            dismiss_stale_reviews_on_push, require_code_owner_review,
-           require_last_push_approval, allowed_merge_methods})
+           require_last_push_approval, allowed_merge_methods}),
+      required_status_checks: ($rs.rules[] | select(.type == "required_status_checks") | .parameters
+        | {strict_required_status_checks_policy,
+           required_status_checks: (.required_status_checks | sort_by(.context))})
     },
     label: {name: $label.name}
   }')"

@@ -5,6 +5,7 @@ object PullRequestBody {
     private const val EVIDENCE_HEADING = "## Evidence"
     private const val EXEMPT_LABEL = "dependencies"
     private val issueLink = Regex("(?i)\\b(closes|fixes|resolves) #\\d+")
+    private val fenceStart = Regex("^\\s{0,3}(`{3,}|~{3,})")
     private val filledFence = Regex("(?s)```[^\\n]*\\n\\s*\\S.*?```")
 
     fun validate(
@@ -20,12 +21,25 @@ object PullRequestBody {
             if (start < 0) {
                 add("add an $EVIDENCE_HEADING section with the exact command and its real output")
             } else {
+                var open: String? = null
                 val section =
                     lines
                         .drop(start + 1)
-                        .takeWhile { !it.startsWith("## ") }
-                        .joinToString("\n")
-                        .replace(EVIDENCE_PLACEHOLDER, "")
+                        .takeWhile { line ->
+                            val fence = fenceStart.find(line)?.groupValues[1]
+                            val current = open
+                            when {
+                                current == null -> {
+                                    open = fence
+                                    fence != null || !line.startsWith("## ")
+                                }
+
+                                else -> {
+                                    if (fence?.startsWith(current) == true) open = null
+                                    true
+                                }
+                            }
+                        }.joinToString("\n")
                 if (!filledFence.containsMatchIn(section)) {
                     add("fill in the Evidence section with a fenced block holding the command and its real output")
                 }

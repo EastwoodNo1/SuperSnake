@@ -135,7 +135,14 @@ class CommitMessageTest {
 
     @Test
     fun longTitleIsRejected() {
-        assertError("72", CommitMessage.validateTitle("feat: " + "x".repeat(67)))
+        assertError("64", CommitMessage.validateTitle("feat: " + "x".repeat(59)))
+    }
+
+    @Test
+    fun titleOfExactlySixtyFourCharactersIsAccepted() {
+        val title = "feat: " + "x".repeat(58)
+        assertEquals(64, title.length)
+        assertEquals(emptyList(), CommitMessage.validateTitle(title))
     }
 
     @Test

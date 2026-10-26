@@ -7,31 +7,71 @@ val ktlint =
         }
     }
 
+val ktlintCli =
+    project.extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("libs")
+        .findLibrary("ktlint-cli")
+        .get()
+
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0")
+    ktlint(ktlintCli)
 }
 
-val ktlintArgs = listOf("**/*.kt", "**/*.kts", "!**/build/**")
+class KtlintArguments(
+    @get:Input val flags: List<String>,
+    @get:Input val files: Provider<List<String>>,
+) : CommandLineArgumentProvider {
+    override fun asArguments(): Iterable<String> = flags + files.get()
+}
+
+@Suppress("UNCHECKED_CAST")
+val trackedFiles = rootProject.extra["trackedFiles"] as Provider<String>
+
+fun kotlinFiles(
+    listing: Provider<String>,
+    root: Directory,
+): Provider<List<String>> =
+    listing.map { text ->
+        text
+            .split('\u0000')
+            .filter { it.isNotEmpty() }
+            .filter { it.substringAfterLast('.', "") in setOf("kt", "kts") }
+            .filter { root.file(it).asFile.isFile }
+    }
+
+val ktlintFiles = kotlinFiles(trackedFiles, layout.projectDirectory)
+
+val unsafeMemoryAccess = "--sun-misc-unsafe-memory-access=allow"
+
+fun registerKtlint(
+    name: String,
+    taskGroup: String,
+    summary: String,
+    flags: List<String>,
+) = tasks.register<JavaExec>(name) {
+    group = taskGroup
+    description = summary
+    classpath = ktlint
+    mainClass = "com.pinterest.ktlint.Main"
+    jvmArgs(unsafeMemoryAccess)
+    argumentProviders.add(KtlintArguments(flags, ktlintFiles))
+}
 
 val ktlintCheck =
-    tasks.register<JavaExec>("ktlintCheck") {
-        group = "verification"
-        description = "Lints all Kotlin sources and scripts with the ktlint CLI."
-        classpath = ktlint
-        mainClass = "com.pinterest.ktlint.Main"
-        jvmArgs("--sun-misc-unsafe-memory-access=allow")
-        args(ktlintArgs)
-    }
+    registerKtlint(
+        "ktlintCheck",
+        "verification",
+        "Lints all Kotlin sources and scripts with the ktlint CLI.",
+        emptyList(),
+    )
 
-val ktlintFormat =
-    tasks.register<JavaExec>("ktlintFormat") {
-        group = "formatting"
-        description = "Formats all Kotlin sources and scripts with the ktlint CLI."
-        classpath = ktlint
-        mainClass = "com.pinterest.ktlint.Main"
-        jvmArgs("--sun-misc-unsafe-memory-access=allow")
-        args(listOf("-F") + ktlintArgs)
-    }
+registerKtlint(
+    "ktlintFormat",
+    "formatting",
+    "Formats all Kotlin sources and scripts with the ktlint CLI.",
+    listOf("-F"),
+)
 
 tasks.named("check") {
     dependsOn(ktlintCheck)

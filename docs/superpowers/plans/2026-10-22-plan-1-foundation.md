@@ -443,8 +443,8 @@ These are copied from the spec and apply to every task.
   - Then prove the gate bites: temporarily add an untested branch to `Direction`, run `koverVerify`, and paste the FAILED output. Revert the branch.
 
 - [ ] **Step 6: Add ktlint without a third-party Gradle plugin**
-  - In `gradle/ktlint.gradle.kts`, add a `ktlint` configuration that depends on `com.pinterest.ktlint:ktlint-cli:1.8.0`.
-  - `ktlintCheck` is a `JavaExec` with `mainClass = "com.pinterest.ktlint.Main"` and args `"**/*.kt" "**/*.kts" "!**/build/**"`.
+  - In `gradle/ktlint.gradle.kts`, add a `ktlint` configuration that depends on `libs.versions.toml`'s `ktlint-cli` library (version `ktlint`, 1.8.0).
+  - `ktlintCheck` is a `JavaExec` with `mainClass = "com.pinterest.ktlint.Main"` and, as args, the `.kt` and `.kts` files that exist in the `git ls-files -z -co --exclude-standard` list shared with `checkNoComments` (explicit relative paths, so ktlint never walks `build/` directories). The `--sun-misc-unsafe-memory-access=allow` jvmArg is defined once.
   - `ktlintFormat` is the same task plus `-F`.
   - `.editorconfig`: `root = true`, then `[*.{kt,kts}]` with `ktlint_code_style = ktlint_official`.
   - Wire `ktlintCheck` into `check`.
@@ -643,12 +643,14 @@ These are copied from the spec and apply to every task.
   | `fixup!` | `fixup! feat: x` | CI | error contains `autosquash` |
   | Breaking change | `feat!: x` + body | — | `[]` |
 
-  `CommitMessageTest` title rows (`validateTitle` applies the header rules only: type list, 72 characters, no `Revert "`, no `fixup!`):
+  `CommitMessageTest` title rows (`validateTitle` applies the header rules only: type list, 64 characters so that GitHub's squash suffix ` (#NNNNN)` keeps the subject within 72, no `Revert "`, no `fixup!`):
 
   | Case | Title | Expected |
   |------|-------|----------|
   | Valid title | `feat(domain): add x` | `[]` |
   | Invalid title | `Feat: x` | error contains `type must be one of` |
+  | 64-character title | `feat: ` + 58 × `x` | `[]` |
+  | 65-character title | `feat: ` + 59 × `x` | error contains `64` |
 
   `PullRequestBodyTest`:
 
@@ -657,6 +659,7 @@ These are copied from the spec and apply to every task.
   | Valid | contains `Closes #12` and `## Evidence` followed by a fenced block | — | `[]` |
   | No issue link | no `Closes #n` | none | error `link an issue` |
   | Dependabot | no `Closes #n` | `dependencies` | no link error |
+  | Heading inside a fence | Evidence fenced block contains the line `## main...origin/main` | — | `[]` |
   | Template placeholder | Evidence section contains only the placeholder text from `.github/pull_request_template.md` | — | error `Evidence` |
   | Missing Evidence | no Evidence heading | — | error `Evidence` |
 

@@ -24,6 +24,8 @@ val trackedFiles =
             commandLine("git", "ls-files", "-z", "-co", "--exclude-standard")
         }.standardOutput.asText
 
+extra["trackedFiles"] = trackedFiles
+
 val checkNoComments =
     tasks.register<JavaExec>("checkNoComments") {
         group = "verification"
@@ -60,39 +62,39 @@ fun registerCheck(
     argumentProviders.add(ProvidedArguments(arguments))
 }
 
-fun property(name: String) = providers.gradleProperty(name)
+fun gradleProp(name: String) = providers.gradleProperty(name)
 
 registerCheck(
     "checkCommitMessage",
     "Validates one commit message file (-PmessageFile).",
-    property("messageFile").map { listOf("commit-message", it) },
+    gradleProp("messageFile").map { listOf("commit-message", it) },
 )
 
 registerCheck(
     "checkCommitMessages",
     "Validates NUL-separated commit messages (-PmessagesFile).",
-    property("messagesFile").map { listOf("commit-messages", it) },
+    gradleProp("messagesFile").map { listOf("commit-messages", it) },
 )
 
 val checkPullRequestTitle =
     registerCheck(
         "checkPullRequestTitle",
         "Validates the PR title (-PtitleFile).",
-        property("titleFile").map { listOf("pr-title", it) },
+        gradleProp("titleFile").map { listOf("pr-title", it) },
     )
 
 val checkPullRequestBody =
     registerCheck(
         "checkPullRequestBody",
         "Validates the PR body (-PbodyFile, -PlabelsFile).",
-        property("bodyFile").zip(property("labelsFile")) { body, labels -> listOf("pr-body", body, labels) },
+        gradleProp("bodyFile").zip(gradleProp("labelsFile")) { body, labels -> listOf("pr-body", body, labels) },
     )
 
 val checkTestsChanged =
     registerCheck(
         "checkTestsChanged",
         "Requires test changes beside production changes (-PpathsFile).",
-        property("pathsFile").map { listOf("tests-changed", it, "domain", "data") },
+        gradleProp("pathsFile").map { listOf("tests-changed", it, "domain", "data") },
     )
 
 tasks.register("checkPullRequest") {

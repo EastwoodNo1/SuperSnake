@@ -97,6 +97,36 @@ class PullRequestBodyTest {
     }
 
     @Test
+    fun headingInsideBacktickFenceDoesNotEndEvidence() {
+        val evidence = "$fence\n$ git status -sb\n## main...origin/main\n$fence"
+        assertEquals(emptyList(), PullRequestBody.validate(body(evidence = evidence), emptySet()))
+    }
+
+    @Test
+    fun headingInsideTildeFenceDoesNotEndEvidence() {
+        val evidence = "~~~\n## main...origin/main\n~~~\n$fence\nok\n$fence"
+        assertEquals(emptyList(), PullRequestBody.validate(body(evidence = evidence), emptySet()))
+    }
+
+    @Test
+    fun otherFenceMarkerInsideAFenceDoesNotCloseIt() {
+        val evidence = "$fence\n~~~\n## main...origin/main\nout\n$fence"
+        assertEquals(emptyList(), PullRequestBody.validate(body(evidence = evidence), emptySet()))
+    }
+
+    @Test
+    fun longerClosingFenceClosesTheBlock() {
+        val text = "## Evidence\n\n$fence\nx\n$fence`\n\n## Notes\n\ntext"
+        assertEquals(emptyList(), PullRequestBody.validate("Closes #1\n\n$text", emptySet()))
+    }
+
+    @Test
+    fun headingAfterAClosedFenceStillEndsEvidence() {
+        val text = "Closes #1\n\n## Evidence\n\n$fence\n\n$fence\n\n## Notes\n\n$fence\nout\n$fence"
+        assertError("Evidence", PullRequestBody.validate(text, emptySet()))
+    }
+
+    @Test
     fun windowsLineEndingsAreAccepted() {
         assertEquals(emptyList(), PullRequestBody.validate(body().replace("\n", "\r\n"), emptySet()))
     }

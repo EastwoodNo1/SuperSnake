@@ -1,19 +1,49 @@
 # SuperSnake
 
-A neon, classic Snake game for Android phones and tablets. It is built as a reference project for AI-assisted software development: every rule (no comments in code, evidence for every claim, Conventional Commits, 100% logic coverage, latest stable versions) is enforced by machines, and the CI, hooks and rules are extracted as reusable Claude Code skills.
+A neon, classic Snake game for Android phones and tablets (minSdk 31). The rules are in [`docs/game-rules.md`](docs/game-rules.md).
+
+## Why it exists
+
+1. **A fun game.** Neon arcade look, an animated icon on launch, then the main menu.
+2. **A reference project.** Clean architecture, security, static checks, latest stable libraries and minimal third-party dependencies.
+3. **Education in AI-assisted SDLC.** Humans and AI agents work through the whole lifecycle under the same rules, with machines enforcing them.
+4. **A skill factory.** The CI, git hooks and rules get extracted as Claude Code skills in a separate plugin repo.
+
+## Toolchain
+
+| Tool | Version | How it is installed |
+|------|---------|---------------------|
+| mise | 2026.10.18 or newer | `curl -fsSL https://mise.run \| sh` |
+| JDK | Temurin 25.0.5+8 | `mise install --locked` (SHA-pinned, cross-checked against Adoptium by bootstrap) |
+| `gh` | 2.103.0 | `mise install --locked` (SHA-pinned, attestation-checked) |
+| zizmor | 1.31.1 | `mise install --locked` (SHA-pinned, attestation-checked) |
+| `gh-stack` extension | v0.2.1 | `scripts/bootstrap.sh` |
+| Android SDK | platform `android-37.0`, build-tools `37.0.0`, cmdline-tools `23.0` | Android Studio or `sdkmanager`, outside mise |
+
+Supported machines: macOS on Apple silicon, Linux x64 and Linux arm64. Intel macOS is not supported, because Adoptium publishes no Temurin 25.0.5+8 build for it. All versions, sources and verification dates are in [`docs/versions.md`](docs/versions.md).
+
+## Quick start
+
+1. Install mise (see above) and the Android SDK packages listed in the table.
+2. Tell Gradle where the SDK is: export `ANDROID_HOME`, or put `sdk.dir=/path/to/sdk` in `local.properties` (untracked). A fresh clone has no `local.properties`.
+3. Run:
+
+```sh
+git clone https://github.com/EastwoodNo1/SuperSnake
+cd SuperSnake
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+scripts/bootstrap.sh
+~/.local/bin/mise exec -- ./gradlew check
+```
+
+`scripts/bootstrap.sh` sets `core.hooksPath=.githooks`, checks the mise version, the Temurin checksum and the Android SDK packages, runs `mise install --locked` and installs `gh-stack`. It prints `hooks installed` once the hooks are active.
+
+Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails on any Gradle deprecation except one allowlisted AGP 9.4.1 message.
+
+## Contributing
+
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents also read [`CLAUDE.md`](CLAUDE.md). Decisions are recorded in [`docs/adr/`](docs/adr/), and the design is in [`docs/superpowers/specs/2026-10-22-supersnake-design.md`](docs/superpowers/specs/2026-10-22-supersnake-design.md). Open [`docs/design/neon-arcade-mockup.html`](docs/design/neon-arcade-mockup.html) in a browser to see the chosen look.
 
 ## Status
 
-Planning is done and implementation has not started. This README is a placeholder; Task 9 of Plan 1 replaces it with the full onboarding guide.
-
-## Where to start
-
-1. Read the active plan: [`docs/superpowers/plans/2026-10-22-plan-1-foundation.md`](docs/superpowers/plans/2026-10-22-plan-1-foundation.md). Its **Start here** section has the current state, machine prerequisites, how to resume, and the next task.
-2. Read the design: [`docs/superpowers/specs/2026-10-22-supersnake-design.md`](docs/superpowers/specs/2026-10-22-supersnake-design.md).
-3. Open [`docs/design/neon-arcade-mockup.html`](docs/design/neon-arcade-mockup.html) in a browser to see the chosen look.
-
-**What's done:** a task is done when all its checkboxes are ticked in the plan on `main`.
-
-**Who can run the plan:**
-- **AI agents:** run it with Claude Code and the superpowers skills.
-- **Humans:** follow the same tasks by hand. Every step is a command with its expected output.
+Foundation work is in progress. The active plan is [`docs/superpowers/plans/2026-10-22-plan-1-foundation.md`](docs/superpowers/plans/2026-10-22-plan-1-foundation.md); its **Start here** section has the current state and the next task.

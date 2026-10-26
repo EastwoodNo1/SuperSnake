@@ -25,6 +25,12 @@ class KtlintArguments(
     override fun asArguments(): Iterable<String> = flags + files.get()
 }
 
+class HasFiles(
+    @get:Input val files: Provider<List<String>>,
+) : Spec<Task> {
+    override fun isSatisfiedBy(task: Task) = files.get().isNotEmpty()
+}
+
 @Suppress("UNCHECKED_CAST")
 val trackedFiles = rootProject.extra["trackedFiles"] as Provider<String>
 
@@ -56,6 +62,7 @@ fun registerKtlint(
     mainClass = "com.pinterest.ktlint.Main"
     jvmArgs(unsafeMemoryAccess)
     argumentProviders.add(KtlintArguments(flags, ktlintFiles))
+    onlyIf("Kotlin files are tracked", HasFiles(ktlintFiles))
 }
 
 val ktlintCheck =

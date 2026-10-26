@@ -51,6 +51,22 @@ Release dates for Maven artifacts are the Last-Modified header of the published 
 - Android SDK in CI: the runner's preinstalled SDK plus `sdkmanager` for exactly `platforms;android-37.0` and `build-tools;37.0.0`.
 - `gradle/verification-metadata.xml` covers the root build and the included build `build-logic/checks` when it is run through the root (`:checks:check`). Running `-p build-logic/checks` on its own is not covered, so CI uses the `:checks:` form.
 
+## Dependency verification updates
+
+Dependabot bumps Gradle dependencies but cannot regenerate `gradle/verification-metadata.xml`, so a Gradle bump PR fails CI with `Dependency verification failed` until the file is updated by hand:
+
+1. Check out the Dependabot branch in a worktree.
+2. Run `~/.local/bin/mise exec -- ./gradlew --write-verification-metadata sha256 check :app:assembleRelease :checks:check`. Use a fresh `GRADLE_USER_HOME` and `--refresh-dependencies` so cached artifacts are not skipped.
+3. Strip any comments the run wrote. Gradle writes `origin` attributes, not comments, so normally nothing needs stripping; `checkNoComments` confirms it.
+4. Linux-only artifacts that macOS never resolves (for example the `aapt2` linux jar) are not generated. Take the artifact named in the CI `Dependency verification failed` output, download it from Google Maven, compute its SHA-256, compare its SHA-1 with Google's published `.sha1` file, and add the entry by hand, keeping the file's alphabetical order.
+5. Commit with a Conventional message, push to the Dependabot branch and wait for CI to pass.
+
+How `aapt2-9.4.1-15978811-linux.jar` was derived, on 2026-10-26: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.4.1-15978811/aapt2-9.4.1-15978811-linux.jar`, SHA-256 `f5bebd466ecf14d341fd465f2756a16d86052f29eb4532003d5ff7bcffd08de5`, SHA-1 `6ad07b566daaefa1c2721255637ec137c93580a6`, which equals the content of the published `...-linux.jar.sha1`.
+
+## mise pin in CI
+
+The mise version and the SHA-256 of its linux-x64 archive are written in three places: the `checks` and `pr-rules` jobs in `.github/workflows/ci.yml` and the `java-kotlin` job in `.github/workflows/codeql.yml`. Dependabot does not manage them. Update all three together and record the new version and SHA in the table above.
+
 ## Known issues
 
 - AGP 9.4.1 emits one Gradle deprecation on every cold configuration: `The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11.` It comes from `com.android.build.gradle.internal.plugins.BasePlugin$Companion.createAndroidJdkImageConfiguration` (BasePlugin.kt:362), found on 2026-10-23 with `./gradlew help -Dorg.gradle.deprecation.trace=true --warning-mode=all`. `scripts/gradle-strict.sh` allowlists exactly this message and fails on any other deprecation. Remove the allowlist when a stable AGP no longer emits it.

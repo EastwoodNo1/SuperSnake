@@ -58,4 +58,4 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents 
 
 ## Status
 
-Foundation work is in progress. The active plan is [`docs/superpowers/plans/2026-10-22-plan-1-foundation.md`](docs/superpowers/plans/2026-10-22-plan-1-foundation.md); its **Start here** section has the current state and the next task.
+Plan 1 (foundation) is complete. Plan 2 is next. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 1 file's **Start here** section has the state.

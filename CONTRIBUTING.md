@@ -96,6 +96,8 @@ A Dependabot PR only starts the work. It cannot merge until someone adds commits
 - update `docs/versions.md`
 - fill in the Evidence section
 
+Kotlin bumps (`org.jetbrains.kotlin:*` and the `org.jetbrains.kotlin.*` plugins) get their own Dependabot group, placed before the catch-all `gradle` group, so a Kotlin PR held by the CodeQL cap does not absorb other Gradle updates. Editing a PR's title, body or labels re-runs the CI workflow, so fixing the Evidence section re-runs `pr-rules` on the new text.
+
 There are no bot exceptions to any gate. Dependabot commits use the `build` or `ci` prefix, and its PRs carry the `dependencies` label, which satisfies the issue-link check. The procedure for refreshing the checksum file, including Linux-only artifacts, is in [`docs/versions.md`](docs/versions.md) under "Dependency verification updates".
 
 ## Comments that tools write

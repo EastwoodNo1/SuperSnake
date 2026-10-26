@@ -5,7 +5,8 @@ import java.io.File
 object Cli {
     const val USAGE =
         "usage: checks no-comments <path...> | commit-message <file> | commit-messages <file> | " +
-            "pr-body <bodyFile> <labelsFile> | pr-title <titleFile> | tests-changed <pathsFile> <module...>"
+            "pr-body <bodyFile> <labelsFile> | pr-title <titleFile> | tests-changed <pathsFile> <module...> | " +
+            "workflows <path...> | manifest <path>"
 
     fun run(
         args: List<String>,
@@ -48,6 +49,16 @@ object Cli {
                     rest.takeIf { it.size >= 2 }?.let {
                         TestsChanged.validate(nonBlankLines(readFile(it[0])), it.drop(1).toSet())
                     }
+                }
+
+                "workflows" -> {
+                    rest.takeIf { it.isNotEmpty() }?.flatMap { path ->
+                        WorkflowSafety.scan(path, readFile(path)).map(Finding::toString)
+                    }
+                }
+
+                "manifest" -> {
+                    rest.singleOrNull()?.let { ManifestHardening.validate(readFile(it)) }
                 }
 
                 else -> {

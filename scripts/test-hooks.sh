@@ -88,7 +88,7 @@ check "(a) commit in the main checkout is refused" refused "use a worktree" comm
 reset_tree "$TMP/repo"
 
 stage_file "$WTMAIN" notes/b.txt b
-check "(b) commit on main in a worktree is refused" refused "main" commit_valid "$WTMAIN" b
+check "(b) commit on main in a worktree is refused" refused "refusing to commit on main" commit_valid "$WTMAIN" b
 reset_tree "$WTMAIN"
 
 stage_file "$WT" notes/c.txt c
@@ -116,7 +116,7 @@ check "(g) worktree path with a space is accepted" accepted "" commit_valid "$WT
 
 push_failing_test() {
   push_stdin "$WT" main >/dev/null 2>"$TMP/main.err" && return 0
-  grep -qF "main" "$TMP/main.err" || return 0
+  grep -qF "refusing to push to main" "$TMP/main.err" || return 0
   push_stdin "$WT" feat/x
 }
 mkdir -p "$WT/domain/src/test/kotlin/io/github/eastwoodno1/supersnake/domain"
@@ -151,4 +151,4 @@ check "(i) pre-push with an unpinned action is refused" refused "unpinned-uses" 
 rm -rf "$WT/.github"
 
 echo "$passed/$total passed"
-[ "$passed" -eq "$total" ]
+[ "$total" -eq 9 ] && [ "$passed" -eq "$total" ]

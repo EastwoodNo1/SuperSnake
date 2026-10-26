@@ -32,7 +32,7 @@ A body is required for `feat`, `fix`, `refactor` and `perf`, and should be added
 
 ## Rules and how each is enforced
 
-Every rule is machine-enforced. CI re-runs everything the hooks run, so `--no-verify` changes nothing about what can merge.
+Every rule in the table below is machine-enforced; the practices after it are taught, not gated. CI re-runs everything the hooks run, so `--no-verify` changes nothing about what can merge.
 
 | Rule | Local (git hooks) | CI (required check) | GitHub setting |
 |------|-------------------|---------------------|----------------|

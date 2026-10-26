@@ -40,6 +40,18 @@ scripts/bootstrap.sh
 
 Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails on any Gradle deprecation except one allowlisted AGP 9.4.1 message.
 
+### Claude Code plugin (once per machine)
+
+The SDLC skills come from the `android-sdlc` plugin. `.claude/settings.json` declares it, but each contributor installs it once:
+
+```sh
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.0 --scope project
+claude plugin install android-sdlc@android-sdlc-skills --scope project
+claude plugin list
+```
+
+Accept the workspace trust prompt when you open the folder in Claude Code. `claude plugin list` must show `android-sdlc@android-sdlc-skills` as `✔ enabled`.
+
 ## Contributing
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents also read [`CLAUDE.md`](CLAUDE.md). Decisions are recorded in [`docs/adr/`](docs/adr/), and the design is in [`docs/superpowers/specs/2026-10-22-supersnake-design.md`](docs/superpowers/specs/2026-10-22-supersnake-design.md). Open [`docs/design/neon-arcade-mockup.html`](docs/design/neon-arcade-mockup.html) in a browser to see the chosen look.

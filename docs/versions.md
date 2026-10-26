@@ -6,11 +6,15 @@
 | JDK toolchain | Temurin 25.0.5+8 (toolchain 25), installed via mise | 2026-10-22 | https://github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8 | 2026-10-23 |
 | mise | 2026.10.18 | 2026-10-23 | https://github.com/jdx/mise/releases/tag/v2026.10.18 | 2026-10-23 |
 | gh | 2.103.0 (via `aqua:cli/cli`) | 2026-10-21 | https://github.com/cli/cli/releases/tag/v2.103.0 | 2026-10-23 |
-| zizmor | 1.31.1 (via `aqua:zizmorcore/zizmor`) | 2026-10-15 | https://github.com/zizmorcore/zizmor/releases/tag/v1.31.1 | 2026-10-26 |
+| zizmor | 1.31.1 (via `aqua:zizmorcore/zizmor`; still the latest stable on 2026-10-26) | 2026-10-15 | https://github.com/zizmorcore/zizmor/releases/tag/v1.31.1 | 2026-10-26 |
 | gh-stack extension | v0.2.1 (`gh extension install github/gh-stack --pin v0.2.1`) | 2026-10-09 | https://github.com/github/gh-stack/releases/tag/v0.2.1 | 2026-10-26 |
 | Android SDK platform | android-37.0, revision 2 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/platforms | 2026-10-26 |
 | Android SDK build-tools | 37.0.0 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/build-tools | 2026-10-26 |
 | Android SDK cmdline-tools | 23.0 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/tools | 2026-10-26 |
+| actions/checkout | v7.0.1, commit `3d3c42e5aac5ba805825da76410c181273ba90b1` (lightweight tag, no dereference needed) | 2026-07-20 | https://api.github.com/repos/actions/checkout/releases/latest and git/ref/tags/v7.0.1 | 2026-10-26 |
+| gradle/actions (setup-gradle) | v6.4.0, commit `3f5f9adaf7d9fecd50b5935e54106014257a94e6` (annotated tag `b9bee63e...` dereferenced) | 2026-09-28 | https://api.github.com/repos/gradle/actions/releases/latest and git/tags | 2026-10-26 |
+| github/codeql-action (init, analyze) | v4.39.1, commit `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` (annotated tag `8498dc4c...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-10-21 | https://api.github.com/repos/github/codeql-action/releases | 2026-10-26 |
+| mise in CI | v2026.10.19, linux-x64 archive SHA-256 `b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086` (matches the release SHASUMS256.txt; `gh attestation verify --repo jdx/mise` passed) | 2026-10-24 | https://github.com/jdx/mise/releases/tag/v2026.10.19 | 2026-10-26 |
 | AGP | 9.4.1 | 2026-09-18 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-23 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
@@ -40,6 +44,12 @@ Release dates for Maven artifacts are the Last-Modified header of the published 
 | linux-arm64 | OpenJDK25U-jdk_aarch64_linux_hotspot_25.0.5_8.tar.gz | `bb5b2ded252f21c6090cf780b0a408ad0d83bbb557e702955643557f13231880` |
 
 - Android SDK stays outside mise: the only backend, vfox-android-sdk, has 4 stars and skips checksums. Google doesn't sign SDK packages, and sdkmanager checks SHA-1.
+
+## CI
+
+- `actions/setup-java` is not used: the JDK comes from mise. mise itself is installed from the release archive with a pinned SHA-256, then `mise install --locked`.
+- Android SDK in CI: the runner's preinstalled SDK plus `sdkmanager` for exactly `platforms;android-37.0` and `build-tools;37.0.0`.
+- `gradle/verification-metadata.xml` covers the root build and the included build `build-logic/checks` when it is run through the root (`:checks:check`). Running `-p build-logic/checks` on its own is not covered, so CI uses the `:checks:` form.
 
 ## Known issues
 

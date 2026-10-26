@@ -25,6 +25,7 @@ version_at_least() {
 
 git config core.hooksPath .githooks || fail "could not set core.hooksPath"
 echo "core.hooksPath=$(git config core.hooksPath)"
+echo "hooks installed"
 
 find_mise || exit 1
 mise_version=$("$MISE" --version 2>/dev/null | awk '{print $1; exit}')

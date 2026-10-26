@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kover)
 }
 
+evaluationDependsOn(":app")
+
 dependencies {
     kover(project(":domain"))
 }
@@ -25,6 +27,20 @@ val trackedFiles =
         }.standardOutput.asText
 
 extra["trackedFiles"] = trackedFiles
+
+fun workflowFilesOf(
+    listing: Provider<String>,
+    root: Directory,
+): Provider<List<String>> =
+    listing.map { text ->
+        text
+            .split('\u0000')
+            .filter { it.isNotEmpty() }
+            .filter { Regex("""\.github/workflows/[^/]+\.ya?ml""").matches(it) }
+            .filter { root.file(it).asFile.isFile }
+    }
+
+val workflowFiles = workflowFilesOf(trackedFiles, layout.projectDirectory)
 
 val checkNoComments =
     tasks.register<JavaExec>("checkNoComments") {
@@ -48,6 +64,12 @@ class ProvidedArguments(
     @get:Input val arguments: Provider<List<String>>,
 ) : CommandLineArgumentProvider {
     override fun asArguments(): Iterable<String> = arguments.get()
+}
+
+class NonEmpty(
+    @get:Input val files: Provider<List<String>>,
+) : Spec<Task> {
+    override fun isSatisfiedBy(task: Task) = files.get().isNotEmpty()
 }
 
 fun registerCheck(
@@ -96,6 +118,31 @@ val checkTestsChanged =
         "Requires test changes beside production changes (-PpathsFile).",
         gradleProp("pathsFile").map { listOf("tests-changed", it, "domain", "data") },
     )
+
+registerCheck(
+    "checkWorkflows",
+    "Fails when a tracked GitHub workflow breaks the safety rules.",
+    workflowFiles.map { listOf("workflows") + it },
+).configure {
+    onlyIf("workflow files are tracked", NonEmpty(workflowFiles))
+}
+
+val processReleaseMainManifest = project(":app").tasks.named("processReleaseMainManifest")
+
+val releaseManifest =
+    processReleaseMainManifest.map { task ->
+        task.outputs.files.files
+            .single { it.name == "AndroidManifest.xml" }
+            .path
+    }
+
+registerCheck(
+    "checkReleaseManifest",
+    "Fails when the merged release manifest is not hardened.",
+    releaseManifest.map { listOf("manifest", it) },
+).configure {
+    dependsOn(processReleaseMainManifest)
+}
 
 tasks.register("checkPullRequest") {
     group = "verification"

@@ -24,7 +24,19 @@ class CliTest {
             "labels-deps" to "bug\ndependencies\n",
             "paths-ok" to "domain/src/main/A.kt\ndomain/src/test/ATest.kt\n\ndocs/x.md\n",
             "paths-bad" to "domain/src/main/A.kt\n",
+            "wf-clean" to "permissions: {}\non: push\n",
+            "wf-bad" to "permissions: {}\non: pull_request_target\n",
+            "manifest-good" to manifestXml(""),
+            "manifest-bad" to manifestXml("""<uses-permission android:name="android.permission.INTERNET" />"""),
         )
+
+    private fun manifestXml(permission: String) =
+        """
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            $permission
+            <application android:allowBackup="true" android:dataExtractionRules="@xml/d" android:fullBackupContent="@xml/b" />
+        </manifest>
+        """.trimIndent()
 
     private fun run(vararg args: String): Pair<Int, List<String>> {
         val printed = mutableListOf<String>()
@@ -140,6 +152,32 @@ class CliTest {
     }
 
     @Test
+    fun workflowsCleanExitsZero() {
+        assertEquals(0 to emptyList<String>(), run("workflows", "wf-clean"))
+    }
+
+    @Test
+    fun workflowsFindingExitsOneAndIsPrintedAsPathLineMessage() {
+        val (code, printed) = run("workflows", "wf-clean", "wf-bad")
+        assertEquals(1, code)
+        assertEquals(1, printed.size)
+        assertTrue(printed.single().startsWith("wf-bad:2: "))
+        assertTrue("forbidden trigger" in printed.single())
+    }
+
+    @Test
+    fun manifestCleanExitsZero() {
+        assertEquals(0 to emptyList<String>(), run("manifest", "manifest-good"))
+    }
+
+    @Test
+    fun manifestViolationExitsOne() {
+        val (code, printed) = run("manifest", "manifest-bad")
+        assertEquals(1, code)
+        assertTrue("INTERNET" in printed.single())
+    }
+
+    @Test
     fun wrongArgumentCountPrintsUsageAndExitsTwo() {
         listOf(
             arrayOf("commit-message"),
@@ -150,6 +188,9 @@ class CliTest {
             arrayOf("pr-body", "body-good", "labels-none", "x"),
             arrayOf("tests-changed", "paths-ok"),
             arrayOf("tests-changed"),
+            arrayOf("workflows"),
+            arrayOf("manifest"),
+            arrayOf("manifest", "manifest-good", "manifest-bad"),
         ).forEach {
             assertEquals(2 to listOf(Cli.USAGE), run(*it), it.toList().toString())
         }

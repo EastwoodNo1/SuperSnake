@@ -240,7 +240,11 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
   - open/closed issue activity
 - A brief ADR is required for every new runtime dependency.
 - Current third-party runtime dependencies: **libGDX only**.
-- Build/CI tools in use: ktlint (`pinterest/ktlint`: 6,767 stars, last commit 2026-10-22, latest stable 1.8.0 from 2025-11-14), zizmor **[owner, 2026-10-23]** (`zizmorcore/zizmor`: MIT, 6,759 stars, last push 2026-10-23, latest stable v1.31.1 from 2026-10-15, 171 open issues, 18 opened and 12 closed in the last 30 days) and GitHub Actions from verified publishers (the `reactivecircus` emulator runner is the exception and needs the same evidence).
+- Build/CI tools in use: ktlint (`pinterest/ktlint`: 6,767 stars, last commit 2026-10-22, latest stable 1.8.0 from 2025-11-14), zizmor **[owner, 2026-10-23]** (`zizmorcore/zizmor`: MIT, 6,759 stars, last push 2026-10-23, latest stable v1.31.1 from 2026-10-15, 171 open issues, 18 opened and 12 closed in the last 30 days), release-please-action **[owner, 2026-10-26]** (`googleapis/release-please-action`, used from Plan 4; evidence below) and GitHub Actions from verified publishers (the `reactivecircus` emulator runner is the exception and needs the same evidence).
+  - `googleapis/release-please-action`: Apache-2.0, 2,559 stars, last commit 2026-05-28, latest stable v5.0.0 from 2026-04-22, 139 open issues. In the 30 days to 2026-10-26, 1 issue was opened and 0 closed (`gh api search/issues`).
+  - The engine `googleapis/release-please` is very active: 7,681 stars, last push 2026-10-22, latest stable v17.11.2 from 2026-08-24.
+  - Honest note: the action wrapper's own activity is modest, while the engine it runs is very active. The owner decided to adopt it anyway.
+  - `actions/create-github-app-token` (MIT, 905 stars, latest stable v3.3.0 from 2026-10-12) is a first-party GitHub action, so it falls under the verified-publisher rule.
 
 ---
 
@@ -284,7 +288,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 | Evidence section present and non-empty | — | PR body check | PR template |
 | Linear history, squash merge only | — | — | Ruleset: require linear history; the only allowed merge method is squash |
 | Workflows are safe | — | A workflow lint check fails on:<br>• any `pull_request_target` or `workflow_run` trigger<br>• `${{ github.event.* }}` interpolated inside a `run:` script<br>• an action not pinned by full commit SHA<br>• a missing top-level `permissions: {}`<br>and zizmor (latest stable, pinned via mise) reports no findings | Fork PR workflows require approval for all outside contributors; default `GITHUB_TOKEN` permission is read-only |
-| Release tags are trustworthy | — | The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags. Immutable releases on. No "prevent self-review" setting, since solo |
+| Release tags are trustworthy | — | Tags are created only by the release-please release job. The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags. Immutable releases on. No "prevent self-review" setting, since solo |
 
 ### 7.3 Practices (taught, not gated)
 
@@ -311,15 +315,23 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 ## 8. Release **[owner: GitHub Releases signed APK, Play later; mechanism is call]**
 
 - **Versioning:** SemVer, with `versionCode` derived from it deterministically **[builder]**.
-- **Trigger:** pushing a tag `vX.Y.Z` whose commit is on `main` (enforced, §7.2).
-- **Release workflow** (runs in the `release` environment):
-  1. Verify the tag's commit is an ancestor of `origin/main`.
-  2. Run all checks again.
-  3. Build the release APK (R8).
-  4. Check 16 KB alignment.
-  5. Sign the APK.
-  6. Produce a SHA-256 checksum and a build provenance attestation.
-  7. Create an immutable GitHub Release with the APK and checksum attached. Release notes are generated from Conventional Commits since the previous tag.
+- **Trigger:** release-please (`googleapis/release-please-action`) runs on every push to `main` and keeps one release PR open **[owner, 2026-10-26]**.
+  - The release PR holds the next SemVer version and a changelog built from Conventional Commits. With squash merge, every PR title on `main` is a Conventional header.
+  - Merging the release PR makes release-please create the tag `vX.Y.Z` and a **draft** GitHub Release.
+  - `versionCode` is still derived deterministically from the SemVer version. release-please updates the version through its config (for example a version file or `extra-files`). Plan 4 picks the exact mechanism.
+- **Authentication:** release-please uses a GitHub App installation token from `actions/create-github-app-token`, not `GITHUB_TOKEN`.
+  - Why: PRs, tags and releases created with `GITHUB_TOKEN` don't trigger other workflows. The release PR would then never get its four required checks and could never merge.
+  - The owner creates the App with least privilege: contents write and pull-requests write, installed on this repo only.
+  - The App's ID and private key are secrets in the `release` environment.
+- **Release workflow** (one run, in the `release` environment). After release-please reports `release_created`, the release job:
+  1. Verifies the tag's commit is an ancestor of `origin/main`.
+  2. Runs all checks again.
+  3. Builds the release APK (R8).
+  4. Checks 16 KB alignment.
+  5. Signs the APK.
+  6. Produces a SHA-256 checksum and a build provenance attestation.
+  7. Uploads the APK and checksum to the draft release and publishes it.
+- The release is immutable once published, which is why it starts as a draft. Release tags (`v*`) are created only by this process, through the tag ruleset: no deletion or force-update.
 - Only CI can produce a signed build. No signing material ever exists in the repo or the working tree.
 - **No Android App Bundle (AAB) for now.** It is added when Play work starts **[owner]**.
 
@@ -327,7 +339,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 
 - The release key created now **is the app-signing key** for the app's whole life.
 - When Play publishing starts, this key is uploaded to Play App Signing, and a **separate upload key** is created for uploading to Play. Players who installed from GitHub can then update from Play, because Android requires updates to be signed with the same key.
-- The key is stored in GitHub Actions secrets that only the `release` environment can access.
+- The key is stored in GitHub Actions secrets that only the `release` environment can access. The GitHub App's ID and private key live in the same environment.
 - There is an offline encrypted backup held by the owner.
 - `docs/release.md` documents creation, backup, recovery, the Play App Signing migration steps, and what losing the key means.
 
@@ -455,6 +467,8 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 | gradle/actions (setup-gradle) | v6.4.0 | 2026-09-28 | releases/latest. Use `cache-provider: basic` (MIT-licensed), not the default proprietary Enhanced Caching. Wrapper validation is built in, so no separate step is needed (github.com/gradle/actions/blob/main/docs/setup-gradle.md) |
 | github/codeql-action | v4.39.1 | 2026-10-21 | releases (not the `codeql-bundle` tag) |
 | actions/attest-build-provenance | v4.2.2 | 2026-08-06 | releases/latest |
+| googleapis/release-please-action | v5.0.0 | 2026-04-22 | releases/latest. Owner-approved third-party action (§6 evidence, 2026-10-26). Engine `googleapis/release-please` v17.11.2 (2026-08-24), releases/latest. Used from Plan 4 |
+| actions/create-github-app-token | v3.3.0 | 2026-10-12 | releases/latest. First-party GitHub action. Used from Plan 4 |
 | ReactiveCircus/android-emulator-runner | v2.38.0 | 2026-07-05 | 1,307 stars, last commit 2026-08-26. This is the one third-party action, justified by §6 evidence |
 
 ### Stacked PRs
@@ -517,7 +531,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 7. Controls: swipe, an optional on-screen D-pad, and hardware keys.
 8. Settings: difficulty, sound, haptics, control scheme.
 9. The top 10 high scores, stored on the device only.
-10. Tag-triggered release: the tag must be on `main`, and releases are immutable. Owner decision: no AAB until Play work starts.
+10. Release through release-please: it keeps a release PR open, merging it creates the tag and a draft release, the tag must be on `main`, and releases are immutable once published (owner decision 2026-10-26). Owner decision: no AAB until Play work starts.
 11. Skill names: `android-ci`, `git-hooks`, `sdlc-rules`.
 12. **Process steps a machine can't fully check.**
     - **Enforced:**

@@ -11,9 +11,11 @@
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
 | activity-compose | 1.13.0 | 2026-03-11 | https://dl.google.com/android/maven2/androidx/activity/activity-compose/maven-metadata.xml | 2026-10-23 |
 | core-ktx | 1.19.1 | 2026-09-23 | https://dl.google.com/android/maven2/androidx/core/core-ktx/maven-metadata.xml | 2026-10-23 |
-| Kover | 0.9.11 | 2026-09-29 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/maven-metadata.xml | 2026-10-23 |
-| JUnit BOM | 6.1.3 | 2026-08-07 | https://repo1.maven.org/maven2/org/junit/junit-bom/maven-metadata.xml | 2026-10-23 |
-| ktlint | 1.8.0 | 2025-11-14 | https://repo1.maven.org/maven2/com/pinterest/ktlint/ktlint-cli/maven-metadata.xml | 2026-10-23 |
+| Kover | 0.9.11 | 2026-09-29 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/maven-metadata.xml | 2026-10-26 |
+| JUnit BOM | 6.1.3 | 2026-08-07 | https://repo1.maven.org/maven2/org/junit/junit-bom/maven-metadata.xml | 2026-10-26 |
+| ktlint | 1.8.0 | 2025-11-14 | https://repo1.maven.org/maven2/com/pinterest/ktlint/ktlint-cli/maven-metadata.xml | 2026-10-26 |
+| kotlin-test-junit5 | 2.4.20 (follows the Kotlin version) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-junit5/maven-metadata.xml | 2026-10-26 |
+| JUnit platform launcher | 6.1.3 (managed by the JUnit BOM) | 2026-08-07 | https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/maven-metadata.xml | 2026-10-26 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 

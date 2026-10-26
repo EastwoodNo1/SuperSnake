@@ -20,7 +20,7 @@
 
 Together with the spec and `docs/design/neon-arcade-mockup.html`, this plan is self-contained. A new session needs nothing from the brainstorming or planning conversations: every decision made there is written in one of those three files. Statements marked "confirmed by the owner" record decisions the owner made in those conversations. Treat them as settled.
 
-`README.md` (for humans) and `CLAUDE.md` (for agents) at the repo root point here. Both are temporary bootstrap versions, and Task 9 replaces them.
+`README.md` (for humans) and `CLAUDE.md` (for agents) at the repo root point here. Task 9 replaced the bootstrap versions of both with the full ones.
 
 ### To start or resume
 
@@ -49,17 +49,12 @@ Together with the spec and `docs/design/neon-arcade-mockup.html`, this plan is s
 - **Before Task 2**, the repo is local only and `main` is the record. **From Task 2 on**, run `git pull` in the main checkout first, and use `origin/main` as the record.
 - **Start from the first task that is not done.** Never skip a task.
 
-### State at handoff (2026-10-23)
+### State at handoff (2026-10-26)
 
-- **Repo:** local git repo at `/Users/r03418/AndroidStudioProjects/SuperSnake`, branch `main`, no remote yet.
-- **Commits:** documentation only (spec, this plan, the mockup, the bootstrap `README.md`/`CLAUDE.md`, and prerequisite updates). Run `git log --oneline` to see them. No build or code commit exists yet.
-- **Next action:** Task 1, Step 1.
-- **Untracked Android Studio starter files from 2026-10-20**, which Task 1 consumes:
-  - `app/`
-  - `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`
-  - `gradle/`, `gradlew`, `gradlew.bat`
+- **Plan 1 is complete as of 2026-10-26.** All of Tasks 1 to 10 are merged (PRs #2 to #36), and `main` is at `9c0ffc4` plus the commit of this docs PR. Run `git log --oneline` for the current head.
+- **Repos:** `EastwoodNo1/SuperSnake` (this game repo) and `EastwoodNo1/android-sdlc-skills` (the plugin, tagged `v0.1.0` and installed through `.claude/settings.json`).
+- **Next action:** write Plan 2 with `superpowers:writing-plans`, giving it the same "Start here" section. Re-verify versions first, and check CodeQL's Kotlin support again so Dependabot PR #28 can resolve.
 - **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/` or `.claude/settings.local.json`. All five are in `.gitignore`.
-- **Local leftovers you can ignore:** `.superpowers/` holds brainstorming mockups, and `.claude/settings.local.json` holds local Claude Code permissions.
 
 ### Machine prerequisites
 
@@ -123,6 +118,7 @@ The spec covers four separable deliverables. Each gets its own plan, written whe
    - UI tests on 3 emulator profiles, the 16 KB alignment check, final manifest hardening, assets.
    - `android-ci` skill gains the UI-test job.
 4. **Release.**
+   - **Open design point:** the `release` environment is limited to `v*` tags, while spec §8 runs the release job in the release-please run on `main`. Plan 4 must resolve it, either by (a) allowing `main` in the environment or (b) a separate tag-triggered build job, triggered by the tag release-please creates with the App token.
    - Signing key (ADR-0005), tag ruleset, `release` environment, immutable releases, release workflow with attestation, `docs/release.md`, first `v1.0.0`.
    - release-please with a GitHub App token (owner decision 2026-10-26, spec §8): the owner creates the App (contents and pull-requests write, this repo only) and stores its ID and private key as secrets in the `release` environment. Builder adds the release-please config and manifest files, the version mechanism that keeps `versionCode` deterministic, and an ADR.
    - `android-ci` skill gains the release workflow.
@@ -328,7 +324,7 @@ These are copied from the spec and apply to every task.
   - the PR template sections `## Why`, `## What`, `Closes #`, `## Evidence`
   - the label `dependencies`
 
-- [ ] **Step 1: Write `scripts/github/apply-repo-settings.sh`**
+- [x] **Step 1: Write `scripts/github/apply-repo-settings.sh`**
 
   It takes `<owner/repo>` and idempotently applies the settings below using `gh api`. Before writing each call, look up the endpoint in the GitHub REST docs and record the doc URL in the PR evidence.
   - **Repo settings:**
@@ -351,11 +347,11 @@ These are copied from the spec and apply to every task.
     - required status checks are added in Task 8
   - **Label:** `dependencies`
 
-- [ ] **Step 2: Write `scripts/github/expected-settings.json`**
+- [x] **Step 2: Write `scripts/github/expected-settings.json`**
 
   It holds the expected values. The script ends by reading every setting back with GET and exits non-zero if anything differs.
 
-- [ ] **Step 3: Create the repo and push the bootstrap commit**
+- [x] **Step 3: Create the repo and push the bootstrap commit**
 
   ```bash
   gh repo create EastwoodNo1/SuperSnake --public --source . --remote origin --push
@@ -365,13 +361,13 @@ These are copied from the spec and apply to every task.
 
   Expected: exit 0, and the readback prints `all settings match`.
 
-- [ ] **Step 4: Prove that a direct push is refused**
+- [x] **Step 4: Prove that a direct push is refused**
 
   From a scratch commit on `main`: `git push origin main`.
 
   Expected: rejected with a message citing the ruleset. Paste the output, then run `git reset --hard origin/main`.
 
-- [ ] **Step 5: Branch, commit, open the issue and the PR, merge**
+- [x] **Step 5: Branch, commit, open the issue and the PR, merge**
   - Create a worktree `../SuperSnake-chore-repo-rules` with branch `chore/repo-rules`, and commit `SECURITY.md`, the PR template and the scripts there.
   - Subject: `chore: add repo security policy, PR template and settings script`.
   - Open an issue, "Repo rules, security policy and PR template".
@@ -403,7 +399,7 @@ These are copied from the spec and apply to every task.
   - root tasks `ktlintCheck`, `ktlintFormat`, `koverVerify`
   - `./gradlew check` runs ktlint, Lint, unit tests and `koverVerify`
 
-- [ ] **Step 1: Write the failing test `DirectionTest`**
+- [x] **Step 1: Write the failing test `DirectionTest`**
 
   It uses JUnit 6 `@Test` and `kotlin.test` assertions:
 
@@ -418,17 +414,17 @@ These are copied from the spec and apply to every task.
   @Test fun vectorsAreUnitSteps() { assertEquals(listOf(0 to -1, 0 to 1, -1 to 0, 1 to 0), Direction.entries.map { it.dx to it.dy }) }
   ```
 
-- [ ] **Step 2: Run the test and confirm it fails**
+- [x] **Step 2: Run the test and confirm it fails**
 
   Run: `./gradlew :domain:test`
 
   Expected: compilation fails, with `Unresolved reference 'Direction'`.
 
-- [ ] **Step 3: Implement `Direction`**
+- [x] **Step 3: Implement `Direction`**
 
   Use `useJUnitPlatform()`, with `testImplementation(platform(junit-bom 6.1.3))`, `junit-jupiter`, `kotlin("test-junit5")`, and `testRuntimeOnly junit-platform-launcher`.
 
-- [ ] **Step 4: Run the test and confirm it passes**
+- [x] **Step 4: Run the test and confirm it passes**
 
   Run: `./gradlew :domain:test`
 
@@ -436,14 +432,14 @@ These are copied from the spec and apply to every task.
 
   **Evidence for spec §12 risk "JUnit 6 + kotlin-test":** include that XML line in the report.
 
-- [ ] **Step 5: Add Kover**
+- [x] **Step 5: Add Kover**
   - Apply Kover to `:domain`, and aggregate it at the root.
   - Add a verify rule on `:domain`: `minBound(100, LINE)` and `minBound(100, BRANCH)`, with no filters.
   - Run `./gradlew koverVerify koverLog`.
   - Expected: success, and the log shows 100% line and branch for `:domain`.
   - Then prove the gate bites: temporarily add an untested branch to `Direction`, run `koverVerify`, and paste the FAILED output. Revert the branch.
 
-- [ ] **Step 6: Add ktlint without a third-party Gradle plugin**
+- [x] **Step 6: Add ktlint without a third-party Gradle plugin**
   - In `gradle/ktlint.gradle.kts`, add a `ktlint` configuration that depends on `libs.versions.toml`'s `ktlint-cli` library (version `ktlint`, 1.8.0).
   - `ktlintCheck` is a `JavaExec` with `mainClass = "com.pinterest.ktlint.Main"` and, as args, the `.kt` and `.kts` files that exist in the `git ls-files -z -co --exclude-standard` list shared with `checkNoComments` (explicit relative paths, so ktlint never walks `build/` directories). The `--sun-misc-unsafe-memory-access=allow` jvmArg is defined once.
   - `ktlintFormat` is the same task plus `-F`.
@@ -453,18 +449,18 @@ These are copied from the spec and apply to every task.
   - Prove it bites: add a bad indent, run it, paste the failure, revert.
   - **Evidence for spec §12 risk "ktlint 1.8.0 on Kotlin 2.4.20".**
 
-- [ ] **Step 7: Configure Android Lint**
+- [x] **Step 7: Configure Android Lint**
   - `lint { warningsAsErrors = true; abortOnError = true; checkDependencies = true }`, with no baseline file.
   - Run: `./gradlew :app:lintDebug`. Expected: `0 errors, 0 warnings`.
   - If Lint flags Kotlin 2.4.21 as newer, that is the deliberate CodeQL cap (ADR-0006). Report it with the exact issue id and stop for a decision. Do not disable checks on your own.
 
-- [ ] **Step 8: Run the whole gate**
+- [x] **Step 8: Run the whole gate**
 
   Run: `./gradlew check --warning-mode=fail`
 
   Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 9: Commit, open the issue and the PR, merge**
+- [x] **Step 9: Commit, open the issue and the PR, merge**
 
   Worktree with branch `build/quality-gates`. Subjects:
   - `feat(domain): add Direction with opposite`
@@ -499,7 +495,7 @@ These are copied from the spec and apply to every task.
     - `fun main(args: Array<String>)` calls `exitProcess(Cli.run(...))`
   - root task `checkNoComments`: a `JavaExec` over `git ls-files -co --exclude-standard` filtered to the in-scope extensions
 
-- [ ] **Step 1: Write the failing tests `NoCommentsTest`**
+- [x] **Step 1: Write the failing tests `NoCommentsTest`**
 
   Each case asserts the exact list of `Finding` lines.
 
@@ -550,13 +546,13 @@ These are copied from the spec and apply to every task.
 
   **Multi-line:** a finding's line number is the line where the comment starts.
 
-- [ ] **Step 2: Run the tests and confirm they fail**
+- [x] **Step 2: Run the tests and confirm they fail**
 
   Run: `./gradlew -p build-logic/checks test`
 
   Expected: compilation fails, with `Unresolved reference 'NoComments'`.
 
-- [ ] **Step 3: Implement `NoComments.scan`**
+- [x] **Step 3: Implement `NoComments.scan`**
 
   It's a single-pass character state machine per language family:
   - **Kotlin:** states CODE, LINE_COMMENT, BLOCK(depth), STRING, RAW_STRING, CHAR, plus a template-brace depth stack for `${`.
@@ -566,30 +562,30 @@ These are copied from the spec and apply to every task.
 
   Emit one finding per comment, at its start line. Message: `comment not allowed (why/what belong in the commit message)`.
 
-- [ ] **Step 4: Run the tests and confirm they pass**
+- [x] **Step 4: Run the tests and confirm they pass**
 
   Run: `./gradlew -p build-logic/checks test`
 
   Expected: all pass.
 
-- [ ] **Step 5: Write `CliTest` and implement `Cli`**
+- [x] **Step 5: Write `CliTest` and implement `Cli`**
   - Exit codes: 0 / 1 / 2.
   - Unknown subcommand: prints usage and exits 2.
   - Findings are printed in `path:line: message` form.
 
   Run the tests. Expected: pass.
 
-- [ ] **Step 6: Add Kover 100% line and branch to `build-logic/checks`**
+- [x] **Step 6: Add Kover 100% line and branch to `build-logic/checks`**
 
   Run `./gradlew -p build-logic/checks koverVerify`. Expected: success.
 
-- [ ] **Step 7: Wire it in and prove it**
+- [x] **Step 7: Wire it in and prove it**
   - Run `./gradlew checkNoComments`. Expected: success on the repo.
   - Add `// x` to `Direction.kt` and run again. Expected: exit 1, printing `domain/src/main/kotlin/.../Direction.kt:<n>: comment not allowed ...`.
   - Revert.
   - Paste both outputs as evidence.
 
-- [ ] **Step 8: Commit and PR**
+- [x] **Step 8: Commit and PR**
 
   Branch `feat/no-comments-check`.
 
@@ -627,7 +623,7 @@ These are copied from the spec and apply to every task.
     - `checkCommitMessages -PmessagesFile=`
     - `checkPullRequest -PtitleFile= -PbodyFile= -PlabelsFile= -PpathsFile=`, which runs `pr-title`, `pr-body` and `tests-changed` with modules `domain`, `data`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
   `CommitMessageTest` (each case asserts empty vs non-empty, plus a key error substring):
 
@@ -675,25 +671,25 @@ These are copied from the spec and apply to every task.
   | Ungated module | `app/src/main/kotlin/X.kt` | `[]` |
   | Docs only | `docs/x.md` | `[]` |
 
-- [ ] **Step 2: Run the tests and confirm they fail**
+- [x] **Step 2: Run the tests and confirm they fail**
 
   Run: `./gradlew -p build-logic/checks test`
 
   Expected: unresolved references.
 
-- [ ] **Step 3: Implement the three validators and the CLI subcommands**
+- [x] **Step 3: Implement the three validators and the CLI subcommands**
 
   The header grammar is `^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9-]+\))?!?: \S.*$`.
 
   The body is everything after the first blank line, minus trailing `Token: value` trailer lines.
 
-- [ ] **Step 4: Run the tests and coverage**
+- [x] **Step 4: Run the tests and coverage**
 
   Run: `./gradlew -p build-logic/checks test koverVerify`
 
   Expected: pass, 100%.
 
-- [ ] **Step 5: Commit and PR**
+- [x] **Step 5: Commit and PR**
 
   Branch `feat/process-checks`.
 
@@ -718,7 +714,7 @@ These are copied from the spec and apply to every task.
   - `object ManifestHardening { fun validate(mergedManifestXml: String): List<String> }`. Uses the JDK `javax.xml.parsers`, with no new dependency; external entities are disabled.
   - CLI subcommands `workflows <path...>` and `manifest <path>`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
   `WorkflowSafetyTest`, one finding each:
 
@@ -745,26 +741,26 @@ These are copied from the spec and apply to every task.
     - missing `dataExtractionRules` → `dataExtractionRules`
     - an XML with a DOCTYPE external entity → an error, with no file read
 
-- [ ] **Step 2: Run the tests and confirm they fail**
+- [x] **Step 2: Run the tests and confirm they fail**
 
   Run: `./gradlew -p build-logic/checks test`
 
   Expected: unresolved references.
 
-- [ ] **Step 3: Implement both checkers**
+- [x] **Step 3: Implement both checkers**
   - **WorkflowSafety** is line-based:
     - track whether the current line is inside a `run:` scalar or block, by indentation
     - flag `${{ github.event.` inside it
     - `uses:` values must match `@[0-9a-f]{40}$`, ignoring trailing whitespace; local `./` actions are allowed
   - **ManifestHardening** parses with `FEATURE_SECURE_PROCESSING` and `disallow-doctype-decl`.
 
-- [ ] **Step 4: Run the tests and coverage**
+- [x] **Step 4: Run the tests and coverage**
 
   Run: `./gradlew -p build-logic/checks test koverVerify`
 
   Expected: pass, 100%.
 
-- [ ] **Step 5: Run the check on the real manifest**
+- [x] **Step 5: Run the check on the real manifest**
 
   The backup rule files already exist from Task 1.
 
@@ -774,7 +770,7 @@ These are copied from the spec and apply to every task.
 
   Prove it bites: temporarily add the INTERNET permission, run, paste the failure, revert.
 
-- [ ] **Step 6: Commit and PR**
+- [x] **Step 6: Commit and PR**
 
   Branch `feat/workflow-manifest-checks`.
 
@@ -799,7 +795,7 @@ These are copied from the spec and apply to every task.
   - `scripts/bootstrap.sh`: sets `core.hooksPath=.githooks`, checks mise (at least 2026.10.18), runs `mise install --locked`, re-runs the Temurin SHA cross-check, checks the pinned Android SDK packages are installed, and installs the `gh-stack` extension through mise's `gh` if missing
   - `lib.sh` functions `is_main_checkout` and `on_main_branch`
 
-- [ ] **Step 1: Write `scripts/test-hooks.sh`**
+- [x] **Step 1: Write `scripts/test-hooks.sh`**
 
   It creates a temporary clone with a linked worktree, then asserts each case's exit code and that stderr contains the stated text.
 
@@ -815,13 +811,13 @@ These are copied from the spec and apply to every task.
   | (h) | `pre-push` with a failing unit test | refused |
   | (i) | `pre-push` with a workflow zizmor flags (e.g. an unpinned action) | refused |
 
-- [ ] **Step 2: Run it and confirm it fails**
+- [x] **Step 2: Run it and confirm it fails**
 
   Run: `scripts/test-hooks.sh`
 
   Expected: case (a) fails first, because no hooks exist yet.
 
-- [ ] **Step 3: Implement the hooks**
+- [x] **Step 3: Implement the hooks**
   - `is_main_checkout`: `[ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ]`
   - `on_main_branch`: `[ "$(git symbolic-ref -q --short HEAD)" = main ]`. A detached HEAD is not main.
   - **pre-commit:** runs `checkNoComments` and `ktlintCheck` on the whole repo, quietly, with the configuration cache.
@@ -829,13 +825,13 @@ These are copied from the spec and apply to every task.
   - **pre-push:** refuses pushes to `refs/heads/main`, then runs `zizmor` on `.github/workflows/` through mise, then `./gradlew check`.
   - The scripts are POSIX sh, start with `#!/bin/sh`, and have no other comments.
 
-- [ ] **Step 4: Run the tests and confirm they pass**
+- [x] **Step 4: Run the tests and confirm they pass**
 
   Run: `scripts/test-hooks.sh`
 
   Expected: `9/9 passed`.
 
-- [ ] **Step 5: Commit and PR**
+- [x] **Step 5: Commit and PR**
 
   Branch `feat/git-hooks`.
 
@@ -864,7 +860,7 @@ These are copied from the spec and apply to every task.
 - Consumes: all Gradle check tasks from Tasks 3–6.
 - Produces the required status check names `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`.
 
-- [ ] **Step 1: Resolve the SHAs for the action versions in spec §11**
+- [x] **Step 1: Resolve the SHAs for the action versions in spec §11**
 
   For each action, resolve the SHA of its version tag:
 
@@ -876,7 +872,7 @@ These are copied from the spec and apply to every task.
 
   Also re-verify zizmor's latest stable release. Add it to `mise.toml` as `aqua:zizmorcore/zizmor`, run `mise lock`, and confirm the lock entry has a sha256 per locked platform and `provenance = "github-attestations"`. Record version, source and date in `docs/versions.md`.
 
-- [ ] **Step 2: Write `ci.yml`**
+- [x] **Step 2: Write `ci.yml`**
   - **Triggers:** `pull_request` and `push` to `main`. Top-level `permissions: {}`.
   - **Job `checks`** (`contents: read`), steps:
     1. checkout
@@ -897,17 +893,17 @@ These are copied from the spec and apply to every task.
   - In job `checks`, also run `./gradlew :app:assembleRelease`, then `test -s app/build/outputs/mapping/release/mapping.txt`. This proves R8 ran (spec §7.2, manifest and build hardening).
   - **Workflow-level `concurrency`:** cancel in-progress runs for the same ref.
 
-- [ ] **Step 3: Write `codeql.yml`**
+- [x] **Step 3: Write `codeql.yml`**
   - Matrix languages `java-kotlin` (`build-mode: manual`, build step `./gradlew assembleDebug`) and `actions` (`build-mode: none`).
   - Permissions `security-events: write` and `contents: read`, at job level only.
 
-- [ ] **Step 4: Write `dependabot.yml`**
+- [x] **Step 4: Write `dependabot.yml`**
   - Ecosystems `gradle` (directories `/` and `/build-logic/checks`) and `github-actions`, weekly.
   - `commit-message: { prefix: build, include: scope }`
   - `labels: [dependencies]`
   - `groups` that group all updates per ecosystem
 
-- [ ] **Step 5: Generate dependency verification**
+- [x] **Step 5: Generate dependency verification**
 
   Run: `./gradlew --write-verification-metadata sha256 check :app:assembleRelease` and also `-p build-logic/checks check`.
 
@@ -919,7 +915,7 @@ These are copied from the spec and apply to every task.
 
   Prove it bites: corrupt one `sha256` value, run, paste the `Dependency verification failed` output, revert. Also confirm whether the included build is covered by the root file, and record the finding as evidence.
 
-- [ ] **Step 6: Run the local checks**
+- [x] **Step 6: Run the local checks**
 
   Run: `./gradlew checkWorkflows checkNoComments`
 
@@ -927,7 +923,7 @@ These are copied from the spec and apply to every task.
 
   Also run `zizmor` on `.github/workflows/` through mise. Expected: zero findings, with no ignore or suppression config.
 
-- [ ] **Step 7: Open the PR and confirm every job runs**
+- [x] **Step 7: Open the PR and confirm every job runs**
 
   Branch `ci/pipeline`. Open the PR.
 
@@ -935,13 +931,13 @@ These are copied from the spec and apply to every task.
 
   **Evidence for spec §11 "CodeQL supports Kotlin 2.4.20":** the `analyze (java-kotlin)` log shows Kotlin files extracted with no unsupported-version warning.
 
-- [ ] **Step 8: Prove the PR gates bite on a throwaway PR**
+- [x] **Step 8: Prove the PR gates bite on a throwaway PR**
   - Use a throwaway PR with commit message `update stuff` and no `Closes #`.
   - Expected: `pr-rules` fails, with both errors in the log. Paste the URL.
   - Also prove zizmor bites: on the throwaway PR (or locally, pasted), a workflow change zizmor flags makes `checks` fail. Paste the output.
   - Close the PR and delete the branch.
 
-- [ ] **Step 9: Merge, then require the checks**
+- [x] **Step 9: Merge, then require the checks**
   - Merge the CI PR.
   - Extend `apply-repo-settings.sh` so the `main-protection` ruleset requires the four checks with `strict_required_status_checks_policy: true`.
   - Run it. Expected: `all settings match`.
@@ -1002,11 +998,11 @@ These are copied from the spec and apply to every task.
 
 **Steps:**
 
-- [ ] **Step 1: Write the files**
+- [x] **Step 1: Write the files**
 
   Write them according to the content requirements above.
 
-- [ ] **Step 2: Prove onboarding from a fresh clone**
+- [x] **Step 2: Prove onboarding from a fresh clone**
 
   ```bash
   git clone https://github.com/EastwoodNo1/SuperSnake /tmp-scratch/fresh && cd /tmp-scratch/fresh && scripts/bootstrap.sh && ./gradlew check
@@ -1016,7 +1012,7 @@ These are copied from the spec and apply to every task.
 
   Expected: bootstrap prints `hooks installed`, and the Gradle run ends with `BUILD SUCCESSFUL`. Paste both lines as evidence.
 
-- [ ] **Step 3: Commit and PR**
+- [x] **Step 3: Commit and PR**
 
   Branch `docs/onboarding`.
 
@@ -1060,7 +1056,7 @@ These are copied from the spec and apply to every task.
   - tag `v0.1.0`
   - `verify-templates.sh <consumer-repo-path>`: diffs every template against the consumer's file and exits 1 on drift
 
-- [ ] **Step 1: Check the current plugin format**
+- [x] **Step 1: Check the current plugin format**
 
   Read the current Claude Code plugin and marketplace documentation, and record the doc URLs. Use the `plugin-dev`/`write-a-skill` skills for structure. Each SKILL.md:
   - has a `description` that states when to trigger it
@@ -1068,14 +1064,14 @@ These are copied from the spec and apply to every task.
   - for `android-ci`, tells the agent to re-verify action SHAs and versions, and zizmor's version, instead of trusting the templates
   - for `sdlc-rules`, encodes spec §6–§7 and §13.12–13 plus the evidence rule
 
-- [ ] **Step 2: Create the repo**
+- [x] **Step 2: Create the repo**
 
   `gh repo create EastwoodNo1/android-sdlc-skills --public`. Apply the same settings script to it, using the checks that apply to a non-Android repo:
   - the CI job runs `verify-templates.sh` against a SuperSnake checkout
   - CI also runs `shellcheck`, which is preinstalled on `ubuntu-latest` runners; verify that in the runner image docs and record it as evidence
   - CI runs the copied `checks` build's own tests
 
-- [ ] **Step 3: Prove `verify-templates.sh` against SuperSnake**
+- [x] **Step 3: Prove `verify-templates.sh` against SuperSnake**
 
   Run: `scripts/verify-templates.sh ../SuperSnake`
 
@@ -1083,7 +1079,7 @@ These are copied from the spec and apply to every task.
 
   Change one template byte, run again, and paste the drift output (exit 1). Revert.
 
-- [ ] **Step 4: Prove the skills on a fresh project**
+- [x] **Step 4: Prove the skills on a fresh project**
   - In the scratchpad, create a new empty Android project: copy the SuperSnake skeleton from Task 1 under a different package.
   - Start a fresh subagent that only has the plugin installed, and ask it to "set up hooks and CI for this project".
   - Expected:
@@ -1092,13 +1088,13 @@ These are copied from the spec and apply to every task.
     - `./gradlew check checkNoComments checkWorkflows` succeeds
   - Paste the outputs. Don't create a GitHub repo for the scratch project.
 
-- [ ] **Step 5: Tag v0.1.0 and install the plugin in SuperSnake**
+- [x] **Step 5: Tag v0.1.0 and install the plugin in SuperSnake**
   - Tag `v0.1.0` and create a GitHub release.
   - In SuperSnake, `.claude/settings.json` declares the marketplace `EastwoodNo1/android-sdlc-skills` at `v0.1.0` and enables `android-sdlc`.
   - `CLAUDE.md` points to the three skills.
   - Run `claude plugin list` (or the documented equivalent). Expected: `android-sdlc` is listed and enabled.
 
-- [ ] **Step 6: Commit and PR (SuperSnake)**
+- [x] **Step 6: Commit and PR (SuperSnake)**
 
   Branch `chore/install-sdlc-plugin`.
 

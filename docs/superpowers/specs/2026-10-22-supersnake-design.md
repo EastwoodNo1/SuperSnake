@@ -288,7 +288,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 | Evidence section present and non-empty | — | PR body check | PR template |
 | Linear history, squash merge only | — | — | Ruleset: require linear history; the only allowed merge method is squash |
 | Workflows are safe | — | A workflow lint check fails on:<br>• any `pull_request_target` or `workflow_run` trigger<br>• `${{ github.event.* }}` interpolated inside a `run:` script<br>• an action not pinned by full commit SHA<br>• a missing top-level `permissions: {}`<br>and zizmor (latest stable, pinned via mise) reports no findings | Fork PR workflows require approval for all outside contributors; default `GITHUB_TOKEN` permission is read-only |
-| Release tags are trustworthy | — | Tags are created only by the release-please release job. The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags. Immutable releases on. No "prevent self-review" setting, since solo |
+| Release tags are trustworthy | — | Tags are created only by the release-please release job. The release workflow fails unless the tag's commit is an ancestor of `origin/main` | Tag ruleset on `v*`: only via the release process, no deletion or force-update. `release` environment limited to `v*` tags (**open, Plan 4:** §8 runs the release job in the release-please run on `main`, which this limit blocks; resolve by allowing `main` in the environment, or by a separate tag-triggered build job triggered by the tag release-please creates with the App token). Immutable releases on. No "prevent self-review" setting, since solo |
 
 ### 7.3 Practices (taught, not gated)
 
@@ -463,7 +463,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 | Item | Version | Released | Source |
 |------|---------|----------|--------|
 | actions/checkout | v7.0.1 | 2026-07-20 | releases/latest |
-| actions/setup-java | v6.1.0 | 2026-10-14 | releases/latest |
+| actions/setup-java | v6.1.0 | 2026-10-14 | Not used: the JDK comes from mise (R9). Listed only as a record |
 | gradle/actions (setup-gradle) | v6.4.0 | 2026-09-28 | releases/latest. Use `cache-provider: basic` (MIT-licensed), not the default proprietary Enhanced Caching. Wrapper validation is built in, so no separate step is needed (github.com/gradle/actions/blob/main/docs/setup-gradle.md) |
 | github/codeql-action | v4.39.1 | 2026-10-21 | releases (not the `codeql-bundle` tag) |
 | actions/attest-build-provenance | v4.2.2 | 2026-08-06 | releases/latest |

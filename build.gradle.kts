@@ -42,44 +42,58 @@ val checkNoComments =
         )
     }
 
+class ProvidedArguments(
+    @get:Input val arguments: Provider<List<String>>,
+) : CommandLineArgumentProvider {
+    override fun asArguments(): Iterable<String> = arguments.get()
+}
+
 fun registerCheck(
     name: String,
     summary: String,
-    arguments: () -> List<String>,
+    arguments: Provider<List<String>>,
 ) = tasks.register<JavaExec>(name) {
     group = "verification"
     description = summary
     classpath = checks
     mainClass = "sdlc.checks.CliKt"
-    argumentProviders.add(CommandLineArgumentProvider(arguments))
+    argumentProviders.add(ProvidedArguments(arguments))
 }
 
-fun requiredProperty(name: String) = providers.gradleProperty(name).get()
+fun property(name: String) = providers.gradleProperty(name)
 
-val gatedModules = listOf("domain", "data")
+registerCheck(
+    "checkCommitMessage",
+    "Validates one commit message file (-PmessageFile).",
+    property("messageFile").map { listOf("commit-message", it) },
+)
 
-registerCheck("checkCommitMessage", "Validates one commit message file (-PmessageFile).") {
-    listOf("commit-message", requiredProperty("messageFile"))
-}
-
-registerCheck("checkCommitMessages", "Validates NUL-separated commit messages (-PmessagesFile).") {
-    listOf("commit-messages", requiredProperty("messagesFile"))
-}
+registerCheck(
+    "checkCommitMessages",
+    "Validates NUL-separated commit messages (-PmessagesFile).",
+    property("messagesFile").map { listOf("commit-messages", it) },
+)
 
 val checkPullRequestTitle =
-    registerCheck("checkPullRequestTitle", "Validates the PR title (-PtitleFile).") {
-        listOf("pr-title", requiredProperty("titleFile"))
-    }
+    registerCheck(
+        "checkPullRequestTitle",
+        "Validates the PR title (-PtitleFile).",
+        property("titleFile").map { listOf("pr-title", it) },
+    )
 
 val checkPullRequestBody =
-    registerCheck("checkPullRequestBody", "Validates the PR body (-PbodyFile, -PlabelsFile).") {
-        listOf("pr-body", requiredProperty("bodyFile"), requiredProperty("labelsFile"))
-    }
+    registerCheck(
+        "checkPullRequestBody",
+        "Validates the PR body (-PbodyFile, -PlabelsFile).",
+        property("bodyFile").zip(property("labelsFile")) { body, labels -> listOf("pr-body", body, labels) },
+    )
 
 val checkTestsChanged =
-    registerCheck("checkTestsChanged", "Requires test changes beside production changes (-PpathsFile).") {
-        listOf("tests-changed", requiredProperty("pathsFile")) + gatedModules
-    }
+    registerCheck(
+        "checkTestsChanged",
+        "Requires test changes beside production changes (-PpathsFile).",
+        property("pathsFile").map { listOf("tests-changed", it, "domain", "data") },
+    )
 
 tasks.register("checkPullRequest") {
     group = "verification"

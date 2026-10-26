@@ -5,6 +5,7 @@ lockfile = true
 
 [tools]
 "aqua:cli/cli" = "2.103.0"
+"aqua:zizmorcore/zizmor" = "1.31.1"
 
 [tools."github:adoptium/temurin25-binaries"]
 version = "jdk-25.0.5+8"

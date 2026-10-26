@@ -6,6 +6,7 @@
 | JDK toolchain | Temurin 25.0.5+8 (toolchain 25), installed via mise | 2026-10-22 | https://github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8 | 2026-10-23 |
 | mise | 2026.10.18 | 2026-10-23 | https://github.com/jdx/mise/releases/tag/v2026.10.18 | 2026-10-23 |
 | gh | 2.103.0 (via `aqua:cli/cli`) | 2026-10-21 | https://github.com/cli/cli/releases/tag/v2.103.0 | 2026-10-23 |
+| zizmor | 1.31.1 (via `aqua:zizmorcore/zizmor`) | 2026-10-15 | https://github.com/zizmorcore/zizmor/releases/tag/v1.31.1 | 2026-10-26 |
 | AGP | 9.4.1 | 2026-09-18 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-23 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
@@ -23,7 +24,7 @@ Release dates for Maven artifacts are the Last-Modified header of the published 
 
 - `mise.toml` pins every dev tool to an exact version. `mise.lock` records the download URL and SHA-256 of each tool for each platform. Install only with `mise install --locked`, which fails when the lock has no matching entry.
 - Locked platforms: macos-arm64, linux-x64, linux-arm64. Adoptium publishes no macOS x64 build of Temurin 25.0.5+8, so macos-x64 is not locked for Java.
-- gh: provenance is `github-attestations`, recorded in `mise.lock` and verified by mise at install time.
+- gh and zizmor: provenance is `github-attestations`, recorded in `mise.lock` and verified by mise at install time.
 - Temurin: SHA pin only. The release is GPG-signed and mise can't verify GPG signatures for Java. Each locked checksum was cross-checked against two sources:
   - Adoptium API: https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-25.0.5%2B8?image_type=jdk&jvm_impl=hotspot&project=jdk
   - the release's `.sha256.txt` asset: https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/<archive name>.sha256.txt

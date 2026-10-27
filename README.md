@@ -45,7 +45,7 @@ Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails o
 The SDLC skills come from the `android-sdlc` plugin. `.claude/settings.json` declares it, but each contributor installs it once:
 
 ```sh
-claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.1.1 --scope project
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.2.0 --scope project
 claude plugin install android-sdlc@android-sdlc-skills --scope project
 claude plugin list
 ```

@@ -42,3 +42,11 @@ Status of each row is Observed (O), Reconstructed (R), Unknown (U) or Prospectiv
 | 22 | 2026-10-28 | CYCLE-008 | Planning, design | Plan 3 from Start here (PROMPT-018) | Plan the Android app | Three research subagents; three owner questions; contrast fix | Plan 3, ADR-0009, ADR-0010 (commit `e11d295`) | Owner approved; execution in a fresh session (R, reported by the main agent) | Execute Plan 3 | [record](sessions/2026-10-28-plan-3-planning-reconstructed.md) |
 
 Notes: the Plan 2 session record is a captured note whose digest was truncated in the middle (GAP-009). The Plan 3 record was reconstructed, because the session had not ended.
+
+## Update: AGP 9.5.0 bump (third fold-in, 2026-10-28)
+
+| Seq. | Date / Session | Cycle | Lifecycle Phase | Trigger | Objective | Key Activity | Output | Validation / Result | Next Step | Evidence |
+|---:|---|---|---|---|---|---|---|---|---|---|
+| 23 | 2026-10-28, Plan 3 execution session (not yet captured) | CYCLE-009 | Maintenance, feedback | AGP 9.5.0 became stable; lint's AndroidGradlePluginVersion check started failing `:app:lintDebug` (reported by the main agent, R) | Keep the strict gate green before Plan 3 Task 1 | The owner chose a separate AGP bump PR before Task 1 (DEC-041); issue #71, branch `build/agp-9.5.0` | Commits `5d55438` (bump) and `c3fe5e5` (spec and Plan 3 record the new version) | Pending validation: checks on the PR | Plan 3 Task 1 (#70) | issue #71, `5d55438`, `c3fe5e5` |
+
+Notes: this fold-in also copied two staged notes as session records: the ADLC feature session (an observed capture that supersedes the reconstructed record of the same day as the better source, GAP-014) and the Plan 3 planning session (observed capture, closes GAP-012). The AGP session itself has no staged note yet; row 23 rests on the main agent's context and git (R).

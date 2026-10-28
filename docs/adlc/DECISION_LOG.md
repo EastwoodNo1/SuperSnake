@@ -69,3 +69,12 @@ Original (first draft of the plugin): treat any `LETTERS-123` token as an intern
 ### DEC-038 detail
 
 Original: the planner recommended replacing the emulator action with its own script, on the evidence of no recent issue activity. Outcome: the owner kept the action. This is preserved as a rejected recommendation. The plan's Task 5 pins the action to a commit.
+
+### Decisions from the third fold-in (2026-10-28)
+
+| Decision ID | Date / Sequence | Context | Decision | Owner | Alternatives | Observable Rationale | Evidence | Consequences | Status | Related Records |
+|---|---|---|---|---|---|---|---|---|---|---|
+| DEC-041 | 2026-10-28, Plan 3 execution | AGP 9.5.0 became stable and lint's AndroidGradlePluginVersion check failed `:app:lintDebug` | Bump AGP to 9.5.0 in its own PR (issue #71) before Plan 3 Task 1 (#70) | owner | Fold the bump into Task 1 (alternative inferred, not recorded); suppress the lint check (not recorded) | Reported by the main agent: a stable newer version made the check fail; a separate PR keeps Task 1 focused and the strict gate green. The one allowlisted AGP 9.4.1 deprecation message in the strict gate may need review (Unknown, not checked here) | `5d55438`, `c3fe5e5`; spec and Plan 3 updated for the version | `docs/versions.md` and the spec carry 9.5.0 | Accepted (pending PR checks) | CYCLE-009, REQ-005 |
+| DEC-042 | 2026-10-27, ADLC feature | Where session notes live and when they reach the repo | Staged notes in the git common dir, folded into `docs/adlc/` at the next PR; harness-neutral core with a Claude adapter; plugin pinned to a tag | owner and AI | End-of-project transcript scan; memory-only storage; auto-updating plugin | 30-day transcript cleanup, memory bloat, portability, public repo privacy (O, session record) | Plugin PR #8, v0.2.0; [record](sessions/2026-10-27-adlc-feature-build.md) | Fold-in is part of the Definition of Done | Accepted | PROMPT-020, DEC-026 |
+
+Note on DEC-041 and DEC-040 text: DEC-038 detail is also supported by the observed note: the repo had no issue activity in the last 30 days, and the action is pinned by SHA at v2.38.0.

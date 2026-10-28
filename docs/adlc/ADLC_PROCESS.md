@@ -19,10 +19,10 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 
 - Historical reconstruction: **Complete for the accessible evidence (first fold-in, 2026-10-27)**; open gaps are listed in the register
 - Earliest reliably documented point: 2026-10-20 (first captured session); first commit 2026-10-22 (`e900708`)
-- Current lifecycle position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28, not yet executed
+- Current lifecycle position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
 - Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), per-PR evidence not re-read; see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
-- Last documentation checkpoint: 2026-10-28 (second fold-in)
-- Last folded session: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
+- Last documentation checkpoint: 2026-10-28 (third fold-in, in the AGP 9.5.0 PR)
+- Last folded session: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
 
 ## 3. Actual Lifecycle Overview
 
@@ -384,12 +384,16 @@ Early (2026-10-20 to 23): human-led choices with AI facilitation and research. E
 - An owner question can reverse a plan; a recommendation can be overruled and should be recorded (DEC-038). Check transitive dependencies in the POM. Run a whole-range review after the per-task reviews. A fresh worktree lacks gitignored files.
 - The AI can be confidently stale; verify with the live source. The human owns irreversible actions. A fresh agent is the best validator of documentation.
 
+### Update: CYCLE-009 (third fold-in, 2026-10-28)
+
+AGP 9.5.0 became stable during the Plan 3 execution session and lint's AndroidGradlePluginVersion check failed `:app:lintDebug`. The owner chose a separate bump PR before Task 1 (DEC-041; commits `5d55438`, `c3fe5e5`). Status: pending PR checks. The session has no note yet (GAP-015). Observed notes for the ADLC feature session and the Plan 3 planning session were folded (DEC-042, PROMPT-019, PROMPT-020).
+
 ## 12. Current State and Next Step
 
 - Current lifecycle position: foundation and engine complete; Plan 3 (app) planned and approved, not executed
 - Current validated state: Plan 1 gates merged on `main`; this documentation awaits the privacy scan
 - Open issues: Dependabot Kotlin PR #41 (capped by CodeQL); issue #44 (ADLC adoption); spec design point on the `release` environment (DEC-030); `docs/release.md` not yet written
-- Next recommended activity: commit this fold-in, then execute Plan 3 in a fresh session from its Start here
+- Next recommended activity: merge the AGP 9.5.0 PR (issue #71), then Plan 3 Task 1 (#70)
 
 ## Supporting Documentation
 

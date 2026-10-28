@@ -57,3 +57,9 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 - REQ-009: Plan 3 plans accessibility tests and the contrast maths (DEC-040). Prospective.
 - REQ-010: met for `:domain` and `:data` at Plan 2 close (O, from the note).
 - Gap: the individual Plan 2 rule-to-test table was not re-read in this fold-in.
+
+### Updates in the third fold-in (2026-10-28)
+
+- REQ-005 (minimal, current dependencies): AGP bumped to 9.5.0 (DEC-041), version recorded in the spec and Plan 3 (`c3fe5e5`). Whether `docs/versions.md` was updated in the same PR was not checked in this fold-in. Pending PR validation.
+- REQ-009: no change; contrast figures confirmed by the observed note (3.66:1 against the background, 1.92:1 against the orb).
+- Gap: no test-level link exists for the AGP bump beyond the strict `check` gate (Prospective).

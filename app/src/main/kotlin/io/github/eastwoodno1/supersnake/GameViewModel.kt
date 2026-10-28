@@ -21,9 +21,11 @@ import kotlinx.coroutines.flow.first
 class GameViewModel(
     private val graph: AppGraph,
 ) : ViewModel() {
-    val scene = SceneHolder()
+    private val sessionClock = HoldableClock(graph.clock)
 
-    private var session = GameSession(Difficulty.LEVEL_1, graph.clock, graph.random, graph.recordHighScore)
+    val scene = SceneHolder().also { it.onFirstFrame = sessionClock::release }
+
+    private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
     private var burst: Burst? = null
     private var reduceMotion = false
     private var swipe = SwipeControl(DEFAULT_THRESHOLD_PX)
@@ -39,7 +41,8 @@ class GameViewModel(
         val scale = Settings.Global.getFloat(graph.context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         reduceMotion = Motion.reduced(scale)
         burst = null
-        session = GameSession(difficulty, graph.clock, graph.random, graph.recordHighScore)
+        sessionClock.hold()
+        session = GameSession(difficulty, sessionClock, graph.random, graph.recordHighScore)
         consume(session.frame)
     }
 

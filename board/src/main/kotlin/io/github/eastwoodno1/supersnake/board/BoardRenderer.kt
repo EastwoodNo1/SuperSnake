@@ -17,6 +17,7 @@ class BoardRenderer(
     private lateinit var shapes: ShapeRenderer
     private var frame = BoardFrame(0f, 0f, 0f)
     private val color = Color()
+    private var firstFrameDone = false
 
     override fun create() {
         shapes = ShapeRenderer()
@@ -53,6 +54,10 @@ class BoardRenderer(
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
         scene.crash?.let { cross(it) }
         shapes.end()
+        if (!firstFrameDone) {
+            firstFrameDone = true
+            holder.onFirstFrame()
+        }
     }
 
     override fun dispose() {

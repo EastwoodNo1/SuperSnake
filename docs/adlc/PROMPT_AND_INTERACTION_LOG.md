@@ -315,3 +315,70 @@ Plugin v0.2.0 (PR #8).
 2. **Plan, handoff complaint, cold-read test, fix** (PROMPT-004, 005): the plan was good but session-bound. A fresh agent was the validator.
 3. **Install fails, owner changes method, reproducible toolchain** (PROMPT-007, 008).
 4. **Failing check explained as design working** (PROMPT-010): the answer was to keep the failure visible.
+
+## PROMPT-015 - Write Plan 2
+
+- **Date / Session / Sequence:** 2026-10-27, session dfda0bef, start
+- **Lifecycle phase:** Planning
+- **Related cycle:** CYCLE-007
+- **Evidence status:** Observed
+
+### Prompt / Instruction
+Verbatim prompt:
+> Write Plan 2 (game engine) following the active plan's Start here.
+
+### Actual Output
+A nine-task plan with DataStore Preferences and an okio checkpoint.
+
+### Related Records
+- Decisions: DEC-031 to DEC-036
+
+## PROMPT-016 - Owner redirect: question okio, brainstorm the rules
+
+- **Date / Session / Sequence:** 2026-10-27, session dfda0bef, after the first draft
+- **Lifecycle phase:** Requirements, design
+- **Related cycle:** CYCLE-007
+- **Evidence status:** Reconstructed
+
+### Prompt / Instruction
+Reconstructed prompt intent - not verbatim: judge okio on community size and safety; if it fails, brainstorm alternatives. Do a complete brainstorm of game rules and edge cases, including cases solved in other Snake apps. Only after both decisions move on to subagents.
+
+### Observed Problem and Refinement
+Initial -> Output (plan on DataStore Preferences, which needs okio) -> Problem (an unexamined second runtime library, and rules not researched) -> Refinement (this prompt) -> Result: okio removed (DEC-031), rules C13-C25 added, plan rewritten, hard-stop proof in Task 8.
+
+### Related Records
+- Decisions: DEC-031 to DEC-036; Requirements: REQ-001, REQ-005
+
+## PROMPT-017 - Short owner rulings and the go signal
+
+- **Date / Session / Sequence:** 2026-10-27 to 28, session dfda0bef
+- **Lifecycle phase:** Design, implementation
+- **Related cycle:** CYCLE-007
+- **Evidence status:** Observed
+
+### Prompt / Instruction
+Verbatim prompts, each a short ruling that defaults to the Nokia original: "hit the count as in the original nokia game", "countdown 3-2-1, then move", "keep speed fixed like the original nokia", "yes, go with option 1". The go signal: "ok, start task 1 once it's merged".
+
+### Actual Output
+Rules C13-C25; autonomous subagent execution of Tasks 1-8.
+
+### Related Records
+- Decisions: DEC-032 to DEC-034
+
+## PROMPT-018 - Write Plan 3, with owner questions
+
+- **Date / Session / Sequence:** 2026-10-28, planning session (not captured)
+- **Lifecycle phase:** Planning
+- **Related cycle:** CYCLE-008
+- **Evidence status:** Reconstructed
+
+### Prompt / Instruction
+Reconstructed prompt intent - not verbatim: write Plan 3 (the app) from the plan's Start here, and settle dependency choices with the owner one question at a time.
+
+### Observed Problem and Refinement
+Initial -> Output (a draft with open dependency points) -> Problem (navigation libraries pull a banned runtime library; the emulator action looked quiet; sound source open) -> Refinement (three owner rulings) -> Result: ADR-0009, ADR-0010, the action kept with its evidence.
+
+### Related Records
+- Decisions: DEC-037 to DEC-040
+
+Prompt patterns added: **Owner doubts a dependency, research follows, plan changes** (PROMPT-016, PROMPT-018); **short rulings that default to the Nokia original** (PROMPT-017).

@@ -66,3 +66,15 @@ When necessary state:
 - Privacy edits applied to copied notes: the name of the cited book's author was replaced by a description of the book. The session records otherwise keep the staged wording.
 - The commit hashes quoted in the S1 note (c51cd73, 380cda8, b127e67, ad75d14, c41eca1, 179a06f, b32fb27, 730e1e7) were checked against `git log` and exist, so that gap in the note is closed (Observed).
 - The `git log` count and PR list were read in this fold-in. Evidence from the plugin repo was limited to the PR list and PR #8.
+
+## Second fold-in additions (2026-10-28)
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-009 | The digest of session dfda0bef was truncated in the middle (Plan 2 Tasks 5 to 7); the third storage option and several agent calls are cut off | CYCLE-007 | Individual findings of those tasks unknown | PR bodies, git history | Open |
+| GAP-010 | Subagent reports and the ledger were deleted at the end of the Plan 2 session | CYCLE-007 | Only git and PR bodies remain | none | Open |
+| GAP-011 | Root cause of the merge-wait failures on Tasks 6 and 7 | CYCLE-007 | Unknown | none | Open |
+| GAP-012 | The Plan 3 planning session is a reconstruction from the main agent's report and the committed plan; no digest read | CYCLE-008 | No verbatim prompts; research reports unread | Plan, ADR-0009, ADR-0010 | Open until its staged note is folded |
+| GAP-013 | Nothing reliable found on Google or Nokia Snake tail-cell and grace behaviour | CYCLE-007 | Rules rest on owner rulings | none | Open |
+
+Sources added: SRC-007 Plan 2, its design doc and ADR-0008; SRC-008 Plan 3 and ADR-0009, ADR-0010; SRC-009 the staged note of session dfda0bef.

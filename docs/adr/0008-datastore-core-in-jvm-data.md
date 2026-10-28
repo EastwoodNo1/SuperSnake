@@ -19,6 +19,7 @@ Evidence, read on 2026-10-28:
 
 - No third-party runtime code: the added groups are `androidx.datastore` and `androidx.annotation`.
 - Our serializers sit under the 100% line and branch gate, and they tolerate any bytes, so no corruption handler is needed.
+- The `Difficulty` and `ControlScheme` enum names are now a stored format, so renaming one resets that stored value to its default.
 - Plan 3 places the two files, `settings.txt` and `high_scores.txt`, in `filesDir/datastore/` and names them in the backup rules.
 
 Source: engine feel and storage design §3.

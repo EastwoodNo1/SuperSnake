@@ -328,7 +328,7 @@ Expected: `BUILD SUCCESSFUL`.
   - `GameRules.pause(state: GameState): GameState`: `COUNTDOWN` or `RUNNING → PAUSED`, clearing `pendingTurns`; every other status unchanged
   - `GameRules.resume(state: GameState): GameState`: `PAUSED → COUNTDOWN`; every other status unchanged
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
   | Test | Setup | Assertions |
   |------|-------|------------|
@@ -347,21 +347,21 @@ Expected: `BUILD SUCCESSFUL`.
   | `c20PauseClearsTurns` | `RUNNING` with `[UP]`; `COUNTDOWN` with `[UP]` | both `PAUSED`, queue empty; `tick` changes nothing |
   | `c20ResumeCountsDownAgain` | `resume` on each status; `pause` on `PAUSED`, `LOST`, `WON` | `PAUSED → COUNTDOWN`; every other case unchanged |
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test --tests '*TurnsTest' --tests '*GameRulesTest'`
 Expected: compilation fails with `Unresolved reference 'Turns'`.
 
-- [ ] **Step 3: Implement `Turns.enqueue`, `go`, `pause` and `resume`**
+- [x] **Step 3: Implement `Turns.enqueue`, `go`, `pause` and `resume`**
 
 `enqueue`: if the status is not `COUNTDOWN` or `RUNNING`, unchanged. Let `kept` be `pendingTurns` when it has fewer than `CAPACITY` entries, else `pendingTurns.dropLast(1)`. The reference is `kept.lastOrNull() ?: direction`. Ignore `direction` equal to the reference or its opposite; otherwise `pendingTurns = kept + direction`. When a full queue's replacement is ignored, the queue stays as it was.
 
-- [ ] **Step 4: Run them and confirm they pass**
+- [x] **Step 4: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

@@ -22,6 +22,17 @@ object GameRules {
         )
     }
 
+    fun go(state: GameState): GameState = if (state.status == GameStatus.COUNTDOWN) state.copy(status = GameStatus.RUNNING) else state
+
+    fun pause(state: GameState): GameState =
+        if (state.status == GameStatus.COUNTDOWN || state.status == GameStatus.RUNNING) {
+            state.copy(status = GameStatus.PAUSED, pendingTurns = emptyList())
+        } else {
+            state
+        }
+
+    fun resume(state: GameState): GameState = if (state.status == GameStatus.PAUSED) state.copy(status = GameStatus.COUNTDOWN) else state
+
     fun tick(
         state: GameState,
         random: RandomSource,

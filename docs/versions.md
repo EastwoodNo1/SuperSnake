@@ -35,10 +35,11 @@
 | androidx.test.ext junit | 1.3.0 (newest stable; 1.4.0-alpha skipped) | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/ext/junit/maven-metadata.xml | 2026-10-28 |
 | junit (JUnit 4, androidTest only) | 4.13.2 (newest stable) | 2021-02-13 | https://repo1.maven.org/maven2/junit/junit/maven-metadata.xml | 2026-10-28 |
 | compose ui-test-junit4, ui-test-manifest | 1.12.1 (managed by the Compose BOM 2026.09.00) | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/ui/ui-test-junit4/maven-metadata.xml | 2026-10-28 |
+| espresso-core (androidTest-only constraint) | 3.7.0 (newest stable; 3.8.0-alpha skipped). `ui-test-junit4` 1.12.1 brings 3.5.0 in transitively, and 3.5.0 crashes on API 37 because `InputManager.getInstance` is missing. Owner decision: keep the constraint; no Espresso API is used | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/espresso/espresso-core/maven-metadata.xml | 2026-10-28 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 
-`kotlinx-serialization-core` 1.7.3 is on `releaseRuntimeClasspath` through `androidx.savedstate`, which `activity-compose` already pulled in before Task 4. It is not a direct dependency and is not used by this project. `espresso-core` and `androidx.test.services:storage` reach the androidTest classpath only as transitive dependencies of `ui-test-junit4` and `androidx.test:runner`.
+`kotlinx-serialization-core` 1.7.3 is on `releaseRuntimeClasspath` transitively: `activity-compose` 1.13.0 -> `lifecycle-viewmodel-savedstate` -> `savedstate` 1.4.0. It has been there since Plan 1. The rule is "never added directly", and no code here uses it. `androidx.test.services:storage` reaches the androidTest classpath only as a transitive dependency of `androidx.test:runner`.
 
 ## Tool pinning
 

@@ -78,3 +78,13 @@ When necessary state:
 | GAP-013 | Nothing reliable found on Google or Nokia Snake tail-cell and grace behaviour | CYCLE-007 | Rules rest on owner rulings | none | Open |
 
 Sources added: SRC-007 Plan 2, its design doc and ADR-0008; SRC-008 Plan 3 and ADR-0009, ADR-0010; SRC-009 the staged note of session dfda0bef.
+
+## Third fold-in additions (2026-10-28)
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-012 update | The observed note of the Plan 3 planning session is now folded (SRC-010); verbatim prompts exist. Research report bodies remain unread | CYCLE-008 | Numbers (libGDX 1.14.2, 16 KB, activity counts) still come from main-agent summaries | session record | Partly closed |
+| GAP-014 | The ADLC feature session now has an observed note next to the earlier reconstructed record; the two were not reconciled line by line. Commit SHAs and counts in the note come from AI summaries | CYCLE-005, CYCLE-006 | Minor | both records | Open |
+| GAP-015 | The AGP 9.5.0 session has no staged note yet; the trigger and the owner's choice are taken from the main agent's context and git | CYCLE-009 | Rationale and alternatives thin | `5d55438`, `c3fe5e5` | Open until its note is folded |
+
+Sources added: SRC-010 staged note of session 35559d8c; SRC-011 staged note of session ea322ed1.

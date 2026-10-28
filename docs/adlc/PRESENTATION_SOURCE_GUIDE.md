@@ -172,3 +172,14 @@ The owner questioned an unexamined dependency (okio), which led to research, a v
 - **"A colour that failed a measurement."** 1.17:1 orb against wall contrast led to `#2266CC` (DEC-040).
 - Visualization: a pipeline of owner decisions, design, plan, eight tasks (implementer, reviewer, verify, PR, merge), final review, handoff.
 - Caveats: GAP-009 to GAP-013.
+
+## Update: CYCLE-009 and observed notes (third fold-in)
+
+### What happened?
+A new stable AGP made a lint check fail the strict gate. The owner chose a small separate PR before Plan 3 Task 1 (DEC-041). Two observed notes were also folded, replacing reconstructed material with verbatim prompts.
+
+### Presentation candidates
+- **"A dependency released mid-plan."** Key message: a stable release can break a gate overnight; handle it in a PR of its own. Example: DEC-041.
+- **"Memory versus the story."** Memory steers, the ADLC record tells; example: PROMPT-020.
+- **"Reconstruction gives way to capture."** Observed notes replaced reconstructed records, with gaps GAP-012 and GAP-014 recorded.
+- Caveat: GAP-015.

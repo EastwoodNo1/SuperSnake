@@ -382,3 +382,39 @@ Initial -> Output (a draft with open dependency points) -> Problem (navigation l
 - Decisions: DEC-037 to DEC-040
 
 Prompt patterns added: **Owner doubts a dependency, research follows, plan changes** (PROMPT-016, PROMPT-018); **short rulings that default to the Nokia original** (PROMPT-017).
+
+## Update: third fold-in (2026-10-28)
+
+## PROMPT-019 - Plan 3 planning prompts, observed capture
+
+- **Date / Session / Sequence:** 2026-10-28, session 35559d8c (captured)
+- **Lifecycle phase:** Planning, handoff
+- **Related cycle:** CYCLE-008
+- **Evidence status:** Observed
+
+### Prompt / Instruction
+Verbatim prompt: "Write Plan 3 (App) with superpowers:writing-plans, following the active plan's Start here." Later, on handoff: "yes, i think it does, should we handoff to a clean/new session or keep going here?" and "yes, go ahead with 1–4" (approving four outward-facing steps).
+
+### Observed Problem and Refinement
+Initial (mockup wall colour #2A8CFF copied into the palette) -> Output (plan palette) -> Problem (contrast against the orb computed at 1.17:1) -> Refinement (wall `#2266CC`) -> Result: 3.66:1 against the background, 1.92:1 against the orb (DEC-040). This refines the reconstructed PROMPT-018; the verbatim wording above replaces its reconstructed intent.
+
+### Related Records
+- Decisions: DEC-037 to DEC-040; [record](sessions/2026-10-28-plan-3-app-planning.md)
+
+## PROMPT-020 - Portable automatic ADLC documentation, observed capture
+
+- **Date / Session / Sequence:** 2026-10-27, session ea322ed1 (captured)
+- **Lifecycle phase:** Design, implementation (plugin repo), adoption
+- **Related cycle:** CYCLE-005, CYCLE-006
+- **Evidence status:** Observed
+
+### Prompt / Instruction
+Verbatim prompts: "i want the agent to document automatically but in an optimized way"; "no further questions, make sure we can even extend this to other agents souch as copilot, codex etc. then implement the documentation feature"; "yes, merge and start supersnake adoption". The owner also proposed per-session capture instead of an end-of-project scan (verbatim text in the session record).
+
+### Observed Problem and Refinement
+Initial (scan all transcripts at the end) -> Output (AI agreed on per-session capture but pushed back on memory as the only store) -> Problem (memory bloats, is rewritten, is not in git) -> Refinement (owner: mainly automatic) -> Result: SessionEnd hook, staged note, fold-in at the next PR, memory only for durable lessons.
+
+### Related Records
+- Decisions: DEC-026 and DEC-042; [record](sessions/2026-10-27-adlc-feature-build.md)
+
+Prompt patterns added: **Owner asks "should we hand off?"** and the agent recommends finishing the self-contained plan PR first (PROMPT-019).

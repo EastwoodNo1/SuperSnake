@@ -12,6 +12,7 @@ import io.github.eastwoodno1.supersnake.domain.Difficulty
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameInput
 import io.github.eastwoodno1.supersnake.domain.GameSession
+import io.github.eastwoodno1.supersnake.domain.HoldableClock
 import io.github.eastwoodno1.supersnake.domain.Motion
 import io.github.eastwoodno1.supersnake.domain.SwipeControl
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ class GameViewModel(
 ) : ViewModel() {
     private val sessionClock = HoldableClock(graph.clock)
 
-    val scene = SceneHolder().also { it.onFirstFrame = sessionClock::release }
+    val scene = SceneHolder().also { it.onFrame = { sessionClock.release() } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
     private var burst: Burst? = null

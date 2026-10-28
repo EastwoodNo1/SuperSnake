@@ -1,6 +1,5 @@
-package io.github.eastwoodno1.supersnake
+package io.github.eastwoodno1.supersnake.domain
 
-import io.github.eastwoodno1.supersnake.domain.Clock
 import java.time.LocalDate
 
 class HoldableClock(

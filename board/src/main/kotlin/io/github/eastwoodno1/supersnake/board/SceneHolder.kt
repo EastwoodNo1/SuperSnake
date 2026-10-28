@@ -7,5 +7,5 @@ class SceneHolder {
     var scene: BoardScene = BoardScene.EMPTY
 
     @Volatile
-    var onFirstFrame: () -> Unit = {}
+    var onFrame: () -> Unit = {}
 }

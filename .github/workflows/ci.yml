@@ -122,6 +122,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: ${{ matrix.profile }}
+          cores: 4
+          ram-size: 4096M
+          heap-size: 576M
           disable-animations: false
           script: mise exec -- ./gradlew :app:connectedDebugAndroidTest
       - name: Upload test results

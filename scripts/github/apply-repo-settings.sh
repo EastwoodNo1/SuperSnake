@@ -66,7 +66,10 @@ ruleset_body='{
         {"context": "checks", "integration_id": 15368},
         {"context": "pr-rules", "integration_id": 15368},
         {"context": "analyze (java-kotlin)", "integration_id": 15368},
-        {"context": "analyze (actions)", "integration_id": 15368}
+        {"context": "analyze (actions)", "integration_id": 15368},
+        {"context": "ui-tests (phone-37)", "integration_id": 15368},
+        {"context": "ui-tests (tablet-37)", "integration_id": 15368},
+        {"context": "ui-tests (phone-31)", "integration_id": 15368}
       ]
     }}
   ]

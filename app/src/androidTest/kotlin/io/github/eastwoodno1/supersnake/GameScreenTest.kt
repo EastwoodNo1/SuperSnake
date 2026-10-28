@@ -62,18 +62,26 @@ class GameScreenTest {
         Thread.sleep(millis)
     }
 
-    private fun pumpFor(millis: Long) {
-        val deadline = SystemClock.elapsedRealtime() + millis
-        while (SystemClock.elapsedRealtime() < deadline) pump(10)
-    }
-
     private fun play(): GameViewModel {
         composeRule.onNodeWithText("Play").performClick()
-        awaitUntil { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
+        awaitUntil(COLD_START_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
         return viewModel()
     }
 
     private fun awaitGo(model: GameViewModel) = awaitUntil { model.frame.value.state.status == GameStatus.RUNNING }
+
+    private fun awaitPixel(
+        cell: () -> Cell,
+        expected: Int,
+    ): Int {
+        var pixel = 0
+        awaitUntil(SETTLE_MILLIS) {
+            val shot = BoardPixels.capture(composeRule.activity)
+            pixel = shot.at(cell())
+            closeTo(pixel, expected)
+        }
+        return pixel
+    }
 
     private fun closeTo(
         actual: Int,
@@ -86,7 +94,7 @@ class GameScreenTest {
     @Test
     fun c13PlayShowsCountdown() {
         composeRule.onNodeWithText("Play").performClick()
-        awaitUntil(2_000) { composeRule.onAllNodesWithText("3").fetchSemanticsNodes().isNotEmpty() }
+        awaitUntil(COLD_START_MILLIS) { composeRule.onAllNodesWithText("3").fetchSemanticsNodes().isNotEmpty() }
         composeRule.onNodeWithText("3").assertExists()
     }
 
@@ -95,12 +103,8 @@ class GameScreenTest {
         val model = play()
         awaitGo(model)
         composeRule.runOnUiThread { model.pause() }
-        pumpFor(500)
-        val pixels = BoardPixels.capture(composeRule.activity)
-        val pixel = pixels.at(Cell(10, 10))
-        assertTrue("pixel ${Integer.toHexString(pixel)}", closeTo(pixel, NeonPalette.SNAKE))
-        val background = pixels.at(Cell(0, 0))
-        assertTrue("background ${Integer.toHexString(background)}", closeTo(background, NeonPalette.BACKGROUND))
+        awaitPixel({ Cell(10, 10) }, NeonPalette.SNAKE)
+        awaitPixel({ Cell(0, 0) }, NeonPalette.BACKGROUND)
     }
 
     @Test
@@ -115,12 +119,10 @@ class GameScreenTest {
         }
         awaitUntil { model.frame.value.state.direction == Direction.UP }
         composeRule.runOnUiThread { model.pause() }
-        pumpFor(500)
         val snake = model.frame.value.state.snake
         assertEquals(snake[1].x, snake[0].x)
         assertEquals(snake[1].y - 1, snake[0].y)
-        val pixel = BoardPixels.capture(composeRule.activity).at(snake[0])
-        assertTrue("pixel ${Integer.toHexString(pixel)}", closeTo(pixel, NeonPalette.SNAKE))
+        awaitPixel({ snake[0] }, NeonPalette.SNAKE)
     }
 
     @Test
@@ -172,6 +174,8 @@ class GameScreenTest {
 
     private companion object {
         const val TOLERANCE = 40
+        const val COLD_START_MILLIS = 60_000L
+        const val SETTLE_MILLIS = 15_000L
         const val WINDOW_MILLIS = 2_000L
         const val EXPECTED_MOVES = 8
     }

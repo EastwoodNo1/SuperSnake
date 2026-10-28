@@ -47,12 +47,13 @@ class GameScreenTest {
 
     private fun awaitUntil(
         timeoutMillis: Long = 10_000,
+        pumping: Boolean = true,
         condition: () -> Boolean,
     ) {
         val deadline = SystemClock.elapsedRealtime() + timeoutMillis
         while (!condition()) {
             assertTrue("timed out", SystemClock.elapsedRealtime() < deadline)
-            pump(10)
+            if (pumping) pump(10) else Thread.sleep(10)
         }
     }
 
@@ -92,7 +93,7 @@ class GameScreenTest {
     @Test
     fun boardDrawsTheSnake() {
         val model = play()
-        pumpFor(3_500)
+        awaitGo(model)
         composeRule.runOnUiThread { model.pause() }
         pumpFor(500)
         val pixel = BoardPixels.capture(composeRule.activity).at(Cell(10, 10))
@@ -125,7 +126,7 @@ class GameScreenTest {
         awaitGo(model)
         val before = model.frame.value.state
         composeRule.runOnUiThread { composeRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
-        awaitUntil { model.frame.value.state.status == GameStatus.PAUSED }
+        awaitUntil(pumping = false) { model.frame.value.state.status == GameStatus.PAUSED }
         val after = model.frame.value.state
         assertEquals(before.score, after.score)
         assertEquals(before.snake.size, after.snake.size)

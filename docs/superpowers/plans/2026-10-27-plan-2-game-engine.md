@@ -384,7 +384,7 @@ Expected: `BUILD SUCCESSFUL`.
 
 C24: `down` starts tracking only when no pointer is tracked. `move` from another pointer, or with nothing tracked, gives no turn and no change. A turn fires when the longer axis of `(x - originX, y - originY)` is at least `threshold`, and then the origin moves to `(x, y)`. An exact diagonal or a non-finite value gives no turn and keeps the origin. `up` from the tracked pointer stops tracking; from another pointer it changes nothing.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
   | Test | Actions | Assertions |
   |------|---------|------------|
@@ -399,19 +399,19 @@ C24: `down` starts tracking only when no pointer is tracked. `move` from another
   | `moveWithoutDownIsIgnored` | fresh tracker, `move(1, 100, 0, 48)` | `null`, tracker unchanged |
   | `keysMapToInput` | `GameKey.entries.map { it.input }` | `[Turn(UP), Turn(DOWN), Turn(LEFT), Turn(RIGHT), TogglePause]` |
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test --tests '*SwipeTrackerTest' --tests '*GameInputTest'`
 Expected: compilation fails with `Unresolved reference 'SwipeTracker'`.
 
-- [ ] **Step 3: Implement `SwipeTracker` and `GameKey.input`**
+- [x] **Step 3: Implement `SwipeTracker` and `GameKey.input`**
 
-- [ ] **Step 4: Run them and confirm they pass**
+- [x] **Step 4: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

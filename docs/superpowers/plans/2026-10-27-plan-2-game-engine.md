@@ -411,7 +411,7 @@ Expected: compilation fails with `Unresolved reference 'SwipeTracker'`.
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

@@ -125,8 +125,11 @@ jobs:
           cores: 3
           ram-size: 4096M
           heap-size: 512M
+          disk-size: 6000M
           disable-animations: false
           script: mise exec -- ./gradlew :app:connectedDebugAndroidTest
+      - name: Require executed tests
+        run: scripts/check-ui-test-results.sh
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

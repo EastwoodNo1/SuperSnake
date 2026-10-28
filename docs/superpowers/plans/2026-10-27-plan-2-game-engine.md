@@ -55,12 +55,22 @@ Together with the two spec documents, this plan is self-contained. A new session
 
 ### State at handoff (2026-10-28)
 
-- **Plan 1 is complete** (PRs #2 to #45). Plan 2 and the engine feel and storage design are written and approved; no Plan 2 task has started. Run `git log --oneline` for the current head.
+- **Plan 2 is complete.** Plan 1 is PRs #2 to #45. Plan 2 is #47 (plan and design), Tasks 1 to 8 as #49, #51, #53, #55, #57, #59, #61 and #63, the final-review fixes as #65, and Task 9 (this handoff) as the PR after them. `main` was at `b0a73a3` before Task 9. Run `git log --oneline` for the current head.
 - **Decided on 2026-10-28 [owner]:** storage is DataStore **core** with our own serializers, so okio never enters the build; no grace period at walls; a 3-2-1 countdown; fixed speed. See the design document.
-- **Plugin:** `EastwoodNo1/android-sdlc-skills` at `v0.2.0`, installed through `.claude/settings.json`. `scripts/verify-templates.sh` printed `35 templates checked` / `0 drift` against `main` on 2026-10-27. No task here changes a file the plugin copies; Task 9 re-runs the check.
-- **Dependabot PR #41** (Kotlin 2.4.20 → 2.4.21) stays open: CodeQL's supported-languages page still read "Kotlin 1.8.0 to 2.4.20" on 2026-10-27 (ADR-0006). Tasks 5 and 8 re-check it; when CodeQL lists 2.4.21, handle #41 as `docs/versions.md` "Dependency verification updates" says, as its own PR, between tasks.
+- **Plugin:** `EastwoodNo1/android-sdlc-skills` at `v0.2.0`, installed through `.claude/settings.json`. `scripts/verify-templates.sh` printed `35 templates checked` / `0 drift` against Task 9's branch on 2026-10-28.
+- **Dependabot PR #41** (Kotlin 2.4.20 → 2.4.21) is still open: CodeQL listed "Kotlin 1.8.0 to 2.4.20" on 2026-10-28 (ADR-0006). When CodeQL lists 2.4.21, handle #41 as `docs/versions.md` "Dependency verification updates" says, as its own PR.
+- **Next action:** write Plan 3 (App) with superpowers:writing-plans in a fresh session. `CLAUDE.md` keeps pointing at this plan until Plan 3 is written.
 - **ADLC capture is on.** Every PR runs the fold-in in the per-task workflow below.
 - **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/` or `.claude/settings.local.json`.
+
+#### Plan 3 contract (from Plan 2's final review)
+
+- `GameFrame.events`, `.announcements` and `.result` are one-shot: consume each frame that `advance()`, `input()` or `pause()` returns; never expose them only through a conflated StateFlow, or sounds, haptics and TalkBack announcements are dropped.
+- Call `advance()`, `input()` and `pause()` sequentially from one coroutine on the main thread. `advance()` suspends while the score is saved at game end; the game is already ended during that save and a disk error is absorbed in :domain (C22).
+- `Stores.settings(...)` and `Stores.highScores(...)` must each be created once per process (one DataStore per file), in the app's `filesDir/datastore/`, with the file names `settings.txt` and `high_scores.txt`, which the backup rules must name exactly.
+- Particles: start a burst on a frame whose events contain `ORB_EATEN`, at that frame's time, with cell `state.snake.first()`; Plan 3 keeps that start time.
+- `:data` exposes `:domain` and `datastore-core` as `api`, so `:app` needs only `implementation(project(":data"))` for both.
+- The swipe threshold is a dp value Plan 3 picks and converts to pixels (C24); reduce-motion comes from the system setting (Pulse, Particles).
 
 ### Machine prerequisites
 
@@ -700,7 +710,7 @@ From this task on, the strict gate includes `:data:koverVerify` and Evidence inc
 **Files:**
 - Modify: this plan's "State at handoff", `README.md` (the plans paragraph), `docs/game-rules.md` (B1–B6 present). `CLAUDE.md` keeps pointing here until Plan 3 is written.
 
-- [ ] **Step 1: Prove the whole engine on `main`'s head**
+- [x] **Step 1: Prove the whole engine on `main`'s head**
 
 From the worktree:
 
@@ -711,17 +721,17 @@ From the worktree:
 
 Expected: `BUILD SUCCESSFUL`; the per-task workflow's counter command shows `missed="0"` for LINE and BRANCH in both modules.
 
-- [ ] **Step 2: Check rule coverage**
+- [x] **Step 2: Check rule coverage**
 
 For each of S1–S5 and C1–C25, name the test that proves it, found with `grep -rn -i '<rule id>' domain/src/test data/src/test`. Rules that only Plan 3 can prove (C10/C20's lifecycle trigger, C11 "no multiplayer code", C25's TalkBack wiring, C24's dp value) say so. Put the table in the PR body.
 
-- [ ] **Step 3: Confirm no plugin drift**
+- [x] **Step 3: Confirm no plugin drift**
 
 Run: `/Users/r03418/AndroidStudioProjects/android-sdlc-skills/scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake-close-plan-2`
 Expected: `0 drift`. If anything drifted, stop: a task changed a file the plugin copies, and the plugin repo needs its own PR first.
 
-- [ ] **Step 4: Update the handoff text**
+- [x] **Step 4: Update the handoff text**
 
 "State at handoff": Plan 2 complete, PR numbers, `main` head, Dependabot state, next action "write Plan 3". README: "Plan 2 (game engine) is complete. Plan 3 is next."
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**

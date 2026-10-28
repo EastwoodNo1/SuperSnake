@@ -58,4 +58,4 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents 
 
 ## Status
 
-Plan 1 (foundation) is complete. Plan 2 (game engine) is written and next. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 2 file's **Start here** section has the state.
+Plan 1 (foundation) is complete. Plan 2 (game engine) is complete. Plan 3 is next. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 2 file's **Start here** section has the state.

@@ -1,5 +1,7 @@
 package io.github.eastwoodno1.supersnake.domain
 
+import java.io.IOException
+
 data class GameFrame(
     val state: GameState,
     val previousSnake: List<Cell>,
@@ -56,12 +58,11 @@ class GameSession internal constructor(
 
     suspend fun advance(): GameFrame {
         val now = clock.nowMillis()
-        frame =
-            when (frame.state.status) {
-                GameStatus.COUNTDOWN -> counting(now)
-                GameStatus.RUNNING -> stepping(now)
-                GameStatus.PAUSED, GameStatus.LOST, GameStatus.WON -> quiet(frame.state)
-            }
+        when (frame.state.status) {
+            GameStatus.COUNTDOWN -> frame = counting(now)
+            GameStatus.RUNNING -> stepping(now)
+            GameStatus.PAUSED, GameStatus.LOST, GameStatus.WON -> frame = quiet(frame.state)
+        }
         return frame
     }
 
@@ -95,40 +96,50 @@ class GameSession internal constructor(
         return quiet(frame.state).copy(countdown = number, announcements = announcements)
     }
 
-    private suspend fun stepping(now: Long): GameFrame {
+    private suspend fun stepping(now: Long) {
         val advance = timer.advance(now)
         timer = advance.timer
-        if (!advance.ticked) return quiet(frame.state).copy(progress = timer.progress(now))
+        if (!advance.ticked) {
+            frame = quiet(frame.state).copy(progress = timer.progress(now))
+            return
+        }
         val result = GameRules.tick(frame.state, random)
         val state = result.state
         val ended = state.status == GameStatus.LOST || state.status == GameStatus.WON
-        val score = if (ended) recordHighScore(state.score, state.difficulty) else null
-        val announcements = announcementsFor(result, score)
-        return GameFrame(
-            state = state,
-            previousSnake = if (ended) state.snake else frame.state.snake,
-            progress = if (ended) 1f else timer.progress(now),
-            countdown = null,
-            events = result.events,
-            announcements = announcements,
-            result = score,
-        )
+        val announcements = announcementsFor(result)
+        val next =
+            GameFrame(
+                state = state,
+                previousSnake = if (ended) state.snake else frame.state.snake,
+                progress = if (ended) 1f else timer.progress(now),
+                countdown = null,
+                events = result.events,
+                announcements = announcements,
+                result = null,
+            )
+        frame = next
+        if (ended) frame = saved(next)
     }
 
-    private fun announcementsFor(
-        result: TickResult,
-        score: ScoreResult?,
-    ): List<Announcement> {
+    private suspend fun saved(ended: GameFrame): GameFrame {
+        val state = ended.state
+        val score =
+            try {
+                recordHighScore(state.score, state.difficulty)
+            } catch (_: IOException) {
+                ScoreResult(null, false)
+            }
+        val extra = if (score.isNewBest) listOf(Announcement.NewHighScore(state.score)) else emptyList()
+        return ended.copy(announcements = ended.announcements + extra, result = score)
+    }
+
+    private fun announcementsFor(result: TickResult): List<Announcement> {
         val state = result.state
         val announcements = mutableListOf<Announcement>()
         result.events.forEach { event ->
             when (event) {
                 GameEvent.ORB_EATEN -> {
-                    if (state.orbsEaten % MILESTONE_ORBS ==
-                        0
-                    ) {
-                        announcements += Announcement.OrbMilestone(state.orbsEaten)
-                    }
+                    if (state.orbsEaten % MILESTONE_ORBS == 0) announcements += Announcement.OrbMilestone(state.orbsEaten)
                 }
 
                 GameEvent.LOST -> {
@@ -140,7 +151,6 @@ class GameSession internal constructor(
                 }
             }
         }
-        if (score?.isNewBest == true) announcements += Announcement.NewHighScore(state.score)
         return announcements
     }
 

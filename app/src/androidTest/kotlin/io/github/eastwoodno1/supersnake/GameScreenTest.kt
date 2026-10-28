@@ -96,8 +96,11 @@ class GameScreenTest {
         awaitGo(model)
         composeRule.runOnUiThread { model.pause() }
         pumpFor(500)
-        val pixel = BoardPixels.capture(composeRule.activity).at(Cell(10, 10))
+        val pixels = BoardPixels.capture(composeRule.activity)
+        val pixel = pixels.at(Cell(10, 10))
         assertTrue("pixel ${Integer.toHexString(pixel)}", closeTo(pixel, NeonPalette.SNAKE))
+        val background = pixels.at(Cell(0, 0))
+        assertTrue("background ${Integer.toHexString(background)}", closeTo(background, NeonPalette.BACKGROUND))
     }
 
     @Test

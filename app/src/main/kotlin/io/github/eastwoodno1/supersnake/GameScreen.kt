@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import io.github.eastwoodno1.supersnake.domain.NeonPalette
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,10 +45,13 @@ fun GameScreen(
     val thresholdPx = with(LocalDensity.current) { 24.dp.toPx() }
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.pause() }
     LaunchedEffect(thresholdPx) { viewModel.swipeThreshold(thresholdPx) }
-    LaunchedEffect(viewModel) {
-        while (isActive) {
-            awaitDisplayFrame()
-            viewModel.advance()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(viewModel, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (isActive) {
+                awaitDisplayFrame()
+                viewModel.advance()
+            }
         }
     }
     Box(modifier.fillMaxSize()) {

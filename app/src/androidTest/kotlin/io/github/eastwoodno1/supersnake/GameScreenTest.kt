@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import android.content.pm.ActivityInfo
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.center
@@ -17,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.eastwoodno1.supersnake.domain.Cell
 import io.github.eastwoodno1.supersnake.domain.Direction
 import io.github.eastwoodno1.supersnake.domain.GameInput
@@ -26,13 +28,30 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import kotlin.math.abs
 
 @RunWith(AndroidJUnit4::class)
 class GameScreenTest {
+    private val composeRule = createAndroidComposeRule<MainActivity>()
+
     @get:Rule
-    val composeRule = createAndroidComposeRule<MainActivity>()
+    val rules: RuleChain =
+        RuleChain
+            .outerRule(
+                object : ExternalResource() {
+                    override fun before() {
+                        shell("settings put secure immersive_mode_confirmations confirmed")
+                    }
+                },
+            ).around(composeRule)
+
+    private fun shell(command: String) {
+        val descriptor = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)
+        ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
+    }
 
     private fun viewModel(): GameViewModel {
         lateinit var model: GameViewModel

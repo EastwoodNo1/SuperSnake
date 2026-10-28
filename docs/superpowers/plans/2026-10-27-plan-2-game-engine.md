@@ -198,7 +198,7 @@ Gradle runs as `~/.local/bin/mise exec -- ./gradlew <tasks>` from the worktree. 
   - `fun interface RandomSource { fun nextInt(bound: Int): Int }` returning `0 until bound`, and `class KotlinRandomSource(private val random: kotlin.random.Random) : RandomSource`
   - `interface Clock { fun nowMillis(): Long; fun today(): java.time.LocalDate }`. Monotonic millis for steps and the countdown, local date for high scores. No implementation in this plan; tests use fakes.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```kotlin
 @Test fun c8TickIntervals() = assertEquals(listOf(400L, 250L, 227L, 205L, 182L, 160L, 137L, 115L, 92L, 70L), Difficulty.entries.map { it.tickMillis })
@@ -225,21 +225,21 @@ Gradle runs as `~/.local/bin/mise exec -- ./gradlew <tasks>` from the worktree. 
 }
 ```
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test`
 Expected: compilation fails with `Unresolved reference 'Difficulty'` (and the other new types).
 
-- [ ] **Step 3: Implement the five files**
+- [x] **Step 3: Implement the five files**
 
 `tickMillis`: `ASSIST` is 400; level `n` is `250 - (45 * (n - 1) + 1) / 2` in integer maths, which is C8's `250 − round(22.5 × (n − 1))` with halves rounded up. `pointsPerOrb`: 1 for `ASSIST`, else `n`. Derive `n` from `ordinal`, not from a ten-branch `when`.
 
-- [ ] **Step 4: Run them and confirm they pass**
+- [x] **Step 4: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

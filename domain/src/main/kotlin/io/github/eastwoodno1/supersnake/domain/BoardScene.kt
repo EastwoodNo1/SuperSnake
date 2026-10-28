@@ -21,6 +21,8 @@ data class BoardScene(
     val crash: Point?,
 ) {
     companion object {
+        val EMPTY = BoardScene(emptyList(), null, 1f, emptyList(), null)
+
         fun of(
             frame: GameFrame,
             burst: Burst?,

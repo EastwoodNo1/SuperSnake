@@ -20,6 +20,16 @@ class BoardSceneTest {
     }
 
     @Test
+    fun emptySceneHasNothingToDraw() {
+        val scene = BoardScene.EMPTY
+        assertEquals(emptyList(), scene.snake)
+        assertEquals(emptyList(), scene.particles)
+        assertNull(scene.orb)
+        assertNull(scene.crash)
+        assertEquals(1f, scene.orbBrightness)
+    }
+
+    @Test
     fun orbIsTheCellAsAPoint() = assertEquals(Point(5f, 5f), BoardScene.of(sceneFrame(), null, 0, false).orb)
 
     @Test

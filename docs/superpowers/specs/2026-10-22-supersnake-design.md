@@ -408,7 +408,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 | Item | Version | Released | Source |
 |------|---------|----------|--------|
 | Gradle | 9.8.2 | 2026-10-19 | github.com/gradle/gradle/releases/tag/v9.8.2 |
-| Android Gradle Plugin | 9.4.1 | 2026-09-18 | G/com/android/tools/build/gradle (9.4 needs Gradle ≥ 9.6, JDK ≥ 17, supports API ≤ 37) |
+| Android Gradle Plugin | 9.5.0 | 2026-10-28 | G/com/android/tools/build/gradle (9.5 needs Gradle ≥ 9.6, JDK ≥ 17, build-tools ≥ 36.0.0, supports API ≤ 37) |
 | Kotlin | **2.4.20** | 2026-09-07 | github.com/JetBrains/kotlin/releases/tag/v2.4.20. Capped by CodeQL, which supports "Kotlin 1.8.0 to 2.4.20" (codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/). 2.4.21 (2026-10-08) waits until CodeQL lists it **[owner, ADR-0006]** |
 | JDK toolchain | 25 (Temurin 25.0.5+8) **[owner, 2026-10-23]**, installed via mise | 2026-10-22 | github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8. Latest LTS. CodeQL supports Java 7 to 26 (codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/, read 2026-10-23) |
 | compileSdk / targetSdk | 37 (Android 17) | 2026-06 | android-developers.googleblog.com/2026/06/Android-17.html. Play requires target ≥ 36 for new apps and updates (developer.android.com/google/play/requirements/target-sdk) |

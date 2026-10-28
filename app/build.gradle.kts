@@ -1,3 +1,31 @@
+import javax.inject.Inject
+
+abstract class ExtractNatives : DefaultTask() {
+    @get:InputFiles
+    abstract val jars: ConfigurableFileCollection
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Inject
+    abstract val archives: ArchiveOperations
+
+    @get:Inject
+    abstract val files: FileSystemOperations
+
+    @TaskAction
+    fun extract() {
+        files.delete { delete(outputDir) }
+        jars.forEach { jar ->
+            val abi = jar.name.substringAfter("natives-").removeSuffix(".jar")
+            files.copy {
+                from(archives.zipTree(jar)) { include("*.so") }
+                into(outputDir.dir(abi))
+            }
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -13,6 +41,7 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -47,11 +76,37 @@ kotlin {
     }
 }
 
+val natives = configurations.create("natives")
+
+androidComponents {
+    onVariants { variant ->
+        val extract =
+            tasks.register<ExtractNatives>("extract${variant.name.replaceFirstChar { it.uppercase() }}Natives") {
+                jars.from(natives)
+            }
+        variant.sources.jniLibs?.addGeneratedSourceDirectory(extract, ExtractNatives::outputDir)
+    }
+}
+
 dependencies {
-    implementation(project(":domain"))
+    implementation(project(":board"))
+    implementation(project(":data"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.fragment.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.gdx.backend.android)
+    natives(variantOf(libs.gdx.platform) { classifier("natives-arm64-v8a") })
+    natives(variantOf(libs.gdx.platform) { classifier("natives-armeabi-v7a") })
+    natives(variantOf(libs.gdx.platform) { classifier("natives-x86_64") })
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.junit4)
 }

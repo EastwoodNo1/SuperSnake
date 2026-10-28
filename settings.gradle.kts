@@ -23,4 +23,5 @@ rootProject.name = "SuperSnake"
 include(":app")
 include(":domain")
 include(":data")
+include(":board")
 includeBuild("build-logic/checks")

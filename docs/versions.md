@@ -28,8 +28,18 @@
 | kotlinx-coroutines-core | 1.11.0 (newest stable; 1.11.0-rc01 and rc02 skipped) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/maven-metadata.xml | 2026-10-28 |
 | kotlinx-coroutines-test | 1.11.0 (follows kotlinx-coroutines-core) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-test/maven-metadata.xml | 2026-10-28 |
 | datastore-core | 1.3.0 (newest stable; 1.3.0-alpha01 to alpha11 and rc01 skipped). Its `-jvm` module lists only androidx.annotation:annotation 1.9.1, kotlin-stdlib and kotlinx-coroutines-core. `datastore-preferences` is not used (ADR-0008) | 2026-10-21 | https://dl.google.com/android/maven2/androidx/datastore/datastore-core/maven-metadata.xml | 2026-10-28 |
+| libGDX gdx, gdx-backend-android, gdx-platform (natives-arm64-v8a, natives-armeabi-v7a, natives-x86_64) | 1.14.2 (newest stable; its direct runtime dependency is gdx-jnigen-loader 2.5.2) | 2026-06-05 | https://repo1.maven.org/maven2/com/badlogicgames/gdx/gdx/maven-metadata.xml (also gdx-backend-android and gdx-platform) | 2026-10-28 |
+| fragment-compose | 1.9.1 (newest stable; 1.9.0-alpha and rc skipped) | 2026-09-23 | https://dl.google.com/android/maven2/androidx/fragment/fragment-compose/maven-metadata.xml | 2026-10-28 |
+| lifecycle-viewmodel-compose, lifecycle-runtime-compose | 2.11.0 (newest stable; 2.12.0-alpha skipped) | 2026-06-17 | https://dl.google.com/android/maven2/androidx/lifecycle/lifecycle-viewmodel-compose/maven-metadata.xml | 2026-10-28 |
+| androidx.test runner | 1.7.0 (newest stable; 1.8.0-alpha skipped) | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/runner/maven-metadata.xml | 2026-10-28 |
+| androidx.test.ext junit | 1.3.0 (newest stable; 1.4.0-alpha skipped) | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/ext/junit/maven-metadata.xml | 2026-10-28 |
+| junit (JUnit 4, androidTest only) | 4.13.2 (newest stable) | 2021-02-13 | https://repo1.maven.org/maven2/junit/junit/maven-metadata.xml | 2026-10-28 |
+| compose ui-test-junit4, ui-test-manifest | 1.12.1 (managed by the Compose BOM 2026.09.00) | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/ui/ui-test-junit4/maven-metadata.xml | 2026-10-28 |
+| espresso-core (androidTest-only constraint) | 3.7.0 (newest stable; 3.8.0-alpha skipped). `ui-test-junit4` 1.12.1 brings 3.5.0 in transitively, and 3.5.0 crashes on API 37 because `InputManager.getInstance` is missing. Owner decision: keep the constraint; no Espresso API is used | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/espresso/espresso-core/maven-metadata.xml | 2026-10-28 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
+
+`kotlinx-serialization-core` 1.7.3 is on `releaseRuntimeClasspath` transitively: `activity-compose` 1.13.0 -> `lifecycle-viewmodel-savedstate` -> `savedstate` 1.4.0. It has been there since Plan 1. The rule is "never added directly", and no code here uses it. `androidx.test.services:storage` reaches the androidTest classpath only as a transitive dependency of `androidx.test:runner`.
 
 ## Tool pinning
 

@@ -13,8 +13,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":domain"))
-    implementation(libs.androidx.datastore.core)
+    api(project(":domain"))
+    api(libs.androidx.datastore.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

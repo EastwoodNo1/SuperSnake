@@ -1,7 +1,11 @@
 package io.github.eastwoodno1.supersnake.domain
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import java.io.IOException
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -281,6 +285,8 @@ class GameSessionTest {
             clock.now = 250
             val frame = session.advance()
             assertEquals(GameStatus.WON, frame.state.status)
+            assertEquals(frame.state.snake, frame.previousSnake)
+            assertEquals(1f, frame.progress)
             val score = frame.state.score
             assertEquals(listOf(Announcement.Won(score), Announcement.NewHighScore(score)), frame.announcements)
             assertEquals(1, repository.current.size)
@@ -312,5 +318,97 @@ class GameSessionTest {
                 assertEquals(emptyList(), frame.announcements)
                 assertEquals(lost.result, frame.result)
             }
+        }
+
+    private class GatedRepository(
+        private val gate: CompletableDeferred<Unit>? = null,
+        private val failure: IOException? = null,
+    ) : HighScoreRepository {
+        private val delegate = FakeHighScoreRepository()
+        var updates = 0
+            private set
+
+        override val entries = delegate.entries
+
+        override suspend fun update(transform: (List<HighScore>) -> List<HighScore>) {
+            updates++
+            failure?.let { throw it }
+            gate?.await()
+            delegate.update(transform)
+        }
+    }
+
+    private fun sessionOver(repository: HighScoreRepository) =
+        GameSession(Difficulty.LEVEL_1, clock, FixedRandom(208, 0), RecordHighScore(repository, clock))
+
+    @Test
+    fun b2SkippedNumberIsNotAnnounced() =
+        runTest {
+            val session = session(0)
+            clock.now = 2500
+            val frame = session.advance()
+            assertEquals(listOf<Announcement>(Announcement.Countdown(1)), frame.announcements)
+            assertEquals(1, frame.countdown)
+        }
+
+    @Test
+    fun c22SaveFailureStillEndsGame() =
+        runTest {
+            val repository = GatedRepository(failure = IOException("disk"))
+            val session = sessionOver(repository)
+            session.skipCountdown()
+            val frame = session.runUntilLost()
+            assertEquals(GameStatus.LOST, frame.state.status)
+            assertEquals(listOf<Announcement>(Announcement.GameOver(1)), frame.announcements)
+            assertEquals(ScoreResult(null, false), frame.result)
+        }
+
+    @Test
+    fun c22EndedBeforeSaveCompletes() =
+        runTest {
+            val gate = CompletableDeferred<Unit>()
+            val repository = GatedRepository(gate)
+            val session = sessionOver(repository)
+            session.skipCountdown()
+            val saving =
+                async(start = CoroutineStart.UNDISPATCHED) {
+                    while (session.frame.state.status == GameStatus.RUNNING) {
+                        clock.now += 250
+                        session.advance()
+                    }
+                }
+            val ended = session.frame
+            assertEquals(GameStatus.LOST, ended.state.status)
+            assertEquals(1, repository.updates)
+            assertNull(ended.result)
+            assertEquals(ended.state, session.pause().state)
+            assertEquals(ended.state, session.input(GameInput.Turn(Direction.UP)).state)
+            gate.complete(Unit)
+            saving.await()
+            assertEquals(ScoreResult(1, true), session.frame.result)
+            assertEquals(listOf(Announcement.GameOver(1), Announcement.NewHighScore(1)), session.frame.announcements)
+            assertEquals(1, repository.updates)
+        }
+
+    @Test
+    fun c22CancelledSaveDoesNotStepAgain() =
+        runTest {
+            val gate = CompletableDeferred<Unit>()
+            val repository = GatedRepository(gate)
+            val session = sessionOver(repository)
+            session.skipCountdown()
+            val saving =
+                async(start = CoroutineStart.UNDISPATCHED) {
+                    while (true) {
+                        clock.now += 250
+                        session.advance()
+                    }
+                }
+            saving.cancel()
+            val ended = session.frame
+            assertEquals(GameStatus.LOST, ended.state.status)
+            clock.now += 250
+            assertEquals(ended.state, session.advance().state)
+            assertEquals(1, repository.updates)
         }
 }

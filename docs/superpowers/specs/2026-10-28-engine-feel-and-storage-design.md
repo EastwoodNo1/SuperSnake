@@ -152,7 +152,7 @@ These rules replace C5 and C6 in the main spec.
 - **[call]** **Resume always runs the 3-2-1 countdown** before the snake moves again.
 - **[call]** Pausing clears queued turns, so nothing turns the snake after resume until the player acts.
 - **[call]** Pausing during a countdown is allowed. It goes to the paused state, clears queued turns and drops the countdown's progress. Resuming starts the countdown again from 3. The snake, food and score are untouched.
-- **[call]** The snake, food, score and queue survive rotation and backgrounding. The `:domain` state is plain data, so `:app` can keep it across configuration changes (main spec §5).
+- **[call]** The snake, food and score survive rotation and backgrounding. The `:domain` state is plain data, so `:app` can keep it across configuration changes (main spec §5).
 
 ### 4.6 Ending a game and scores
 

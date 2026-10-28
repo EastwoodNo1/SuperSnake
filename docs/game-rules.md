@@ -44,7 +44,7 @@ The 1998 Nokia 6110 user guide does not document the rules in detail. No officia
 | C17 | **[owner]** No grace period. A move into a wall or the body ends the game on that step, as in the original Nokia game. |
 | C18 | **[owner]** Speed is fixed for the whole game by the chosen difficulty. |
 | C19 | Steps are timed by elapsed time. A frame less than two intervals after the last step keeps the rhythm; a later frame gives one step and drops the leftover time. A frame never gives more than one step. A clock that goes backwards gives no step. |
-| C20 | The game pauses itself when the app goes to the background or the screen rotates, and resumes only on Resume, through the countdown. Pausing clears queued turns. Pausing during a countdown restarts it from 3 on resume. Snake, orb, score and queue survive rotation and backgrounding. |
+| C20 | The game pauses itself when the app goes to the background or the screen rotates, and resumes only on Resume, through the countdown. Pausing clears queued turns. Pausing during a countdown restarts it from 3 on resume. The snake, orb and score survive rotation and backgrounding. |
 | C21 | At a crash the snake is shown at its last legal position, not sliding into the wall or body. |
 | C22 | A finished game, won or lost, is saved the moment it ends. A score of 0 is not saved. Ties keep the older entry above, so a full table needs a score above its 10th. A new high score means first place; equalling the best is not one. |
 | C23 | Between steps each segment glides from its previous cell to its current one. On a step that eats, the new tail segment holds still. |
@@ -66,5 +66,5 @@ Values the rules leave open, chosen while building. Each row names the task that
 | B3 | Pulse brightness is `0.8 + 0.2 × sin(2π × t / 1200 ms)`, and a constant `1.0` with reduce motion (Task 7) | The orb breathes gently without ever dimming below 80%, and a player who asked for less motion sees it steady. |
 | B4 | An orb burst is 12 particles at even angles from the cell centre, travelling 1.2 cells with ease-out `1 − (1 − t)²` over 400 ms, alpha `1 − t`, and none with reduce motion (Task 7) | A short, fast-then-settling burst reads as a pop without lingering over the board, and reduce motion removes it. |
 | B5 | Settings are stored as UTF-8 lines `key=value` with keys `difficulty`, `sound`, `haptics`, `control_scheme`: enum names, booleans `true` or `false`; unknown keys and lines without `=` are ignored and a missing or unparsable value takes that field's default (Task 8) | A plain text file survives a half-written or hand-edited state, and reading never throws, so no corruption handler is needed. |
-| B6 | High scores are stored one entry per line as `score|DIFFICULTY_NAME|yyyy-MM-dd`; lines that do not parse are dropped and the rest is normalized to the top 10 (Task 8) | One bad line costs one entry, not the table, and the format needs no library. |
+| B6 | High scores are stored one entry per line as `score\|DIFFICULTY_NAME\|yyyy-MM-dd`; lines that do not parse are dropped and the rest is normalized to the top 10 (Task 8) | One bad line costs one entry, not the table, and the format needs no library. |
 

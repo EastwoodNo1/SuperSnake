@@ -583,7 +583,7 @@ Expected: `BUILD SUCCESSFUL`.
 
 **[builder] values:** B3: pulse brightness `0.8 + 0.2 × sin(2π × t / 1200 ms)`, constant `1.0` with reduce motion. B4: an orb burst is 12 particles at even angles from the cell centre, travelling 1.2 cells with ease-out `1 − (1 − t)²` over 400 ms, alpha `1 − t`; none with reduce motion (main spec §3).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
   | Test | Assertions |
   |------|------------|
@@ -600,21 +600,21 @@ Expected: `BUILD SUCCESSFUL`.
   | `burstEasesOut` | at 200 ms: each particle at distance `1.2 × 0.75 = 0.9` from the centre (±1e-4), alpha `0.5`; the first particle's angle is 0 (towards `+x`) |
   | `burstEndsAndRespectsReduceMotion` | at 400 ms, at −1 ms, and with `reduceMotion = true`: empty |
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test`
 Expected: compilation fails with `Unresolved reference 'BoardLayout'`.
 
-- [ ] **Step 3: Implement the four files**
+- [x] **Step 3: Implement the four files**
 
 `fit`: `side = max(0f, min(width, height))`, `cellSize = side / Board.SIZE`, `left = (max(0f, width) − side) / 2`, `top` likewise. `interpolate`: point `i` goes from `previous.getOrElse(i) { previous.lastOrNull() ?: current[i] }` to `current[i]`.
 
-- [ ] **Step 4: Run them and confirm they pass**
+- [x] **Step 4: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

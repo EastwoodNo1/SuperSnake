@@ -439,11 +439,11 @@ Expected: `BUILD SUCCESSFUL`.
   - `class HighScores(repository: HighScoreRepository) { val top: Flow<List<HighScore>>; val best: Flow<Int> }`
   - `class SettingsActions(private val repository: SettingsRepository) { val settings: Flow<Settings>; suspend fun setDifficulty(value: Difficulty); suspend fun setSound(on: Boolean); suspend fun setHaptics(on: Boolean); suspend fun setControlScheme(value: ControlScheme) }`
 
-- [ ] **Step 1: Verify and add the coroutines dependencies**
+- [x] **Step 1: Verify and add the coroutines dependencies**
 
 Re-check `https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/maven-metadata.xml` for the newest stable (no alpha, beta, RC). Use it; record core and test in `docs/versions.md` with the URL, the POM Last-Modified date and today's date. Re-check CodeQL's Kotlin line too.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
   | Test | Assertions |
   |------|------------|
@@ -461,26 +461,26 @@ Re-check `https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutine
 
 Use `kotlinx.coroutines.test.runTest`.
 
-- [ ] **Step 3: Run them and confirm they fail**
+- [x] **Step 3: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test`
 Expected: compilation fails with `Unresolved reference 'HighScoreTable'`.
 
-- [ ] **Step 4: Implement the types above**
+- [x] **Step 4: Implement the types above**
 
 `HighScoreTable.normalize` drops scores ≤ 0, sorts by score descending with a stable sort (input order breaks ties, so stored order is kept), and keeps the first 10. `insert` appends the entry and normalizes; its rank is its index + 1 if it survived. `RecordHighScore` computes the `Placement` inside `repository.update { … }` and returns its rank, so the read and the write are one atomic edit. `HighScores.best` is `top.map { it.firstOrNull()?.score ?: 0 }`.
 
-- [ ] **Step 5: Run them and confirm they pass**
+- [x] **Step 5: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 6: Refresh dependency verification**
+- [x] **Step 6: Refresh dependency verification**
 
 Run `docs/versions.md` "Dependency verification updates" step 2 (fresh `GRADLE_USER_HOME`, `--refresh-dependencies`), then `git diff --stat gradle/verification-metadata.xml`.
 Expected: new `org.jetbrains.kotlinx` coroutines components; `:checkNoComments` passes. If CI later names a Linux-only artifact, follow step 4 of the same section.
 
-- [ ] **Step 7: Finish per the per-task workflow**
+- [x] **Step 7: Finish per the per-task workflow**
 
 The PR body's Evidence includes the version sources from Step 1.
 

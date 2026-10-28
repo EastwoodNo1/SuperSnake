@@ -114,7 +114,6 @@ class GameScreenTest {
     fun c13PlayShowsCountdown() {
         composeRule.onNodeWithText("Play").performClick()
         awaitUntil(COLD_START_MILLIS) { composeRule.onAllNodesWithText("3").fetchSemanticsNodes().isNotEmpty() }
-        composeRule.onNodeWithText("3").assertExists()
     }
 
     @Test

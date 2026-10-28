@@ -638,7 +638,7 @@ Expected: `BUILD SUCCESSFUL`.
   - `class DataStoreSettingsRepository(private val store: DataStore<Settings>) : SettingsRepository` and `class DataStoreHighScoreRepository(private val store: DataStore<List<HighScore>>) : HighScoreRepository`: `data` as the flow, `updateData` for `update` (high scores normalized on write).
   - Decoding is malformed-input tolerant (`decoder.onMalformedInput(CodingErrorAction.REPLACE)` or `String(bytes, UTF_8)`), which is why no corruption handler is needed. Parse enums with `entries.firstOrNull { it.name == value }`, never `valueOf`.
 
-- [ ] **Step 1: Prove `datastore-core` in a plain Kotlin JVM module**
+- [x] **Step 1: Prove `datastore-core` in a plain Kotlin JVM module**
 
 1. Re-check `https://dl.google.com/android/maven2/androidx/datastore/datastore-core/maven-metadata.xml` for the newest stable, and read its `-jvm` `.module` file's `jvmRuntimeElements-published` dependencies. Expected on 2026-10-28: `androidx.annotation:annotation`, `kotlin-stdlib`, `kotlinx-coroutines-core`. If anything outside `androidx.*`, `org.jetbrains.*` appears, stop and ask the owner.
 2. Create the module files from the list above with only `Stores.kt` and a smoke test that writes a `Settings` through `Stores.settings` into a `@TempDir` file and reads it back from a second store on the same file.
@@ -646,7 +646,7 @@ Expected: `BUILD SUCCESSFUL`.
 
 Expected: `BUILD SUCCESSFUL`, and the runtime classpath has no `com.squareup` or other third-party group. **If it fails or a third-party group appears, stop and ask the owner** (design §3); do not choose a fallback.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Store tests use a `@TempDir` file and a store scope `CoroutineScope(Dispatchers.IO + Job())` cancelled in `@AfterEach`, inside `runTest`.
 
@@ -663,19 +663,19 @@ Store tests use a `@TempDir` file and a store scope `CoroutineScope(Dispatchers.
   | `corruptFileOnDiskStillWorks` (Review Focus 3) | write the random bytes to the file, open both stores → defaults; then an `update` succeeds and reads back |
   | `fileNamesAreStable` | `Stores.SETTINGS_FILE == "settings.txt"`, `Stores.HIGH_SCORES_FILE == "high_scores.txt"` (Plan 3's backup rules name them) |
 
-- [ ] **Step 3: Run them and confirm they fail**
+- [x] **Step 3: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :data:test`
 Expected: compilation fails with `Unresolved reference 'SettingsSerializer'`.
 
-- [ ] **Step 4: Implement the serializers and repositories**
+- [x] **Step 4: Implement the serializers and repositories**
 
-- [ ] **Step 5: Run them and confirm they pass**
+- [x] **Step 5: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :data:test :data:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 6: Write ADR-0008 and refresh verification**
+- [x] **Step 6: Write ADR-0008 and refresh verification**
 
 ADR-0008 "DataStore core with our own serializers in a pure JVM `:data`", in the format of `docs/adr/0003-no-di-framework.md`:
 - context: main spec §12 left the module kind open; `datastore-preferences` needs okio
@@ -687,7 +687,7 @@ Then run `docs/versions.md` "Dependency verification updates" step 2 and record 
 
 Expected: `git diff --stat gradle/verification-metadata.xml` shows `androidx.datastore` and `androidx.annotation` components and no `com.squareup`.
 
-- [ ] **Step 7: Finish per the per-task workflow**
+- [x] **Step 7: Finish per the per-task workflow**
 
 From this task on, the strict gate includes `:data:koverVerify` and Evidence includes `:data`'s coverage counters.
 

@@ -27,6 +27,7 @@
 | JUnit platform launcher | 6.1.3 (managed by the JUnit BOM) | 2026-08-07 | https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/maven-metadata.xml | 2026-10-26 |
 | kotlinx-coroutines-core | 1.11.0 (newest stable; 1.11.0-rc01 and rc02 skipped) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/maven-metadata.xml | 2026-10-28 |
 | kotlinx-coroutines-test | 1.11.0 (follows kotlinx-coroutines-core) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-test/maven-metadata.xml | 2026-10-28 |
+| datastore-core | 1.3.0 (newest stable; 1.3.0-alpha01 to alpha11 and rc01 skipped). Its `-jvm` module lists only androidx.annotation:annotation 1.9.1, kotlin-stdlib and kotlinx-coroutines-core. `datastore-preferences` is not used (ADR-0008) | 2026-10-21 | https://dl.google.com/android/maven2/androidx/datastore/datastore-core/maven-metadata.xml | 2026-10-28 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 

@@ -60,6 +60,7 @@ Together with the two spec documents, this plan is self-contained. A new session
 - **Plugin:** `EastwoodNo1/android-sdlc-skills` at `v0.2.0`, installed through `.claude/settings.json`. `scripts/verify-templates.sh` printed `35 templates checked` / `0 drift` against Task 9's branch on 2026-10-28.
 - **Dependabot PR #41** (Kotlin 2.4.20 → 2.4.21) is still open: CodeQL listed "Kotlin 1.8.0 to 2.4.20" on 2026-10-28 (ADR-0006). When CodeQL lists 2.4.21, handle #41 as `docs/versions.md` "Dependency verification updates" says, as its own PR.
 - **Next action:** write Plan 3 (App) with superpowers:writing-plans in a fresh session. `CLAUDE.md` keeps pointing at this plan until Plan 3 is written.
+- **Plan 3 written (2026-10-28):** `docs/superpowers/plans/2026-10-28-plan-3-app.md` is now the active plan, and `CLAUDE.md` points there.
 - **ADLC capture is on.** Every PR runs the fold-in in the per-task workflow below.
 - **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/` or `.claude/settings.local.json`.
 

@@ -137,4 +137,61 @@ class GameRulesTest {
         assertEquals(listOf(Direction.LEFT), result.state.pendingTurns)
         assertEquals(Cell(10, 11), result.state.snake.first())
     }
+
+    @Test
+    fun c16OneTurnAppliedPerStep() {
+        val queued = running().copy(pendingTurns = listOf(Direction.UP, Direction.LEFT))
+        val first = GameRules.tick(queued, FixedRandom()).state
+        assertEquals(Direction.UP, first.direction)
+        assertEquals(listOf(Direction.LEFT), first.pendingTurns)
+        val second = GameRules.tick(first, FixedRandom()).state
+        assertEquals(Direction.LEFT, second.direction)
+        assertTrue(second.pendingTurns.isEmpty())
+    }
+
+    @Test
+    fun c15FastReversalSurvives() {
+        val start = GameRules.newGame(Difficulty.LEVEL_1, FixedRandom(0)).copy(status = GameStatus.RUNNING)
+        val queued = Turns.enqueue(Turns.enqueue(start, Direction.UP), Direction.LEFT)
+        val first = GameRules.tick(queued, FixedRandom())
+        assertEquals(GameStatus.RUNNING, first.state.status)
+        assertEquals(Cell(10, 9), first.state.snake.first())
+        val second = GameRules.tick(first.state, FixedRandom())
+        assertEquals(GameStatus.RUNNING, second.state.status)
+        assertEquals(Cell(9, 9), second.state.snake.first())
+    }
+
+    @Test
+    fun c13GoStartsMovingOnlyFromCountdown() {
+        val base = running()
+        GameStatus.entries.forEach {
+            val s = base.copy(status = it)
+            val expected = if (it == GameStatus.COUNTDOWN) GameStatus.RUNNING else it
+            assertEquals(expected, GameRules.go(s).status)
+        }
+    }
+
+    @Test
+    fun c20PauseClearsTurns() {
+        listOf(GameStatus.RUNNING, GameStatus.COUNTDOWN).forEach {
+            val paused = GameRules.pause(running().copy(status = it, pendingTurns = listOf(Direction.UP)))
+            assertEquals(GameStatus.PAUSED, paused.status)
+            assertTrue(paused.pendingTurns.isEmpty())
+            assertEquals(paused, GameRules.tick(paused, FixedRandom()).state)
+        }
+    }
+
+    @Test
+    fun c20ResumeCountsDownAgain() {
+        val base = running()
+        GameStatus.entries.forEach {
+            val s = base.copy(status = it)
+            val expected = if (it == GameStatus.PAUSED) GameStatus.COUNTDOWN else it
+            assertEquals(expected, GameRules.resume(s).status)
+        }
+        listOf(GameStatus.PAUSED, GameStatus.LOST, GameStatus.WON).forEach {
+            val s = base.copy(status = it)
+            assertEquals(s, GameRules.pause(s))
+        }
+    }
 }

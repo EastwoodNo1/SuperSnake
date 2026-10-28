@@ -4,7 +4,8 @@ import android.content.pm.ActivityInfo
 import android.os.SystemClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.center
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -51,12 +52,23 @@ class GameScreenTest {
         val deadline = SystemClock.elapsedRealtime() + timeoutMillis
         while (!condition()) {
             assertTrue("timed out", SystemClock.elapsedRealtime() < deadline)
-            Thread.sleep(10)
+            pump(10)
         }
+    }
+
+    private fun pump(millis: Long) {
+        composeRule.waitForIdle()
+        Thread.sleep(millis)
+    }
+
+    private fun pumpFor(millis: Long) {
+        val deadline = SystemClock.elapsedRealtime() + millis
+        while (SystemClock.elapsedRealtime() < deadline) pump(10)
     }
 
     private fun play(): GameViewModel {
         composeRule.onNodeWithText("Play").performClick()
+        awaitUntil { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
         return viewModel()
     }
 
@@ -80,9 +92,9 @@ class GameScreenTest {
     @Test
     fun boardDrawsTheSnake() {
         val model = play()
-        Thread.sleep(3_500)
+        pumpFor(3_500)
         composeRule.runOnUiThread { model.pause() }
-        Thread.sleep(500)
+        pumpFor(500)
         val pixel = BoardPixels.capture(composeRule.activity).at(Cell(10, 10))
         assertTrue("pixel ${Integer.toHexString(pixel)}", closeTo(pixel, NeonPalette.SNAKE))
     }
@@ -99,7 +111,7 @@ class GameScreenTest {
         }
         awaitUntil { model.frame.value.state.direction == Direction.UP }
         composeRule.runOnUiThread { model.pause() }
-        Thread.sleep(500)
+        pumpFor(500)
         val snake = model.frame.value.state.snake
         assertEquals(snake[1].x, snake[0].x)
         assertEquals(snake[1].y - 1, snake[0].y)
@@ -149,7 +161,7 @@ class GameScreenTest {
                 moves++
                 head = now
             }
-            Thread.sleep(5)
+            pump(5)
         }
         assertTrue("moves $moves", moves in EXPECTED_MOVES - 1..EXPECTED_MOVES + 1)
     }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SuperSnake</string>
+    <string name="play">Play</string>
+    <string name="countdown_number">%1$s</string>
 </resources>

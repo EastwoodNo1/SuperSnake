@@ -15,7 +15,7 @@
 | gradle/actions (setup-gradle) | v6.4.0, commit `3f5f9adaf7d9fecd50b5935e54106014257a94e6` (annotated tag `b9bee63e...` dereferenced) | 2026-09-28 | https://api.github.com/repos/gradle/actions/releases/latest and git/tags | 2026-10-26 |
 | github/codeql-action (init, analyze) | v4.39.1, commit `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` (annotated tag `8498dc4c...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-10-21 | https://api.github.com/repos/github/codeql-action/releases | 2026-10-26 |
 | mise in CI | v2026.10.19, linux-x64 archive SHA-256 `b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086` (matches the release SHASUMS256.txt; `gh attestation verify --repo jdx/mise` passed) | 2026-10-24 | https://github.com/jdx/mise/releases/tag/v2026.10.19 | 2026-10-26 |
-| AGP | 9.4.1 | 2026-09-18 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-23 |
+| AGP | 9.5.0 | 2026-10-28 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-28 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
 | activity-compose | 1.13.0 | 2026-03-11 | https://dl.google.com/android/maven2/androidx/activity/activity-compose/maven-metadata.xml | 2026-10-23 |
@@ -64,7 +64,7 @@ Dependabot bumps Gradle dependencies but cannot regenerate `gradle/verification-
 4. Linux-only artifacts that macOS never resolves (for example the `aapt2` linux jar) are not generated. Take the artifact named in the CI `Dependency verification failed` output, download it from Google Maven, compute its SHA-256, compare its SHA-1 with Google's published `.sha1` file, and add the entry by hand, keeping the file's alphabetical order.
 5. Commit with a Conventional message, push to the Dependabot branch and wait for CI to pass.
 
-How `aapt2-9.4.1-15978811-linux.jar` was derived, on 2026-10-26: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.4.1-15978811/aapt2-9.4.1-15978811-linux.jar`, SHA-256 `f5bebd466ecf14d341fd465f2756a16d86052f29eb4532003d5ff7bcffd08de5`, SHA-1 `6ad07b566daaefa1c2721255637ec137c93580a6`, which equals the content of the published `...-linux.jar.sha1`.
+How `aapt2-9.5.0-16666295-linux.jar` was derived, on 2026-10-28: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.0-16666295/aapt2-9.5.0-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f`, SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
 
 ## mise pin in CI
 
@@ -72,4 +72,4 @@ The mise version and the SHA-256 of its linux-x64 archive are written in three p
 
 ## Known issues
 
-- AGP 9.4.1 emits one Gradle deprecation on every cold configuration: `The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11.` It comes from `com.android.build.gradle.internal.plugins.BasePlugin$Companion.createAndroidJdkImageConfiguration` (BasePlugin.kt:362), found on 2026-10-23 with `./gradlew help -Dorg.gradle.deprecation.trace=true --warning-mode=all`. `scripts/gradle-strict.sh` allowlists exactly this message and fails on any other deprecation. Remove the allowlist when a stable AGP no longer emits it.
+- With AGP 9.5.0 on Gradle 9.8.2, a cold configuration still emits one Gradle deprecation, five times: `The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11.` AGP 9.5.0 no longer emits it. The frames are in `kotlinx.kover.gradle.plugin` (`ConfigurationsKt.asBucket`, `asTransitiveDependencies`, `asProducer`, `PrepareKoverKt.prepare`), found on 2026-10-28 with `./gradlew help -Dorg.gradle.deprecation.trace=true --warning-mode=all --no-configuration-cache`. `scripts/gradle-strict.sh` allowlists exactly this message and fails on any other deprecation. Remove the allowlist when a stable Kover no longer emits it.

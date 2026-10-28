@@ -144,6 +144,7 @@ Every task runs these around its own steps. Each task's last step says "Finish p
 1. `git -C /Users/r03418/AndroidStudioProjects/SuperSnake pull --ff-only`
 2. Create the issue: `~/.local/bin/mise exec -- gh issue create --title "<task title>" --body "<one-paragraph why, citing the rule numbers the task implements>"`. Note the number.
 3. `git -C /Users/r03418/AndroidStudioProjects/SuperSnake worktree add ../SuperSnake-<name> -b <branch>` with the task's **Branch** line, then work in `/Users/r03418/AndroidStudioProjects/SuperSnake-<name>`.
+4. `cp /Users/r03418/AndroidStudioProjects/SuperSnake/local.properties /Users/r03418/AndroidStudioProjects/SuperSnake-<name>/` (untracked; without it Gradle stops with `SDK location not found`, as `CONTRIBUTING.md` step 2 says).
 
 Gradle runs as `~/.local/bin/mise exec -- ./gradlew <tasks>` from the worktree. Commit after each green step with a Conventional message; small commits are fine because the PR is squashed.
 

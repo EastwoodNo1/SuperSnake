@@ -61,4 +61,5 @@ Values the rules leave open, chosen while building. Each row names the task that
 
 | # | Detail | Why |
 |---|--------|-----|
+| B1 | Default settings are difficulty `LEVEL_1`, sound on, haptics on, swipe controls (Task 5) | A new player gets the first real level with feedback on and the one-finger scheme, with no setup screen in the way. |
 

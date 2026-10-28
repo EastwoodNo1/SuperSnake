@@ -25,6 +25,8 @@
 | ktlint | 1.8.0 | 2025-11-14 | https://repo1.maven.org/maven2/com/pinterest/ktlint/ktlint-cli/maven-metadata.xml | 2026-10-26 |
 | kotlin-test-junit5 | 2.4.20 (follows the Kotlin version) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-junit5/maven-metadata.xml | 2026-10-26 |
 | JUnit platform launcher | 6.1.3 (managed by the JUnit BOM) | 2026-08-07 | https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/maven-metadata.xml | 2026-10-26 |
+| kotlinx-coroutines-core | 1.11.0 (newest stable; 1.11.0-rc01 and rc02 skipped) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/maven-metadata.xml | 2026-10-28 |
+| kotlinx-coroutines-test | 1.11.0 (follows kotlinx-coroutines-core) | 2026-05-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-test/maven-metadata.xml | 2026-10-28 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 

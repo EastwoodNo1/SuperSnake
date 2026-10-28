@@ -10,6 +10,7 @@ evaluationDependsOn(":app")
 
 dependencies {
     kover(project(":domain"))
+    kover(project(":data"))
 }
 
 val checks = configurations.create("checks")

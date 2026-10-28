@@ -261,7 +261,7 @@ Expected: `BUILD SUCCESSFUL`.
   - `object GameRules { fun newGame(difficulty: Difficulty, random: RandomSource): GameState; fun tick(state: GameState, random: RandomSource): TickResult }`. `newGame` returns status `COUNTDOWN` (C13); only `RUNNING` steps.
   - Test helper `class FixedRandom(vararg values: Int) : RandomSource` returns the values in order and fails the test with `error("unexpected random draw")` when exhausted. Later tasks reuse it.
 
-- [ ] **Step 1: Write the failing tests** (`GameRulesTest`; tests other than the first build `RUNNING` states with `copy`)
+- [x] **Step 1: Write the failing tests** (`GameRulesTest`; tests other than the first build `RUNNING` states with `copy`)
 
   | Test | Setup | Assertions |
   |------|-------|------------|
@@ -277,12 +277,12 @@ Expected: `BUILD SUCCESSFUL`.
   | `c9FillingTheBoardWins` | snake = the first 399 cells of the boustrophedon path (row y even: x 0→19; odd: x 19→0), head first, so head `(1,19)`, heading `LEFT`, orb `(0,19)`, `FixedRandom()` with no values | `status == WON`, `orb == null`, `snake.size == 400`, events `[ORB_EATEN, WON]`, no random draw |
   | `stepOutsideRunningChangesNothing` | `COUNTDOWN`, `PAUSED`, `LOST`, `WON` | `TickResult(state, emptyList())` with the same state |
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test --tests '*GameRulesTest'`
 Expected: compilation fails with `Unresolved reference 'GameRules'`.
 
-- [ ] **Step 3: Implement `GameRules.newGame` and `GameRules.tick`**
+- [x] **Step 3: Implement `GameRules.newGame` and `GameRules.tick`**
 
 The step, in order:
 
@@ -303,12 +303,12 @@ orb = free[random.nextInt(free.size)], events [ORB_EATEN]                       
 
 The turn pop is here so Task 3 only adds the enqueue side.
 
-- [ ] **Step 4: Run them and confirm they pass**
+- [x] **Step 4: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Finish per the per-task workflow**
+- [x] **Step 5: Finish per the per-task workflow**
 
 ---
 

@@ -4,7 +4,7 @@ Full detail is in [`CONTRIBUTING.md`](CONTRIBUTING.md). This file is the short f
 
 ## Start of every session
 
-1. Read the **Start here** section of the active plan: `docs/superpowers/plans/2026-10-22-plan-1-foundation.md`.
+1. Read the **Start here** section of the active plan: `docs/superpowers/plans/2026-10-27-plan-2-game-engine.md`.
 2. Find where work stands, following that section's "Progress lives in git" rules:
    - `git log --oneline`
    - `git worktree list`

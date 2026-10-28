@@ -77,8 +77,8 @@ The 1998 Nokia 6110 user guide does not document the rules in detail. No officia
 | C2 | The snake starts with 3 segments in the centre, heading right. |
 | C3 | One orb is on the board at a time. It spawns on a uniformly random free cell. The random source is injected so tests are deterministic. |
 | C4 | Eating an orb adds exactly 1 segment: on the tick that eats it, the tail does not move. |
-| C5 | A turn into the opposite of the last queued direction is ignored. If the queue is empty, the current direction is used instead. |
-| C6 | Turn inputs are buffered, with up to 2 queued turns, so fast double turns are not lost. A turn is applied at most once per tick. |
+| C5 | A turn into the opposite of the last queued direction is ignored. If the queue is empty, the current direction is used instead. **Replaced on 2026-10-28 by C15 in `docs/game-rules.md`; see `docs/superpowers/specs/2026-10-28-engine-feel-and-storage-design.md` §4.2.** |
+| C6 | Turn inputs are buffered, with up to 2 queued turns, so fast double turns are not lost. A turn is applied at most once per tick. **Replaced on 2026-10-28 by C16 in `docs/game-rules.md`; see `docs/superpowers/specs/2026-10-28-engine-feel-and-storage-design.md` §4.2.** |
 | C7 | Moving into the tail's cell is legal only when the tail leaves that cell on the same tick. On a growth tick (C4) the tail stays, so moving into it is a collision. |
 | C8 | Difficulty is **Assist** plus levels 1–9.<br>• Levels 1–9: tick interval = `250 − round(22.5 × (level − 1))` ms, where `round` rounds halves up. That gives exactly 250, 227, 205, 182, 160, 137, 115, 92, 70 ms. Points per orb equal the level.<br>• **Assist**: 400 ms per tick and 1 point per orb, for players who need more time. It shows as "A" in high scores. |
 | C9 | If no free cell remains after eating, the game ends as a **win**. |
@@ -87,6 +87,8 @@ The 1998 Nokia 6110 user guide does not document the rules in detail. No officia
 | C12 | The top 10 high scores (score, level, date) are stored on the device. |
 
 The rules engine is a pure function of state, input and random source, which makes it fully unit-testable.
+
+Rules C13 to C25 (start countdown, turning, timing, pausing, scores, movement, swipes) were added on 2026-10-28 by `docs/superpowers/specs/2026-10-28-engine-feel-and-storage-design.md` §4 and are listed in `docs/game-rules.md`.
 
 ---
 
@@ -158,7 +160,7 @@ The reference mockup is option A from the brainstorm: `docs/design/neon-arcade-m
 | Game board rendering | **libGDX alone, no KTX** | owner |
 | Menus, HUD, overlays, splash | Jetpack Compose + SplashScreen API | call (accepted with libGDX choice) |
 | Async | Kotlin Coroutines / Flow | call |
-| Persistence | Jetpack DataStore (Preferences) | call |
+| Persistence | Jetpack DataStore. **Core with our own serializers, not Preferences (owner, 2026-10-28; `docs/superpowers/specs/2026-10-28-engine-feel-and-storage-design.md` §3)** | call |
 | Dependency injection | None. Plain constructors and a small manual composition root | call |
 | Build | Gradle Kotlin DSL, version catalog `gradle/libs.versions.toml` | call |
 | Static analysis | Android Lint, ktlint (standalone), and our own no-comments check. **No detekt** (ADR-0004) | owner |
@@ -429,7 +431,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 | activity-compose | 1.13.0 | 2026-03-11 | G/androidx/activity/activity-compose |
 | navigation-compose | 2.10.2 | 2026-09-23 | G/androidx/navigation/navigation-compose |
 | lifecycle viewmodel-compose / runtime-compose | 2.11.0 | 2026-06-17 | G/androidx/lifecycle |
-| datastore-preferences | 1.3.0 | 2026-10-21 | G/androidx/datastore/datastore-preferences |
+| datastore-preferences | 1.3.0 | 2026-10-21 | G/androidx/datastore/datastore-preferences. **Not used: replaced by `datastore-core` 1.3.0 (owner, 2026-10-28), which needs no okio** |
 | core-splashscreen | 1.2.0 | 2025-11-05 | G/androidx/core/core-splashscreen |
 | core-ktx | 1.19.1 | 2026-09-23 | G/androidx/core/core-ktx |
 | fragment-ktx | 1.9.1 | 2026-09-23 | G/androidx/fragment/fragment-ktx |
@@ -506,7 +508,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 ## 12. Left to the builder
 
 - The libGDX-in-Compose embedding technique (§5).
-- Whether `:data` can be pure JVM.
+- Whether `:data` can be pure JVM. **Answered 2026-10-28: yes, with `datastore-core` (`docs/superpowers/specs/2026-10-28-engine-feel-and-storage-design.md` §3).**
 - Exact particle and glow implementation.
 - Version code scheme.
 - How the no-comments rule is implemented: a small, syntax-aware tokenizer script is preferred over a custom ktlint rule set, for simplicity. It must cover the file types in §7.2 with no false positives on strings or URLs.

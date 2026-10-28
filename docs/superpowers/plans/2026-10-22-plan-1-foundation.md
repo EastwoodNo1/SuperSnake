@@ -53,7 +53,7 @@ Together with the spec and `docs/design/neon-arcade-mockup.html`, this plan is s
 
 - **Plan 1 is complete as of 2026-10-26.** All of Tasks 1 to 10 are merged (PRs #2 to #36), and `main` is at `9c0ffc4` plus the commit of this docs PR. Run `git log --oneline` for the current head.
 - **Repos:** `EastwoodNo1/SuperSnake` (this game repo) and `EastwoodNo1/android-sdlc-skills` (the plugin, tagged `v0.1.0` and installed through `.claude/settings.json`).
-- **Next action:** write Plan 2 with `superpowers:writing-plans`, giving it the same "Start here" section. Re-verify versions first, and check CodeQL's Kotlin support again so Dependabot PR #28 can resolve.
+- **Next action:** done. Plan 2 was written on 2026-10-27: `docs/superpowers/plans/2026-10-27-plan-2-game-engine.md`. Its "Start here" section is now the active one.
 - **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/` or `.claude/settings.local.json`. All five are in `.gitignore`.
 
 ### Machine prerequisites

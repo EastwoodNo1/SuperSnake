@@ -513,7 +513,7 @@ Session behaviour (C13, C19, C20, C21, C22, C25):
 - **Glide while still.** Pausing sets `previousSnake = state.snake`. While `COUNTDOWN` or `PAUSED`, `progress` is `0f` and `previousSnake == state.snake`, so the board shows the snake still on its cells and nothing jumps on resume.
 - **Internal constructor.** If the given state is `COUNTDOWN`, the countdown starts at `clock.nowMillis()`; if `RUNNING`, the timer starts there, so the first step is one interval later. The first frame announces `Countdown(3)` only in the first case.
 
-- [ ] **Step 1: Write the failing `TickTimerTest`** (C19)
+- [x] **Step 1: Write the failing `TickTimerTest`** (C19)
 
   | Test | Timer | Call | Expected |
   |------|-------|------|----------|
@@ -524,7 +524,7 @@ Session behaviour (C13, C19, C20, C21, C22, C25):
   | `backwardsClockDoesNothing` (Review Focus 2) | `(100, 500)` | `advance(400)`, `progress(400)` | no step, timer unchanged, `0f` |
   | `progressIsClamped` | `(100, 0)` | `progress(50)`, `progress(250)` | `0.5f`, `1f` |
 
-- [ ] **Step 2: Write the failing `GameSessionTest`**
+- [x] **Step 2: Write the failing `GameSessionTest`**
 
 Each test builds the session with `LEVEL_1` (250 ms steps), `FakeClock(now = 0)`, a `FixedRandom` and `RecordHighScore(fakeRepo, clock)`, and moves `clock.now` by hand. A helper `skipCountdown()` sets `now += 3000` and calls `advance()`.
 
@@ -546,21 +546,21 @@ Each test builds the session with `LEVEL_1` (250 ms steps), `FakeClock(now = 0)`
   | `c9c22WinSavesAndAnnounces` | internal constructor with Task 2's `c9FillingTheBoardWins` state as `RUNNING`; step | `WON`, `[Won(score), NewHighScore(score)]` |
   | `afterTheEndNothingChanges` | `advance()`, `input(Turn(UP))`, `pause()` after `LOST` | same state, no events, no announcements, `result` kept |
 
-- [ ] **Step 3: Run them and confirm they fail**
+- [x] **Step 3: Run them and confirm they fail**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test --tests '*TickTimerTest' --tests '*GameSessionTest'`
 Expected: compilation fails with `Unresolved reference 'TickTimer'`.
 
-- [ ] **Step 4: Implement `TickTimer` and `GameSession`**
+- [x] **Step 4: Implement `TickTimer` and `GameSession`**
 
 `TickTimer.advance`: `elapsed = now − last`; `elapsed < interval` → no step; `elapsed < 2 × interval` → step, `last + interval`; else step, `now`. `progress` is `elapsed / interval` clamped to `0f..1f`.
 
-- [ ] **Step 5: Run them and confirm they pass**
+- [x] **Step 5: Run them and confirm they pass**
 
 Run: `~/.local/bin/mise exec -- ./gradlew :domain:test :domain:koverVerify`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 6: Finish per the per-task workflow**
+- [x] **Step 6: Finish per the per-task workflow**
 
 ---
 

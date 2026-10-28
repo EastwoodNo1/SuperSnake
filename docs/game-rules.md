@@ -62,4 +62,5 @@ Values the rules leave open, chosen while building. Each row names the task that
 | # | Detail | Why |
 |---|--------|-----|
 | B1 | Default settings are difficulty `LEVEL_1`, sound on, haptics on, swipe controls (Task 5) | A new player gets the first real level with feedback on and the one-finger scheme, with no setup screen in the way. |
+| B2 | A stall during the countdown skips the numbers it missed: the frame shows the current number, or `Go`, and announces only that (Task 6) | Announcing numbers that already passed would read them out late and in a burst; the player only needs to hear where the count is now. |
 

@@ -107,12 +107,7 @@ class GameRulesTest {
 
     @Test
     fun c9FillingTheBoardWins() {
-        val path =
-            (0 until Board.SIZE).flatMap { y ->
-                val xs = if (y % 2 == 0) 0 until Board.SIZE else (Board.SIZE - 1) downTo 0
-                xs.map { x -> Cell(x, y) }
-            }
-        val snake = path.take(399).reversed()
+        val snake = almostFullSnake()
         assertEquals(Cell(1, 19), snake.first())
         val result = GameRules.tick(running(snake = snake, direction = Direction.LEFT, orb = Cell(0, 19)), FixedRandom())
         assertEquals(GameStatus.WON, result.state.status)

@@ -63,4 +63,6 @@ Values the rules leave open, chosen while building. Each row names the task that
 |---|--------|-----|
 | B1 | Default settings are difficulty `LEVEL_1`, sound on, haptics on, swipe controls (Task 5) | A new player gets the first real level with feedback on and the one-finger scheme, with no setup screen in the way. |
 | B2 | A stall during the countdown skips the numbers it missed: the frame shows the current number, or `Go`, and announces only that (Task 6) | Announcing numbers that already passed would read them out late and in a burst; the player only needs to hear where the count is now. |
+| B3 | Pulse brightness is `0.8 + 0.2 × sin(2π × t / 1200 ms)`, and a constant `1.0` with reduce motion (Task 7) | The orb breathes gently without ever dimming below 80%, and a player who asked for less motion sees it steady. |
+| B4 | An orb burst is 12 particles at even angles from the cell centre, travelling 1.2 cells with ease-out `1 − (1 − t)²` over 400 ms, alpha `1 − t`, and none with reduce motion (Task 7) | A short, fast-then-settling burst reads as a pop without lingering over the board, and reduce motion removes it. |
 

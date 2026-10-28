@@ -146,6 +146,7 @@ The reference mockup is option A from the brainstorm: `docs/design/neon-arcade-m
 
 - All art, sound and fonts are either made for this project or licensed CC0 / SIL OFL.
 - Each asset's licence is recorded in `docs/assets.md`.
+- Sound effects are synthesized in code, with no audio files (owner, 2026-10-28; ADR-0010).
 
 ---
 
@@ -429,7 +430,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 |------|---------|----------|--------|
 | Compose BOM | 2026.09.00 (ui 1.12.1) | 2026-09-09 | G/androidx/compose/compose-bom |
 | activity-compose | 1.13.0 | 2026-03-11 | G/androidx/activity/activity-compose |
-| navigation-compose | 2.10.2 | 2026-09-23 | G/androidx/navigation/navigation-compose |
+| navigation-compose | 2.10.2 | 2026-09-23 | G/androidx/navigation/navigation-compose. **Not used: it pulls kotlinx-serialization-core in at runtime; the app uses its own back stack (owner, 2026-10-28; ADR-0009)** |
 | lifecycle viewmodel-compose / runtime-compose | 2.11.0 | 2026-06-17 | G/androidx/lifecycle |
 | datastore-preferences | 1.3.0 | 2026-10-21 | G/androidx/datastore/datastore-preferences. **Not used: replaced by `datastore-core` 1.3.0 (owner, 2026-10-28), which needs no okio** |
 | core-splashscreen | 1.2.0 | 2025-11-05 | G/androidx/core/core-splashscreen |

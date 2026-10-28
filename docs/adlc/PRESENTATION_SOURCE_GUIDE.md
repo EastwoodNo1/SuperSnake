@@ -157,3 +157,18 @@ Confirm that the documentation can answer:
 - Which examples and visuals best demonstrate the process? Listed above.
 
 Open: gameplay implementation and testing (not started), and the gaps in the register.
+
+## Update: CYCLE-007 and CYCLE-008 - Plans 2 and 3 (second fold-in)
+
+### What happened?
+The owner questioned an unexamined dependency (okio), which led to research, a verified alternative and a hard-stop proof. The engine was then built through Sonnet subagents in eight PRs, and a whole-range review found four defects at the seams. Plan 3 was researched in parallel, and the owner decided three dependency questions, once against the planner's recommendation.
+
+### Presentation candidates
+- **"The owner questioned a dependency and the plan changed."** Key message: one question led to research, a verified alternative, a spec-compatible design and a gate. Example: the okio checkpoint became a DataStore-core proof in Task 8 (DEC-031).
+- **"Per-task reviews are not enough."** All four Important defects were at the engine and app seam. Example: `:data` hid the types it exposes (DEC-036).
+- **"Game feel by decision, not by default."** 3-2-1 countdown, no grace, fixed speed became rules C13-C25 with named tests.
+- **"The recommendation was overruled, and the plan says so."** Example: DEC-038.
+- **"A transitive dependency broke the ban."** Example: ADR-0009, one POM line.
+- **"A colour that failed a measurement."** 1.17:1 orb against wall contrast led to `#2266CC` (DEC-040).
+- Visualization: a pipeline of owner decisions, design, plan, eight tasks (implementer, reviewer, verify, PR, merge), final review, handoff.
+- Caveats: GAP-009 to GAP-013.

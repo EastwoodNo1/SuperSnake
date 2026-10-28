@@ -19,10 +19,10 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 
 - Historical reconstruction: **Complete for the accessible evidence (first fold-in, 2026-10-27)**; open gaps are listed in the register
 - Earliest reliably documented point: 2026-10-20 (first captured session); first commit 2026-10-22 (`e900708`)
-- Current lifecycle position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) not yet written
+- Current lifecycle position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28, not yet executed
 - Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), per-PR evidence not re-read; see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
-- Last documentation checkpoint: 2026-10-27 (first fold-in)
-- Last folded session: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
+- Last documentation checkpoint: 2026-10-28 (second fold-in)
+- Last folded session: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
 
 ## 3. Actual Lifecycle Overview
 
@@ -34,7 +34,9 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 | Implementation of the foundation (CYCLE-004) | Build every gate before game code | Plan 1 | Controller plus Sonnet subagents; task by task | Gradle build, checks, hooks, CI, rulesets, plugin v0.1.x | Bite proofs, reviews, CI, required checks | Two hardening PRs, merge-method reversal, toolchain pivot, Kotlin handling | Done (Plan 1 complete) |
 | Tooling for documentation (CYCLE-005) | Reusable ADLC capture | Owner's need | Spike, design, build, hardening in the plugin repo | Plugin 0.2.0 | 88 tests, CI, real-CLI smoke test (Reconstructed) | Many fix commits | Done (Reconstructed) |
 | Adoption and first fold-in (CYCLE-006) | Apply it to SuperSnake | Plugin 0.2.0, four staged notes | Adoption commit, reconstruction | `docs/adlc/` | Privacy scan by the main agent | n/a | In progress (Prospective validation) |
-| Game engine, app, release (Plans 2 to 4) | The game itself | Plan 1 | Not started | Not started | Not started | n/a | Prospective |
+| Game engine (CYCLE-007) | Engine in `:domain` and `:data` | Plan 2, design doc | Owner decisions, 8 subagent tasks, whole-range review | PRs #47 to #67, rules C13-C25, ADR-0008 | Gate, coverage 100%, per-task and final review | Plan rewritten after owner redirect; 4 seam defects fixed | Done |
+| App plan (CYCLE-008) | Plan the Android app | Plan 2 handoff contract | Parallel research, three owner questions | Plan 3, ADR-0009, ADR-0010 | Owner approval | One recommendation rejected; one colour changed | Planned; execution Prospective |
+| App, release (Plans 3 and 4) | The playable game and release | Plan 3 | Not started | Not started | Not started | n/a | Prospective |
 
 ## 4. Actual Lifecycle Pattern
 
@@ -260,6 +262,57 @@ Definition of Done: commit, save durable lessons as memory, delete folded staged
 #### Evidence
 This folder; issue #44.
 
+### CYCLE-007 - Plan 2: the game engine (2026-10-27 to 28)
+
+**Evidence status:** Observed for PRs and owner decisions; Reconstructed for Tasks 5 to 7 (truncated digest)  
+**Lifecycle phase(s):** Planning, design, implementation, review
+
+#### Trigger and Context
+Plan 2 was written from Plan 1's Start here (PROMPT-015). The owner redirected before any code (PROMPT-016).
+
+#### Actions
+Research by two Sonnet researchers (the thin first report was sent back); the agent verified the storage claim from published metadata. Owner rulings (PROMPT-017). Design doc, plan rewrite, PR #47. Eight tasks through subagents (implementer, reviewer, controller re-verification, merge): PRs #49 to #63. Whole-range review: no Critical and four Important seam defects, fixed in PR #65. Task 9 (PR #67) added the rule-to-test table and the Plan 3 contract.
+
+#### Decisions
+DEC-031 to DEC-036.
+
+#### Validation
+Strict gate re-run by the controller, coverage `:domain` 154 branches and 315 lines and `:data` 18 branches and 51 lines (O, from the note), reviews, four required checks.
+
+#### Failure / Rework
+Thin research; `local.properties` missing in a fresh worktree (strict gate failed with "SDK location not found"); a ticked-checkbox claim that was false (Task 4); tests written after code in Tasks 6 and 8; merge-wait retry; contradictory rule C20; four seam defects found only by the final review.
+
+#### Learning
+Verify a researcher's key claim against primary artifacts. A whole-range review finds seam defects that per-task reviews cannot. A hard-stop proof turns a constraint into a gate. Copy gitignored files into new worktrees.
+
+#### Next Lifecycle Transition
+The "Plan 3 contract" in the handoff is the input to Plan 3.
+
+#### Evidence and Educational Relevance
+[record](sessions/2026-10-27-plan-2-game-engine.md); see the presentation guide.
+
+### CYCLE-008 - Plan 3: the app plan (2026-10-28) (Reconstructed)
+
+**Lifecycle phase(s):** Planning, design
+
+#### Trigger and Context
+Plan 2 closed; Plan 3 written from the plan's Start here (PROMPT-018).
+
+#### Actions
+Three parallel Sonnet research subagents (libGDX, AndroidX and CodeQL's Kotlin range, emulator runner and 16 KB). Three owner questions, one at a time. Wall colour changed after a contrast measurement.
+
+#### Decisions
+DEC-037 to DEC-040. The planner's recommendation on the emulator action was rejected by the owner.
+
+#### Validation
+Owner approval. Plan execution not started.
+
+#### Next Lifecycle Transition
+Execution in a fresh session from Plan 3's Start here.
+
+#### Evidence and Educational Relevance
+[record](sessions/2026-10-28-plan-3-planning-reconstructed.md); commit `e11d295`.
+
 ## 6. Requirements Evolution
 
 Requirements were stated up front as constraints (clean architecture, evidence, no comments, minimal dependencies, enforced SDLC). They were refined by evidence rather than changed in spirit: "latest stable" became "latest stable that CodeQL supports" (REQ-004); rebase-only became squash-only (REQ-008); a documentation requirement (REQ-013) appeared after Plan 1, derived from the original education purpose. The game requirements (REQ-001, REQ-009) are untouched since the spec. See [Requirements Traceability](REQUIREMENTS_TRACEABILITY.md).
@@ -273,6 +326,7 @@ Requirements were stated up front as constraints (clean architecture, evidence, 
 - Strict Gradle gate with one allow-listed deprecation (DEC-016).
 - release-please with an App token, deferred to Plan 4 (DEC-019, DEC-030 open).
 - Capture is automatic and private by layers (DEC-023 to DEC-027).
+- Storage without okio, Nokia-original game feel, own back stack, synthesized sound, emulator action kept against a recommendation (DEC-031 to DEC-040).
 
 All in [Decision Log](DECISION_LOG.md).
 
@@ -327,14 +381,15 @@ Early (2026-10-20 to 23): human-led choices with AI facilitation and research. E
 - Plans carry their own state; progress lives in git. Plan in waves so versions are fresh. Spike platform facts before designing on them.
 
 ### Human-AI Collaboration
+- An owner question can reverse a plan; a recommendation can be overruled and should be recorded (DEC-038). Check transitive dependencies in the POM. Run a whole-range review after the per-task reviews. A fresh worktree lacks gitignored files.
 - The AI can be confidently stale; verify with the live source. The human owns irreversible actions. A fresh agent is the best validator of documentation.
 
 ## 12. Current State and Next Step
 
-- Current lifecycle position: foundation complete; documentation adopted; no game features
+- Current lifecycle position: foundation and engine complete; Plan 3 (app) planned and approved, not executed
 - Current validated state: Plan 1 gates merged on `main`; this documentation awaits the privacy scan
 - Open issues: Dependabot Kotlin PR #41 (capped by CodeQL); issue #44 (ADLC adoption); spec design point on the `release` environment (DEC-030); `docs/release.md` not yet written
-- Next recommended activity: commit this fold-in (`docs(adlc): fold in session notes`), then write Plan 2 with `superpowers:writing-plans` after re-verifying versions and CodeQL's Kotlin support
+- Next recommended activity: commit this fold-in, then execute Plan 3 in a fresh session from its Start here
 
 ## Supporting Documentation
 

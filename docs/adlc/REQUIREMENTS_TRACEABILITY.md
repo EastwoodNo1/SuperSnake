@@ -49,3 +49,11 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 
 - Test-level links (named tests per rule) were not reconstructed. Plan 1 holds the per-task commands and expected outputs.
 - No acceptance criteria exist for REQ-001 beyond the spec's rules tables, because Plan 2 is unwritten.
+
+### Updates in the second fold-in (2026-10-28)
+
+- REQ-001: Plan 2 (PRs #47 to #67) implemented the engine in `:domain` and `:data`. Rules C13-C25 and B1-B6 were added to `docs/game-rules.md` (O). Tests are named after rules, and the plan closes with a rule-to-test table (O, from the session note). Coverage: `:domain` 154 branches and 315 lines, `:data` 18 branches and 51 lines, all covered. The app is Prospective in Plan 3.
+- REQ-005: storage kept without okio (DEC-031); navigation without a library (DEC-037); emulator action kept with evidence (DEC-038); sound without files (DEC-039).
+- REQ-009: Plan 3 plans accessibility tests and the contrast maths (DEC-040). Prospective.
+- REQ-010: met for `:domain` and `:data` at Plan 2 close (O, from the note).
+- Gap: the individual Plan 2 rule-to-test table was not re-read in this fold-in.

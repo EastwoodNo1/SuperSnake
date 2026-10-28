@@ -31,3 +31,14 @@ Status of each row is Observed (O), Reconstructed (R), Unknown (U) or Prospectiv
 - Everything from PR #2 on happened on 2026-10-26 (UTC), within about four and a half hours: PR creation times 11:03 to 15:16 and the last merge at 15:23.
 - Issue numbers and PR numbers share one counter, so each PR number directly follows its issue (for example issue #1 and PR #2 are a pair with matching titles; observed in the lists).
 - No game feature beyond the `Direction` type exists yet (O, from the git log). Plan 2 has not been written (O, plan "State at handoff").
+
+## Update: Plans 2 and 3 (second fold-in, 2026-10-28)
+
+| Seq. | Date / Session | Cycle | Lifecycle Phase | Trigger | Objective | Key Activity | Output | Validation / Result | Next Step | Evidence |
+|---:|---|---|---|---|---|---|---|---|---|---|
+| 19 | 2026-10-27 to 28, session dfda0bef | CYCLE-007 | Planning, design | Write Plan 2 from Start here (PROMPT-015) | Plan the game engine | Plan draft; owner redirect on okio and edge cases (PROMPT-016); research; decisions; design doc | Plan 2, design doc, ADR-0008, rules C13-C25 | Owner approved; PR #47 merged with four checks (O) | Execute | PR #47; [record](sessions/2026-10-27-plan-2-game-engine.md) |
+| 20 | 2026-10-27 to 28, same session | CYCLE-007 | Implementation, review | Go signal "start task 1 once it's merged" (PROMPT-017) | Build Tasks 1-8 through subagents | Implementer, reviewer, verify, PR and merge per task | PRs #49 to #63 | Gate and coverage re-run by the controller (O) | Final review | PRs #49, #51, #53, #55, #57, #59, #61, #63 |
+| 21 | 2026-10-28, same session | CYCLE-007 | Review, closure | All tasks merged | Find cross-task defects, hand off | Whole-range review: 0 Critical, 4 Important; fix PR; Task 9 handoff | PRs #65, #67; `:domain` 154 branches and `:data` 18 branches covered | Re-review confirmed fixes (O) | Plan 3 | `850604b` |
+| 22 | 2026-10-28 | CYCLE-008 | Planning, design | Plan 3 from Start here (PROMPT-018) | Plan the Android app | Three research subagents; three owner questions; contrast fix | Plan 3, ADR-0009, ADR-0010 (commit `e11d295`) | Owner approved; execution in a fresh session (R, reported by the main agent) | Execute Plan 3 | [record](sessions/2026-10-28-plan-3-planning-reconstructed.md) |
+
+Notes: the Plan 2 session record is a captured note whose digest was truncated in the middle (GAP-009). The Plan 3 record was reconstructed, because the session had not ended.

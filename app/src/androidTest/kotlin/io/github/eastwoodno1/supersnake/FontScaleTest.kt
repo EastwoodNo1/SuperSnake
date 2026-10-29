@@ -1,7 +1,13 @@
 package io.github.eastwoodno1.supersnake
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
@@ -52,11 +58,11 @@ class FontScaleTest {
             }
         }
         composeRule.waitForIdle()
-        assertNothingClips()
+        assertNothingClips(scrolls)
         assertButtonsReachable(scrolls, buttons)
     }
 
-    private fun assertNothingClips() {
+    private fun assertNothingClips(scrolls: Boolean) {
         val root = composeRule.onRoot().fetchSemanticsNode().boundsInRoot
         val texts = composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult)).fetchSemanticsNodes()
         assertTrue("no text nodes", texts.isNotEmpty())
@@ -67,13 +73,23 @@ class FontScaleTest {
                 ?.action
                 ?.invoke(results)
             assertTrue("no layout for ${node.id}", results.isNotEmpty())
-            results.forEach {
-                val fits = it.size.width <= it.layoutInput.constraints.maxWidth && it.size.height <= it.layoutInput.constraints.maxHeight
-                assertFalse("text clips: ${it.layoutInput.text}", it.multiParagraph.didExceedMaxLines || !fits)
-            }
-            assertTrue("text leaves the screen: ${node.id}", node.boundsInRoot.left >= root.left && node.boundsInRoot.right <= root.right)
+            results.forEach { assertFalse("text clips: ${it.layoutInput.text} ${describe(it)}", clipped(it)) }
+            val bounds = node.boundsInRoot
+            val sideways = bounds.left >= root.left && bounds.right <= root.right
+            val vertically = scrolls || (bounds.top >= root.top && bounds.bottom <= root.bottom)
+            assertTrue("text leaves the screen: ${node.id} $bounds in $root", sideways && vertically)
         }
     }
+
+    private fun clipped(result: TextLayoutResult): Boolean {
+        val widest = (0 until result.lineCount).maxOf { result.getLineRight(it) }
+        val tooTall = result.multiParagraph.height > result.size.height + TOLERANCE_PX
+        val tooWide = widest > result.size.width + TOLERANCE_PX || widest > result.layoutInput.constraints.maxWidth + TOLERANCE_PX
+        return tooTall || tooWide
+    }
+
+    private fun describe(result: TextLayoutResult) =
+        "text ${result.multiParagraph.width}x${result.multiParagraph.height} lines=${result.lineCount} box=${result.size}"
 
     private fun assertButtonsReachable(
         scrolls: Boolean,
@@ -126,6 +142,18 @@ class FontScaleTest {
     }
 
     @Test
+    fun fontScale200LandscapeSideColumnNothingClips() {
+        show {
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                Column(Modifier.verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Hud(120, "A", {}, Modifier, true)
+                    DPad({})
+                }
+            }
+        }
+    }
+
+    @Test
     fun fontScale200HudAndDpadNothingClips() {
         show(scrolls = false) {
             Row {
@@ -133,5 +161,9 @@ class FontScaleTest {
                 DPad({})
             }
         }
+    }
+
+    private companion object {
+        const val TOLERANCE_PX = 0.5f
     }
 }

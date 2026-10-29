@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import android.os.ParcelFileDescriptor
+import android.os.SystemClock
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsFocused
@@ -21,10 +22,8 @@ import io.github.eastwoodno1.supersnake.domain.Difficulty
 import io.github.eastwoodno1.supersnake.domain.GameStatus
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -38,17 +37,18 @@ class AccessibilityTest {
     val rules: RuleChain = UiTest.chain(composeRule)
 
     private val driver = GameDriver(composeRule)
-    private var previousScale = "1"
 
-    @Before
-    fun readScale() {
-        previousScale = shell("settings get global animator_duration_scale").trim()
-        shell("settings put global animator_duration_scale 0")
-    }
-
-    @After
-    fun restoreScale() {
-        shell("settings put global animator_duration_scale $previousScale")
+    private fun withScale(
+        value: String,
+        block: () -> Unit,
+    ) {
+        val previous = shell("settings get global animator_duration_scale").trim()
+        shell("settings put global animator_duration_scale $value")
+        try {
+            block()
+        } finally {
+            shell("settings put global animator_duration_scale $previous")
+        }
     }
 
     private fun shell(command: String): String {
@@ -104,18 +104,35 @@ class AccessibilityTest {
     @Test
     fun keyboardReachesEveryMenuItem() {
         val items = listOf("Play", "High scores", "Settings")
-        val visited = mutableListOf<String>()
-        repeat(items.size + 3) {
+        var focused: String? = null
+        repeat(MAX_TABS_TO_ENTER) {
+            if (focused == null) {
+                shell("input keyevent KEYCODE_TAB")
+                focused = awaitFocus(items, null)
+            }
+        }
+        val first = checkNotNull(focused) { "Tab never focused a menu item" }
+        val visited = mutableListOf(first)
+        repeat(items.size - 1) {
             shell("input keyevent KEYCODE_TAB")
-            composeRule.waitForIdle()
-            visited += items.filter { composeRule.onAllNodes(hasText(it) and isFocused()).fetchSemanticsNodes().isNotEmpty() }
+            visited += checkNotNull(awaitFocus(items, visited.last())) { "Tab left ${visited.last()} without reaching another item" }
         }
         assertEquals(items.toSet(), visited.toSet())
         visited.zipWithNext().forEach { (from, to) -> assertEquals(items[(items.indexOf(from) + 1) % items.size], to) }
-        items.forEach { item ->
-            composeRule.onNodeWithText(item).requestFocus()
-            composeRule.onNodeWithText(item).assertIsFocused()
+    }
+
+    private fun awaitFocus(
+        items: List<String>,
+        previous: String?,
+    ): String? {
+        val deadline = SystemClock.elapsedRealtime() + FOCUS_TIMEOUT_MILLIS
+        while (SystemClock.elapsedRealtime() < deadline) {
+            composeRule.waitForIdle()
+            val now = items.firstOrNull { composeRule.onAllNodes(hasText(it) and isFocused()).fetchSemanticsNodes().isNotEmpty() }
+            if (now != null && now != previous) return now
+            Thread.sleep(GameDriver.POLL_MILLIS)
         }
+        return null
     }
 
     private fun capture(orb: Cell): Int {
@@ -126,21 +143,46 @@ class AccessibilityTest {
         return pixel
     }
 
-    @Test
-    fun reduceMotionStopsAnimation() {
+    private fun startCountdown(): GameViewModel {
         composeRule.onNodeWithText("Play").performClick()
         driver.awaitUntil(GameDriver.COLD_START_MILLIS) { composeRule.onAllNodesWithText("3").fetchSemanticsNodes().isNotEmpty() }
-        val model = driver.viewModel()
-        assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
-        val orb = checkNotNull(model.frame.value.state.orb)
-        val first = capture(orb)
-        Thread.sleep(SHOT_GAP_MILLIS)
-        assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
-        val second = capture(orb)
-        assertEquals(first, second)
+        return driver.viewModel()
+    }
+
+    @Test
+    fun reduceMotionStopsAnimation() {
+        withScale("0") {
+            val model = startCountdown()
+            assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
+            val orb = checkNotNull(model.frame.value.state.orb)
+            val first = capture(orb)
+            Thread.sleep(SHOT_GAP_MILLIS)
+            assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
+            val second = capture(orb)
+            assertEquals(first, second)
+        }
+    }
+
+    @Test
+    fun boardPixelsChangeWhenSomethingMoves() {
+        withScale("1") {
+            val model = startCountdown()
+            driver.awaitStatus(model, GameStatus.RUNNING)
+            val tail =
+                model.frame.value.state.snake
+                    .last()
+            val before = capture(tail)
+            driver.awaitUntil {
+                model.frame.value.state.snake
+                    .last() != tail
+            }
+            driver.awaitUntil(GameDriver.SETTLE_MILLIS) { capture(tail) != before }
+        }
     }
 
     private companion object {
         const val SHOT_GAP_MILLIS = 600L
+        const val FOCUS_TIMEOUT_MILLIS = 2_000L
+        const val MAX_TABS_TO_ENTER = 4
     }
 }

@@ -1,6 +1,8 @@
 package io.github.eastwoodno1.supersnake
 
 import android.view.Choreographer
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
@@ -10,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -36,8 +41,14 @@ import kotlin.coroutines.resume
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
+    onLeave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val manager = (checkNotNull(LocalActivity.current) as FragmentActivity).supportFragmentManager
+    BackHandler {
+        manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNow() }
+        onLeave()
+    }
     val overlay by remember(viewModel) { viewModel.frame.map { Overlay.of(it) }.distinctUntilChanged() }
         .collectAsStateWithLifecycle(Overlay.NONE)
     val countdown by remember(viewModel) { viewModel.frame.map { it.countdown.toString() }.distinctUntilChanged() }

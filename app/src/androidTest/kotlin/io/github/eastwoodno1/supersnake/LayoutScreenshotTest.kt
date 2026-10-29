@@ -3,7 +3,9 @@ package io.github.eastwoodno1.supersnake
 import android.app.UiAutomation
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.os.SystemClock
 import android.view.Surface
+import android.view.WindowManager
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasTestTag
@@ -50,12 +52,22 @@ class LayoutScreenshotTest {
         file.outputStream().use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, PNG_QUALITY, it)) }
     }
 
+    private fun displayLandscape(): Boolean {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val bounds = context.getSystemService(WindowManager::class.java).currentWindowMetrics.bounds
+        return bounds.width() > bounds.height()
+    }
+
     private fun rotate() {
-        val wasLandscape = landscape()
+        val wasLandscape = displayLandscape()
         val rotation = composeRule.activity.display.rotation
         val upright = rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180
         automation.setRotation(if (upright) UiAutomation.ROTATION_FREEZE_90 else UiAutomation.ROTATION_FREEZE_0)
-        driver.awaitUntil(ROTATE_TIMEOUT_MILLIS) { landscape() != wasLandscape }
+        val deadline = SystemClock.elapsedRealtime() + ROTATE_TIMEOUT_MILLIS
+        while (displayLandscape() == wasLandscape) {
+            assertTrue("rotation did not complete", SystemClock.elapsedRealtime() < deadline)
+            Thread.sleep(GameDriver.POLL_MILLIS)
+        }
         driver.awaitText("Play", timeoutMillis = ROTATE_TIMEOUT_MILLIS)
     }
 

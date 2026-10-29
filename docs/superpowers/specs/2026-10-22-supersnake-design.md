@@ -115,6 +115,7 @@ The reference mockup is option A from the brainstorm: `docs/design/neon-arcade-m
    - Best score, shown small
 3. **Game** board, drawn by libGDX:
    - The HUD (score, level, pause button) is drawn by Compose on top of the board, so it stays accessible **[call]**.
+   - The game screen is full screen: the status and navigation bars are hidden and a swipe from the edge reveals them transiently. Content stays clear of the display cutout. Menu, high scores and settings keep the bars **[owner, 2026-10-29]**.
 4. **Pause** overlay: Resume, Restart, Main menu **[call]**.
 5. **Game over / win** screen: score, best score, Play again, Main menu **[call]**.
 6. **High scores:** the top 10 list **[call]**.

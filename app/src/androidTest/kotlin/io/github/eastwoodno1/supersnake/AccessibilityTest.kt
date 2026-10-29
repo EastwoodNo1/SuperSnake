@@ -20,10 +20,12 @@ import io.github.eastwoodno1.supersnake.domain.Cell
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.Difficulty
 import io.github.eastwoodno1.supersnake.domain.GameStatus
+import io.github.eastwoodno1.supersnake.domain.NeonPalette
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -135,13 +137,36 @@ class AccessibilityTest {
         return null
     }
 
-    private fun capture(orb: Cell): Int {
+    private fun capture(cell: Cell): Int {
         var pixel = 0
         driver.awaitUntil(GameDriver.SETTLE_MILLIS) {
-            runCatching { BoardPixels.capture(composeRule.activity).at(orb) }.onSuccess { pixel = it }.isSuccess
+            runCatching { BoardPixels.capture(composeRule.activity).at(cell) }.onSuccess { pixel = it }.isSuccess
         }
         return pixel
     }
+
+    private fun pump(millis: Long) {
+        val end = SystemClock.elapsedRealtime() + millis
+        while (SystemClock.elapsedRealtime() < end) {
+            composeRule.waitForIdle()
+            Thread.sleep(GameDriver.POLL_MILLIS)
+        }
+    }
+
+    private fun orbAreas(
+        orb: Cell,
+        samples: Int,
+    ): List<Int> =
+        List(samples) { index ->
+            pump(SHOT_GAP_MILLIS + GAP_STEP_MILLIS * index)
+            var area = 0
+            driver.awaitUntil(GameDriver.SETTLE_MILLIS) {
+                runCatching { BoardPixels.capture(composeRule.activity).countNear(orb, NeonPalette.ORB, ORB_TOLERANCE) }
+                    .onSuccess { area = it }
+                    .isSuccess
+            }
+            area
+        }
 
     private fun startCountdown(): GameViewModel {
         composeRule.onNodeWithText("Play").performClick()
@@ -153,13 +178,21 @@ class AccessibilityTest {
     fun reduceMotionStopsAnimation() {
         withScale("0") {
             val model = startCountdown()
-            assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
             val orb = checkNotNull(model.frame.value.state.orb)
-            val first = capture(orb)
-            Thread.sleep(SHOT_GAP_MILLIS)
-            assertEquals(GameStatus.COUNTDOWN, model.frame.value.state.status)
-            val second = capture(orb)
-            assertEquals(first, second)
+            val areas = orbAreas(orb, SAMPLES)
+            assertTrue("orb not drawn: $areas", areas.all { it > 0 })
+            assertEquals("orb area changed with animations removed: $areas", 1, areas.toSet().size)
+        }
+    }
+
+    @Test
+    fun orbPulsesWhenAnimationsAreOn() {
+        withScale("1") {
+            val model = startCountdown()
+            val orb = checkNotNull(model.frame.value.state.orb)
+            val areas = orbAreas(orb, SAMPLES)
+            assertTrue("orb not drawn: $areas", areas.all { it > 0 })
+            assertTrue("orb area never changed with animations on: $areas", areas.toSet().size > 1)
         }
     }
 
@@ -181,7 +214,10 @@ class AccessibilityTest {
     }
 
     private companion object {
-        const val SHOT_GAP_MILLIS = 600L
+        const val SHOT_GAP_MILLIS = 400L
+        const val GAP_STEP_MILLIS = 130L
+        const val SAMPLES = 5
+        const val ORB_TOLERANCE = 40
         const val FOCUS_TIMEOUT_MILLIS = 2_000L
         const val MAX_TABS_TO_ENTER = 4
     }

@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,16 +44,16 @@ import io.github.eastwoodno1.supersnake.domain.BackAction
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameKey
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 @Composable
-private fun <T> GameViewModel.select(select: (GameFrame) -> T): State<T> {
-    val latest = frame.collectAsStateWithLifecycle()
-    return remember(latest, select) { derivedStateOf { select(latest.value) } }
-}
+private fun <T> GameViewModel.select(select: (GameFrame) -> T): State<T> =
+    remember(this) { frame.map(select).distinctUntilChanged() }.collectAsStateWithLifecycle(remember(this) { select(frame.value) })
 
 @Composable
 fun GameScreen(

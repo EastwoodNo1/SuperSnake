@@ -28,6 +28,7 @@ class BoardRenderer(
     ) {
         frame = BoardLayout.fit(width.toFloat(), height.toFloat())
         shapes.projectionMatrix.setToOrtho(0f, width.toFloat(), height.toFloat(), 0f, 0f, 1f)
+        shapes.updateMatrices()
     }
 
     override fun render() {

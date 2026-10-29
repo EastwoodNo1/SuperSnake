@@ -40,6 +40,9 @@ class GameViewModel(
     val scene = SceneHolder().also { it.onFrame = { sessionClock.release() } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
+    var live = false
+        private set
+
     private var burst: Burst? = null
     private var pendingFeedback: Job = Job()
     private var reduceMotion = false
@@ -65,6 +68,7 @@ class GameViewModel(
         val scale = Settings.Global.getFloat(graph.context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         reduceMotion = Motion.reduced(scale)
         burst = null
+        live = true
         sessionClock.hold()
         session = GameSession(difficulty, sessionClock, graph.random, graph.recordHighScore)
         val first = session.frame

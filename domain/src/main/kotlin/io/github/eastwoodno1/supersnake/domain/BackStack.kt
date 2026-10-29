@@ -21,4 +21,16 @@ data class BackStack(
     fun pop(): BackStack = if (canPop) BackStack(screens.dropLast(1)) else this
 
     fun home(): BackStack = BackStack()
+
+    companion object {
+        fun restore(
+            saved: List<Screen>,
+            gameLive: Boolean,
+        ): BackStack =
+            BackStack(
+                saved
+                    .filter { gameLive || it != Screen.GAME }
+                    .ifEmpty { listOf(Screen.MENU) },
+            )
+    }
 }

@@ -22,6 +22,11 @@ class MenuTest {
     @get:Rule
     val rules: RuleChain = UiTest.chain(composeRule)
 
+    private fun leaveGame() =
+        composeRule.runOnUiThread {
+            repeat(2) { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        }
+
     @Test
     fun menuShowsItemsAndBest() {
         composeRule.onNodeWithText("Play").assertIsDisplayed()
@@ -38,7 +43,7 @@ class MenuTest {
             click()
         }
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
-        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        leaveGame()
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText("Play").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(0, composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().size)
     }
@@ -54,7 +59,7 @@ class MenuTest {
         repeat(2) {
             composeRule.onNodeWithText("Play").performClick()
             composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
-            composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+            leaveGame()
             composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText("Play").fetchSemanticsNodes().isNotEmpty() }
         }
     }
@@ -63,7 +68,7 @@ class MenuTest {
     fun backRightAfterPlayLeavesWithoutKillingTheProcess() {
         composeRule.onNodeWithText("Play").performClick()
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
-        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        leaveGame()
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText("Play").fetchSemanticsNodes().isNotEmpty() }
         Thread.sleep(SETTLE_MILLIS)
         composeRule.onNodeWithText("Play").assertIsDisplayed()

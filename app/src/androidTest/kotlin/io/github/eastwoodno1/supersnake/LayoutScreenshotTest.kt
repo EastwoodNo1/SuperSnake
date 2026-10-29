@@ -97,6 +97,7 @@ class LayoutScreenshotTest {
             checkNotNull(ViewCompat.getRootWindowInsets(decor)).getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
             )
+        assertTrue("$where hides the status bar", insets.top > 0)
         val safe =
             Rect(
                 insets.left.toFloat(),

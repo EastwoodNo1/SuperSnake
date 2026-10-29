@@ -34,7 +34,7 @@ The full list is in the plan's Global Constraints, the spec and `CONTRIBUTING.md
 - Strict gate: `scripts/gradle-strict.sh <tasks>` fails on any deprecation except one allowlisted Gradle message (Configuration.setVisible, emitted by Kover).
 - Invoke root check tasks with a leading colon (`:checkNoComments`, `:checkWorkflows`, `:checkReleaseManifest`, `:checkPullRequest`) because AGP registers same-named tasks in `:app`.
 - Merge is squash only. The PR title is a Conventional Commit header of at most 64 characters (GitHub adds ` (#N)`). The PR body has `Closes #<issue>` and a filled `## Evidence` section. See ADR-0007.
-- Required checks on `main`: `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`.
+- Required checks on `main`: `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)`. `ui-tests (phone-37)` and `ui-tests (tablet-37)` run but are informational until #82.
 - A Dependabot Gradle PR needs `gradle/verification-metadata.xml` refreshed: follow "Dependency verification updates" in `docs/versions.md`.
 
 ## Skills

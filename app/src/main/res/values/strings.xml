@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">SuperSnake</string>
     <string name="play">Play</string>
-    <string name="countdown_number">%1$s</string>
     <string name="high_scores">High scores</string>
     <string name="settings">Settings</string>
     <string name="best_score">Best: %1$d</string>
@@ -15,4 +14,26 @@
     <string name="control_scheme">Control scheme</string>
     <string name="control_swipe">Swipe</string>
     <string name="control_dpad">D-pad</string>
+    <string name="hud_score">Score %1$d</string>
+    <string name="hud_level">Level %1$s</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="restart">Restart</string>
+    <string name="main_menu">Main menu</string>
+    <string name="play_again">Play again</string>
+    <string name="paused_title">Paused</string>
+    <string name="game_over_title">Game over</string>
+    <string name="won_title">You win!</string>
+    <string name="final_score">Final score: %1$d</string>
+    <string name="dpad_up">Up</string>
+    <string name="dpad_down">Down</string>
+    <string name="dpad_left">Left</string>
+    <string name="dpad_right">Right</string>
+    <string name="phrase_countdown">%1$d</string>
+    <string name="phrase_go">Go</string>
+    <string name="phrase_paused">Paused</string>
+    <string name="phrase_orbs">%1$d orbs</string>
+    <string name="phrase_game_over">Game over. Score %1$d</string>
+    <string name="phrase_won">You win! Score %1$d</string>
+    <string name="phrase_new_high_score">New high score: %1$d</string>
 </resources>

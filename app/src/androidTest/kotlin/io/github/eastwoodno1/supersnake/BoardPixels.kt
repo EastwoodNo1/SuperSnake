@@ -4,11 +4,16 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.opengl.GLSurfaceView
+import android.os.Handler
+import android.os.Looper
+import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.eastwoodno1.supersnake.domain.BoardLayout
 import io.github.eastwoodno1.supersnake.domain.Cell
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class BoardPixels private constructor(
     private val shot: Bitmap,
@@ -23,15 +28,25 @@ class BoardPixels private constructor(
 
     companion object {
         fun capture(activity: Activity): BoardPixels {
-            val bounds = Rect()
+            lateinit var surface: GLSurfaceView
             InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                val view = findBoard(activity.window.decorView)
-                val origin = IntArray(2)
-                view.getLocationOnScreen(origin)
-                bounds.set(origin[0], origin[1], origin[0] + view.width, origin[1] + view.height)
+                surface = findBoard(activity.window.decorView) as GLSurfaceView
             }
-            val raw = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-            return BoardPixels(raw.copy(Bitmap.Config.ARGB_8888, false), bounds)
+            val bitmap = Bitmap.createBitmap(surface.width, surface.height, Bitmap.Config.ARGB_8888)
+            val done = CountDownLatch(1)
+            var status = PixelCopy.ERROR_UNKNOWN
+            PixelCopy.request(
+                surface,
+                bitmap,
+                {
+                    status = it
+                    done.countDown()
+                },
+                Handler(Looper.getMainLooper()),
+            )
+            check(done.await(COPY_TIMEOUT_SECONDS, TimeUnit.SECONDS)) { "pixel copy timed out" }
+            check(status == PixelCopy.SUCCESS) { "pixel copy failed: $status" }
+            return BoardPixels(bitmap, Rect(0, 0, bitmap.width, bitmap.height))
         }
 
         private fun findBoard(view: View): View {
@@ -44,5 +59,7 @@ class BoardPixels private constructor(
             }
             error("no GLSurfaceView in the view tree")
         }
+
+        private const val COPY_TIMEOUT_SECONDS = 5L
     }
 }

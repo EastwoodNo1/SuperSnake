@@ -38,6 +38,8 @@
 | junit (JUnit 4, androidTest only) | 4.13.2 (newest stable) | 2021-02-13 | https://repo1.maven.org/maven2/junit/junit/maven-metadata.xml | 2026-10-28 |
 | compose ui-test-junit4, ui-test-manifest | 1.12.1 (managed by the Compose BOM 2026.09.00) | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/ui/ui-test-junit4/maven-metadata.xml | 2026-10-28 |
 | espresso-core (androidTest-only constraint) | 3.7.0 (newest stable; 3.8.0-alpha skipped). `ui-test-junit4` 1.12.1 brings 3.5.0 in transitively, and 3.5.0 crashes on API 37 because `InputManager.getInstance` is missing. Owner decision: keep the constraint; no Espresso API is used | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/espresso/espresso-core/maven-metadata.xml | 2026-10-28 |
+| core-splashscreen | 1.2.0 (newest stable; 1.2.0-alpha01 to rc01 skipped). Its POM lists appcompat-resources 1.7.0, annotation 1.8.1 and kotlin-stdlib; nothing on the never-add list | 2025-11-05 | https://dl.google.com/android/maven2/androidx/core/core-splashscreen/maven-metadata.xml | 2026-10-29 |
+| compose animation-graphics | 1.12.1 (managed by the Compose BOM 2026.09.00; 1.13.0 is alpha and beta only). Its module lists compose animation, runtime, ui, foundation-layout, core-ktx and kotlin-stdlib; nothing on the never-add list | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/animation/animation-graphics/maven-metadata.xml | 2026-10-29 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 

@@ -22,6 +22,16 @@ data class Spoken(
                 Spoken(announcements.map(::line), (previous?.sequence ?: 0) + 1)
             }
 
+        fun undelivered(
+            spoken: Spoken?,
+            delivered: Long,
+        ): Spoken? = spoken?.takeIf { it.sequence > delivered }
+
+        fun delivered(
+            spoken: Spoken?,
+            previous: Long,
+        ): Long = maxOf(spoken?.sequence ?: previous, previous)
+
         private fun line(announcement: Announcement): Line =
             when (announcement) {
                 is Announcement.Countdown -> Line(Phrase.COUNTDOWN, announcement.number)

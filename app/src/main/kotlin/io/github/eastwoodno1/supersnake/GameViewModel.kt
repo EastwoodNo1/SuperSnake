@@ -47,6 +47,7 @@ class GameViewModel(
     private var pendingFeedback: Job = Job()
     private var reduceMotion = false
     private var swipe = SwipeControl(DEFAULT_THRESHOLD_PX)
+    private var deliveredSequence = 0L
     private val state = MutableStateFlow(session.frame)
 
     private val overlayState = MutableStateFlow(Overlay.of(session.frame))
@@ -95,6 +96,12 @@ class GameViewModel(
     }
 
     fun key(code: Int): Boolean = KEY_BINDINGS.press(code, ::input)
+
+    fun undelivered(spoken: Spoken?): Spoken? = Spoken.undelivered(spoken, deliveredSequence)
+
+    fun delivered(spoken: Spoken?) {
+        deliveredSequence = Spoken.delivered(spoken, deliveredSequence)
+    }
 
     fun swipeThreshold(px: Float) {
         swipe = SwipeControl(px)

@@ -72,6 +72,8 @@ fun GameScreen(
     BackHandler { if (viewModel.back() == BackAction.LEAVE) leave() }
     val overlay by viewModel.overlay.collectAsStateWithLifecycle()
     val spoken by viewModel.spoken.collectAsStateWithLifecycle()
+    val fresh = remember(spoken) { viewModel.undelivered(spoken) }
+    LaunchedEffect(spoken) { viewModel.delivered(spoken) }
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val best by viewModel.best.collectAsStateWithLifecycle()
     val score by viewModel.select { it.state.score }
@@ -162,8 +164,8 @@ fun GameScreen(
                 }
             }
         }
-        Overlays(overlay, countdown, score, best, spoken, actions)
-        Announcer(spoken)
+        Overlays(overlay, countdown, score, best, fresh, actions)
+        Announcer(fresh)
     }
 }
 

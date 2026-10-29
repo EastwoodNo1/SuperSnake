@@ -66,7 +66,7 @@ fun GameScreen(
 ) {
     val manager = (checkNotNull(LocalActivity.current) as FragmentActivity).supportFragmentManager
     val leave = {
-        manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNow() }
+        manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNowAllowingStateLoss() }
         onLeave()
     }
     BackHandler { if (viewModel.back() == BackAction.LEAVE) leave() }

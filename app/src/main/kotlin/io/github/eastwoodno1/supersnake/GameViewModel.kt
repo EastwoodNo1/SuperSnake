@@ -90,7 +90,7 @@ class GameViewModel(
         return action
     }
 
-    fun key(code: Int): Boolean = listOfNotNull(KEYS[code]).onEach { input(it.input) }.isNotEmpty()
+    fun key(code: Int): Boolean = KEY_BINDINGS.press(code, ::input)
 
     fun swipeThreshold(px: Float) {
         swipe = SwipeControl(px)

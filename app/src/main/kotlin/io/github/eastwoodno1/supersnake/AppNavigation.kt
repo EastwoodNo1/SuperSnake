@@ -3,7 +3,10 @@ package io.github.eastwoodno1.supersnake
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +39,8 @@ fun SuperSnakeApp(graph: AppGraph) {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(Brush.radialGradient(listOf(Color(NeonPalette.SURFACE), Color(NeonPalette.BACKGROUND)))),
+                .background(Brush.radialGradient(listOf(Color(NeonPalette.SURFACE), Color(NeonPalette.BACKGROUND))))
+                .windowInsetsPadding(WindowInsets.safeDrawing),
         ) {
             when (stack.top) {
                 Screen.MENU -> {

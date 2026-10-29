@@ -138,5 +138,5 @@ private fun Big(
 ) = Text(text, modifier, color = Color(NeonPalette.TEXT), fontSize = 96.sp, fontWeight = FontWeight.ExtraBold)
 
 private const val GO_MILLIS = 700L
-private const val SCRIM_ALPHA = 0.85f
+private const val SCRIM_ALPHA = 0.92f
 private const val PANEL_WIDTH = 0.85f

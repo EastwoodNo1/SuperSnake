@@ -21,6 +21,7 @@ import io.github.eastwoodno1.supersnake.domain.Motion
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import io.github.eastwoodno1.supersnake.domain.Spoken
 import io.github.eastwoodno1.supersnake.domain.SwipeControl
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import io.github.eastwoodno1.supersnake.domain.Settings as AppSettings
 
 class GameViewModel(
@@ -39,6 +41,7 @@ class GameViewModel(
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
     private var burst: Burst? = null
+    private var pendingFeedback: Job = Job()
     private var reduceMotion = false
     private var swipe = SwipeControl(DEFAULT_THRESHOLD_PX)
     private val state = MutableStateFlow(session.frame)
@@ -64,7 +67,15 @@ class GameViewModel(
         burst = null
         sessionClock.hold()
         session = GameSession(difficulty, sessionClock, graph.random, graph.recordHighScore)
-        consume(session.frame)
+        val first = session.frame
+        render(first)
+        val feedback = Feedback.of(first, settings.value)
+        pendingFeedback.cancel()
+        pendingFeedback =
+            viewModelScope.launch {
+                feedbackEvents.subscriptionCount.first { it > 0 }
+                feedbackEvents.emit(feedback)
+            }
     }
 
     suspend fun advance() = consume(session.advance())
@@ -100,11 +111,15 @@ class GameViewModel(
     fun swipeUp(id: Int) = swipe.up(id)
 
     private fun consume(frame: GameFrame) {
+        render(frame)
+        feedbackEvents.tryEmit(Feedback.of(frame, settings.value))
+    }
+
+    private fun render(frame: GameFrame) {
         val now = graph.clock.nowMillis()
         burst = Burst.next(burst, frame, now)
         scene.scene = BoardScene.of(frame, burst, now, reduceMotion)
         spokenState.value = Spoken.next(spokenState.value, frame.announcements)
-        feedbackEvents.tryEmit(Feedback.of(frame, settings.value))
         overlayState.value = Overlay.of(frame)
         state.value = frame
     }

@@ -111,7 +111,7 @@ fun GameScreen(
         modifier
             .fillMaxSize()
             .testTag("game")
-            .onKeyEvent { it.type == KeyEventType.KeyDown && viewModel.key(it.key.nativeKeyCode) }
+            .onKeyEvent { it.type == KeyEventType.KeyDown && it.nativeKeyEvent.repeatCount == 0 && viewModel.key(it.key.nativeKeyCode) }
             .focusRequester(focus)
             .focusable(),
     ) {

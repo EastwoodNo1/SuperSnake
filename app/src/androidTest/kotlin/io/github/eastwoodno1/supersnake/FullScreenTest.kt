@@ -133,6 +133,7 @@ class FullScreenTest {
             !composeRule.activity.hasWindowFocus()
         }
         showBars()
+        assertBars(true, "bars shown under the shade")
         shell("cmd statusbar collapse")
         driver.awaitUntil(BARS_SETTLE_MILLIS, { "the window did not regain focus" }) { composeRule.activity.hasWindowFocus() }
         val deadline = SystemClock.elapsedRealtime() + BARS_SETTLE_MILLIS

@@ -1,7 +1,6 @@
 package io.github.eastwoodno1.supersnake
 
 import android.app.UiAutomation
-import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.view.Surface
 import androidx.compose.ui.geometry.Offset
@@ -29,7 +28,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import kotlin.math.abs
@@ -39,20 +37,7 @@ class GameScreenTest {
     private val composeRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val rules: RuleChain =
-        RuleChain
-            .outerRule(
-                object : ExternalResource() {
-                    override fun before() {
-                        shell("settings put secure immersive_mode_confirmations confirmed")
-                    }
-                },
-            ).around(composeRule)
-
-    private fun shell(command: String) {
-        val descriptor = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)
-        ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
-    }
+    val rules: RuleChain = UiTest.chain(composeRule)
 
     private fun viewModel(): GameViewModel {
         lateinit var model: GameViewModel
@@ -83,6 +68,7 @@ class GameScreenTest {
     }
 
     private fun play(): GameViewModel {
+        UiTest.animationsOn()
         composeRule.onNodeWithText("Play").performClick()
         awaitUntil(COLD_START_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
         return viewModel()
@@ -113,6 +99,7 @@ class GameScreenTest {
 
     @Test
     fun c13PlayShowsCountdown() {
+        UiTest.animationsOn()
         composeRule.onNodeWithText("Play").performClick()
         awaitUntil(COLD_START_MILLIS) { composeRule.onAllNodesWithText("3").fetchSemanticsNodes().isNotEmpty() }
     }

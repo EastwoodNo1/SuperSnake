@@ -22,9 +22,9 @@ class AppGraph(
     val clock: Clock = AndroidClock()
     val random: RandomSource = KotlinRandomSource(Random.Default)
 
-    private val settingsRepository =
+    internal val settingsRepository =
         DataStoreSettingsRepository(Stores.settings(File(context.filesDir, "datastore/" + Stores.SETTINGS_FILE), scope))
-    private val highScoreRepository =
+    internal val highScoreRepository =
         DataStoreHighScoreRepository(Stores.highScores(File(context.filesDir, "datastore/" + Stores.HIGH_SCORES_FILE), scope))
 
     val settings: SettingsActions = SettingsActions(settingsRepository)

@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import android.view.Choreographer
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
@@ -10,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,8 +39,19 @@ import kotlin.coroutines.resume
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
+    onLeave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var board by remember { mutableStateOf<BoardFragment?>(null) }
+    BackHandler {
+        board?.let {
+            it.parentFragmentManager
+                .beginTransaction()
+                .detach(it)
+                .commitNow()
+        }
+        onLeave()
+    }
     val overlay by remember(viewModel) { viewModel.frame.map { Overlay.of(it) }.distinctUntilChanged() }
         .collectAsStateWithLifecycle(Overlay.NONE)
     val countdown by remember(viewModel) { viewModel.frame.map { it.countdown.toString() }.distinctUntilChanged() }
@@ -55,7 +69,7 @@ fun GameScreen(
         }
     }
     Box(modifier.fillMaxSize()) {
-        AndroidFragment<BoardFragment>(Modifier.fillMaxSize())
+        AndroidFragment<BoardFragment>(Modifier.fillMaxSize(), onUpdate = { board = it })
         Box(
             Modifier
                 .fillMaxSize()

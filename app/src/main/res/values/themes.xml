@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SuperSnake" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">#07061A</item>
+    </style>
+
+    <style name="Theme.SuperSnake.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_snake_animated</item>
+        <item name="windowSplashScreenBackground">#07061A</item>
+        <item name="postSplashScreenTheme">@style/Theme.SuperSnake</item>
+    </style>
+</resources>

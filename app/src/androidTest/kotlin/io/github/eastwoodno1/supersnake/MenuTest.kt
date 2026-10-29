@@ -49,6 +49,16 @@ class MenuTest {
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
     }
 
+    @Test
+    fun playAgainAfterLeavingShowsTheBoard() {
+        repeat(2) {
+            composeRule.onNodeWithText("Play").performClick()
+            composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
+            composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+            composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText("Play").fetchSemanticsNodes().isNotEmpty() }
+        }
+    }
+
     private companion object {
         const val FAST_TAP_GAP_MILLIS = 30L
         const val GAME_TIMEOUT_MILLIS = 60_000L

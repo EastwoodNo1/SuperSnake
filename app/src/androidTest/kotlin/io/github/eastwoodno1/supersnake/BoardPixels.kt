@@ -14,6 +14,7 @@ import io.github.eastwoodno1.supersnake.domain.BoardLayout
 import io.github.eastwoodno1.supersnake.domain.Cell
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 class BoardPixels private constructor(
     private val shot: Bitmap,
@@ -25,6 +26,26 @@ class BoardPixels private constructor(
         val y = bounds.top + frame.top + (cell.y + 0.5f) * frame.cellSize
         return shot.getPixel(x.toInt(), y.toInt())
     }
+
+    fun countNear(
+        cell: Cell,
+        expected: Int,
+        tolerance: Int,
+    ): Int {
+        val frame = BoardLayout.fit(bounds.width().toFloat(), bounds.height().toFloat())
+        val left = (bounds.left + frame.left + cell.x * frame.cellSize).toInt()
+        val top = (bounds.top + frame.top + cell.y * frame.cellSize).toInt()
+        val size = frame.cellSize.toInt()
+        return (top until top + size).sumOf { y ->
+            (left until left + size).count { x -> close(shot.getPixel(x, y), expected, tolerance) }
+        }
+    }
+
+    private fun close(
+        actual: Int,
+        expected: Int,
+        tolerance: Int,
+    ) = listOf(16, 8, 0).all { shift -> abs(((actual shr shift) and 0xFF) - ((expected shr shift) and 0xFF)) <= tolerance }
 
     companion object {
         fun capture(activity: Activity): BoardPixels {

@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -116,7 +119,10 @@ fun GameScreen(
             .focusable(),
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val board: @Composable (Modifier) -> Unit = { boardModifier ->
+            val hud: @Composable (Boolean, Modifier) -> Unit = { stacked, hudModifier ->
+                Hud(score, level, { viewModel.input(GameKey.PAUSE.input) }, hudModifier, stacked)
+            }
+            val board: @Composable (Modifier, Boolean) -> Unit = { boardModifier, withHud ->
                 Box(boardModifier) {
                     AndroidFragment<BoardFragment>(Modifier.fillMaxSize())
                     Box(
@@ -136,17 +142,22 @@ fun GameScreen(
                                 }
                             },
                     )
-                    Hud(score, level, { viewModel.input(GameKey.PAUSE.input) }, Modifier.align(Alignment.TopCenter))
+                    if (withHud) hud(false, Modifier.align(Alignment.TopCenter))
                 }
             }
             if (maxWidth > maxHeight) {
                 Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                    board(Modifier.weight(1f).fillMaxSize())
-                    if (showDpad) dpad()
+                    board(Modifier.weight(1f).fillMaxSize(), false)
+                    Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                        Column(Modifier.verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+                            hud(true, Modifier)
+                            if (showDpad) dpad()
+                        }
+                    }
                 }
             } else {
                 Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    board(Modifier.weight(1f).fillMaxSize())
+                    board(Modifier.weight(1f).fillMaxSize(), true)
                     if (showDpad) dpad()
                 }
             }

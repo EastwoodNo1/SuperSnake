@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -52,12 +53,12 @@ fun MenuScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (viewModel.reducedMotion) {
-            Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(ICON_SIZE))
+            Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(ICON_SIZE).testTag("menu_icon_static"))
         } else {
             val image = AnimatedImageVector.animatedVectorResource(R.drawable.ic_snake_animated)
             var atEnd by remember { mutableStateOf(false) }
             LaunchedEffect(image) { atEnd = true }
-            Image(rememberAnimatedVectorPainter(image, atEnd), null, Modifier.size(ICON_SIZE))
+            Image(rememberAnimatedVectorPainter(image, atEnd), null, Modifier.size(ICON_SIZE).testTag("menu_icon_animated"))
         }
         Text(
             stringResource(R.string.app_name).uppercase(),

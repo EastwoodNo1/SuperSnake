@@ -11,27 +11,37 @@ import org.junit.rules.TestRule
 object UiTest {
     fun graph(): AppGraph = (InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as SuperSnakeApp).graph
 
-    fun chain(activityRule: TestRule): RuleChain =
+    fun chain(
+        activityRule: TestRule,
+        reducedMotion: Boolean = true,
+    ): RuleChain =
         RuleChain
             .outerRule(
                 object : ExternalResource() {
+                    private var previousScale = "1"
+
                     override fun before() {
+                        previousScale = shell("settings get global animator_duration_scale").trim()
                         shell("settings put secure immersive_mode_confirmations confirmed")
-                        shell("settings put global animator_duration_scale 0")
+                        setScale(if (reducedMotion) "0" else "1")
                         runBlocking {
                             graph().settingsRepository.update { Settings() }
                             graph().highScoreRepository.update { emptyList() }
                         }
                     }
 
-                    override fun after() = animationsOn()
+                    override fun after() = setScale(previousScale)
                 },
             ).around(activityRule)
 
-    fun animationsOn() = shell("settings put global animator_duration_scale 1")
+    fun animationsOn() = setScale("1")
 
-    fun shell(command: String) {
+    private fun setScale(value: String) {
+        shell("settings put global animator_duration_scale $value")
+    }
+
+    private fun shell(command: String): String {
         val descriptor = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)
-        ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
+        return ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { String(it.readBytes()) }
     }
 }

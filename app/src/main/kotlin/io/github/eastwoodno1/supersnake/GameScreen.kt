@@ -2,6 +2,7 @@ package io.github.eastwoodno1.supersnake
 
 import android.view.Choreographer
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -42,14 +44,9 @@ fun GameScreen(
     onLeave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var board by remember { mutableStateOf<BoardFragment?>(null) }
+    val manager = (checkNotNull(LocalActivity.current) as FragmentActivity).supportFragmentManager
     BackHandler {
-        board?.let {
-            it.parentFragmentManager
-                .beginTransaction()
-                .detach(it)
-                .commitNow()
-        }
+        manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNow() }
         onLeave()
     }
     val overlay by remember(viewModel) { viewModel.frame.map { Overlay.of(it) }.distinctUntilChanged() }
@@ -69,7 +66,7 @@ fun GameScreen(
         }
     }
     Box(modifier.fillMaxSize()) {
-        AndroidFragment<BoardFragment>(Modifier.fillMaxSize(), onUpdate = { board = it })
+        AndroidFragment<BoardFragment>(Modifier.fillMaxSize())
         Box(
             Modifier
                 .fillMaxSize()

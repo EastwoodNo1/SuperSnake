@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import android.view.Choreographer
+import android.view.ViewTreeObserver
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.focusable
@@ -22,7 +23,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,7 +35,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
@@ -52,7 +51,6 @@ import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameKey
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -96,9 +94,13 @@ fun GameScreen(
         bars.hide(WindowInsetsCompat.Type.systemBars())
         onDispose { bars.show(WindowInsetsCompat.Type.systemBars()) }
     }
-    val windowInfo = LocalWindowInfo.current
-    LaunchedEffect(bars, windowInfo) {
-        snapshotFlow { windowInfo.isWindowFocused }.filter { it }.collect { bars.hide(WindowInsetsCompat.Type.systemBars()) }
+    DisposableEffect(view, bars) {
+        val listener =
+            ViewTreeObserver.OnWindowFocusChangeListener { focused ->
+                if (focused) bars.hide(WindowInsetsCompat.Type.systemBars())
+            }
+        view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
+        onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
     }
     DisposableEffect(beeps) { onDispose(beeps::release) }
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.pause() }

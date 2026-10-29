@@ -6,9 +6,13 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.eastwoodno1.supersnake.domain.Difficulty
 import io.github.eastwoodno1.supersnake.domain.Feedback
+import io.github.eastwoodno1.supersnake.domain.GameStatus
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import io.github.eastwoodno1.supersnake.domain.Sound
 import kotlinx.coroutines.CoroutineScope
@@ -87,5 +91,38 @@ class AnnouncementsTest {
         driver.awaitUntil { seen.flatMap { it.sounds }.contains(Sound.GO) }
         scope.cancel()
         assertTrue(seen.flatMap { it.sounds }.contains(Sound.COUNT))
+    }
+
+    @Test
+    fun firstCountSoundSurvivesUntilTheScreenSubscribes() {
+        val model = driver.viewModel()
+        composeRule.runOnUiThread { runBlocking { model.newGame() } }
+        val seen = CopyOnWriteArrayList<Feedback>()
+        val scope = CoroutineScope(Dispatchers.Main)
+        scope.launch { model.feedback.collect { seen += it } }
+        driver.awaitUntil(SUBSCRIBE_WAIT_MILLIS) { seen.isNotEmpty() }
+        scope.cancel()
+        assertEquals(listOf(Sound.COUNT), seen.first().sounds)
+    }
+
+    @Test
+    fun restartPlaysOneCountSound() {
+        val model = driver.play()
+        driver.awaitStatus(model, GameStatus.RUNNING)
+        composeRule.onNodeWithContentDescription("Pause").performClick()
+        driver.awaitText("Restart")
+        val seen = CopyOnWriteArrayList<Feedback>()
+        val scope = CoroutineScope(Dispatchers.Main)
+        scope.launch { model.feedback.collect { seen += it } }
+        composeRule.onNodeWithText("Restart").performClick()
+        driver.awaitUntil { seen.any { it.sounds.isNotEmpty() } }
+        Thread.sleep(SETTLE_MILLIS)
+        scope.cancel()
+        assertEquals(listOf(Sound.COUNT), seen.flatMap { it.sounds })
+    }
+
+    private companion object {
+        const val SUBSCRIBE_WAIT_MILLIS = 3_000L
+        const val SETTLE_MILLIS = 500L
     }
 }

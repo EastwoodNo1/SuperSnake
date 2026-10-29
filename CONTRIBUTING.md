@@ -47,6 +47,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Dependency integrity | none | Gradle dependency verification (`gradle/verification-metadata.xml`) and wrapper validation | none |
 | Security scanning | none | `analyze (java-kotlin)` and `analyze (actions)` (CodeQL) | Secret scanning with push protection, Dependabot alerts |
 | Manifest hardening | none | `checks` runs `:checkReleaseManifest` on the merged release manifest | none |
+| Backup rules name only the two DataStore files | none | `checks` runs `:checkBackupRules` on `backup_rules.xml` and `data_extraction_rules.xml` | none |
 | UI tests pass on three emulators | none | `ui-tests (phone-31)` (required), `ui-tests (phone-37)` and `ui-tests (tablet-37)` (informational until #82) run `:app:connectedDebugAndroidTest` | none |
 | Native libraries are 16 KB aligned | none | `checks` runs `zipalign -c -P 16 -v 4` on the release APK | none |
 | Evidence section present and non-empty | none | `pr-rules`: `:checkPullRequest` | PR template |

@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
@@ -84,6 +86,14 @@ fun GameScreen(
     val view = LocalView.current
     val beeps = remember { BeepPlayer() }
     val focus = remember { FocusRequester() }
+    val window = checkNotNull(LocalActivity.current).window
+    val bars = remember(window, view) { WindowInsetsControllerCompat(window, view) }
+    DisposableEffect(bars) {
+        bars.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        bars.hide(WindowInsetsCompat.Type.systemBars())
+        onDispose { bars.show(WindowInsetsCompat.Type.systemBars()) }
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { bars.hide(WindowInsetsCompat.Type.systemBars()) }
     DisposableEffect(beeps) { onDispose(beeps::release) }
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.pause() }
     LaunchedEffect(thresholdPx) { viewModel.swipeThreshold(thresholdPx) }

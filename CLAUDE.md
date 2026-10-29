@@ -4,7 +4,7 @@ Full detail is in [`CONTRIBUTING.md`](CONTRIBUTING.md). This file is the short f
 
 ## Start of every session
 
-1. Read the **Start here** section of the active plan: `docs/superpowers/plans/2026-10-28-plan-3-app.md`.
+1. Read the **Start here** section of the latest plan: `docs/superpowers/plans/2026-10-28-plan-3-app.md`. Plan 3 is complete, and its "State at handoff" says what comes next (write Plan 4). Once a newer plan file exists, read that one instead.
 2. Find where work stands, following that section's "Progress lives in git" rules:
    - `git log --oneline`
    - `git worktree list`
@@ -39,7 +39,7 @@ The full list is in the plan's Global Constraints, the spec and `CONTRIBUTING.md
 
 ## Skills
 
-The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1/android-sdlc-skills` at tag `v0.2.0` through `.claude/settings.json`. Use them:
+The SDLC skills come from the plugin `android-sdlc`, installed from `EastwoodNo1/android-sdlc-skills` at tag `v0.3.0` through `.claude/settings.json`. Use them:
 
 - `android-sdlc:git-hooks`: hooks, `scripts/bootstrap.sh`, `scripts/test-hooks.sh`.
 - `android-sdlc:android-ci`: workflows, mise pins, Dependabot, `build-logic/checks`, repo settings. It re-verifies every pin before use.
@@ -50,15 +50,15 @@ The templates in the plugin are copies of this repo's files. After changing a fi
 
 ### Install the plugin once per machine
 
-Project settings declare the plugin but do not install it. Run these once from the repo root (the commands are pinned to `v0.2.0`):
+Project settings declare the plugin but do not install it. Run these once from the repo root (the commands are pinned to `v0.3.0`):
 
 ```sh
-claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.2.0 --scope project
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.3.0 --scope project
 claude plugin install android-sdlc@android-sdlc-skills --scope project
 claude plugin list
 ```
 
-Accept the workspace trust prompt the first time you open the folder in Claude Code, because `.claude/settings.json` is only honored in a trusted folder. `claude plugin list` must show `android-sdlc@android-sdlc-skills`, `Version: 0.2.0`, `Status: ✔ enabled`. A newer plugin version is adopted by changing the `ref` in `.claude/settings.json` in a PR.
+Accept the workspace trust prompt the first time you open the folder in Claude Code, because `.claude/settings.json` is only honored in a trusted folder. `claude plugin list` must show `android-sdlc@android-sdlc-skills`, `Version: 0.3.0`, `Status: ✔ enabled`. A newer plugin version is adopted by changing the `ref` in `.claude/settings.json` in a PR.
 
 ## ADLC/SDLC documentation
 

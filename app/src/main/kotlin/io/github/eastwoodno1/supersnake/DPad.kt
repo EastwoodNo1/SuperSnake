@@ -17,8 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.eastwoodno1.supersnake.domain.GameKey
@@ -54,7 +54,7 @@ private fun DPadKey(
             .clip(KEY_SHAPE)
             .border(2.dp, Color(NeonPalette.ORB), KEY_SHAPE)
             .clickable(role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = description },
+            .clearAndSetSemantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
         Text(glyph, color = Color(NeonPalette.TEXT), fontSize = 24.sp)

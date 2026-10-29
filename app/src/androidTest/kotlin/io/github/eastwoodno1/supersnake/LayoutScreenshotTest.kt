@@ -98,13 +98,15 @@ class LayoutScreenshotTest {
         val decor = composeRule.activity.window.decorView
         driver.awaitUntil(
             BARS_SETTLE_MILLIS,
-            { "$where status bar visible=${statusBarsVisible()} navigation bar visible=${navigationBarsVisible()}, expected $barsVisible" },
-        ) { statusBarsVisible() == barsVisible && navigationBarsVisible() == barsVisible }
+            { "$where: expected ${expectation(barsVisible)}, found ${composeRule.activity.barsSummary()}" },
+        ) {
+            if (barsVisible) composeRule.activity.allBarsVisible() else composeRule.activity.allBarsHidden()
+        }
         val insets =
             checkNotNull(ViewCompat.getRootWindowInsets(decor)).getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
             )
-        if (barsVisible) assertTrue("$where hides the status bar", insets.top > 0)
+        if (barsVisible) assertTrue("$where: the status bar inset is ${insets.top}, expected above 0", insets.top > 0)
         val safe =
             Rect(
                 insets.left.toFloat(),
@@ -135,9 +137,8 @@ class LayoutScreenshotTest {
         }
     }
 
-    private fun statusBarsVisible() = composeRule.activity.barsVisible(WindowInsetsCompat.Type.statusBars())
-
-    private fun navigationBarsVisible() = composeRule.activity.barsVisible(WindowInsetsCompat.Type.navigationBars())
+    private fun expectation(barsVisible: Boolean) =
+        if (barsVisible) "status and navigation bars visible" else "status and navigation bars hidden"
 
     private fun pass() {
         shoot("menu")

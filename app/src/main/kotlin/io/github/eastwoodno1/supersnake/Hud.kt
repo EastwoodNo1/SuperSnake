@@ -32,7 +32,8 @@ fun Hud(
     val levelText: @Composable (Modifier) -> Unit = {
         Text(stringResource(R.string.hud_level, level), it, color = Color(NeonPalette.TEXT))
     }
-    val pauseButton: @Composable () -> Unit = { NeonButton("II", onPause, Modifier.semantics { contentDescription = pause }) }
+    val glyph = stringResource(R.string.pause_glyph)
+    val pauseButton: @Composable () -> Unit = { NeonButton(glyph, onPause, Modifier.semantics { contentDescription = pause }) }
     if (stacked) {
         Column(
             modifier.padding(12.dp),

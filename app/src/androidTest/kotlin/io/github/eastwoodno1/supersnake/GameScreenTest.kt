@@ -1,6 +1,6 @@
 package io.github.eastwoodno1.supersnake
 
-import android.content.pm.ActivityInfo
+import android.app.UiAutomation
 import android.content.res.Configuration
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
@@ -149,13 +149,14 @@ class GameScreenTest {
         val model = play()
         awaitGo(model)
         val before = model.frame.value.state
-        composeRule.runOnUiThread {
-            val activity = composeRule.activity
-            val landscape = activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            activity.requestedOrientation =
-                if (landscape) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val landscape = composeRule.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        try {
+            automation.setRotation(if (landscape) UiAutomation.ROTATION_FREEZE_0 else UiAutomation.ROTATION_FREEZE_90)
+            awaitUntil(pumping = false) { model.frame.value.state.status == GameStatus.PAUSED }
+        } finally {
+            automation.setRotation(UiAutomation.ROTATION_UNFREEZE)
         }
-        awaitUntil(pumping = false) { model.frame.value.state.status == GameStatus.PAUSED }
         val after = model.frame.value.state
         assertEquals(before.score, after.score)
         assertEquals(before.snake.size, after.snake.size)

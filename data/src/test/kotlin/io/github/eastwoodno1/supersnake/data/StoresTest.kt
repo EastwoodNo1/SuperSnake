@@ -8,7 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -38,7 +40,7 @@ class StoresTest {
             val file = File(dir, Stores.SETTINGS_FILE)
             val first = newScope()
             Stores.settings(file, first).updateData { Settings(Difficulty.LEVEL_3) }
-            first.cancel()
+            first.coroutineContext.job.cancelAndJoin()
             assertEquals(Settings(Difficulty.LEVEL_3), Stores.settings(file, newScope()).data.first())
         }
 
@@ -48,7 +50,7 @@ class StoresTest {
             val file = File(dir, Stores.HIGH_SCORES_FILE)
             val first = newScope()
             Stores.highScores(file, first).updateData { listOf(entry) }
-            first.cancel()
+            first.coroutineContext.job.cancelAndJoin()
             assertEquals(listOf(entry), Stores.highScores(file, newScope()).data.first())
         }
 

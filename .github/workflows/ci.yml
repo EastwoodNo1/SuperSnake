@@ -73,12 +73,15 @@ jobs:
         include:
           - name: phone-37
             api-level: "37.0"
+            target: google_atd
             profile: pixel_7
           - name: tablet-37
             api-level: "37.0"
+            target: google_atd
             profile: pixel_tablet
           - name: phone-31
             api-level: "31"
+            target: google_apis
             profile: pixel_7
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -119,7 +122,7 @@ jobs:
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
           api-level: ${{ matrix.api-level }}
-          target: google_apis
+          target: ${{ matrix.target }}
           arch: x86_64
           profile: ${{ matrix.profile }}
           cores: 3

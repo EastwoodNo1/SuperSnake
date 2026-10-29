@@ -22,6 +22,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -34,6 +35,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
@@ -50,6 +52,7 @@ import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameKey
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -93,7 +96,10 @@ fun GameScreen(
         bars.hide(WindowInsetsCompat.Type.systemBars())
         onDispose { bars.show(WindowInsetsCompat.Type.systemBars()) }
     }
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { bars.hide(WindowInsetsCompat.Type.systemBars()) }
+    val windowInfo = LocalWindowInfo.current
+    LaunchedEffect(bars, windowInfo) {
+        snapshotFlow { windowInfo.isWindowFocused }.filter { it }.collect { bars.hide(WindowInsetsCompat.Type.systemBars()) }
+    }
     DisposableEffect(beeps) { onDispose(beeps::release) }
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.pause() }
     LaunchedEffect(thresholdPx) { viewModel.swipeThreshold(thresholdPx) }

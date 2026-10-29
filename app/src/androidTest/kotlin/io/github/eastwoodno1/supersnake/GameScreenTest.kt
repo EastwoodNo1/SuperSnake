@@ -1,9 +1,9 @@
 package io.github.eastwoodno1.supersnake
 
 import android.app.UiAutomation
-import android.content.res.Configuration
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
+import android.view.Surface
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.center
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -150,9 +150,9 @@ class GameScreenTest {
         awaitGo(model)
         val before = model.frame.value.state
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        val landscape = composeRule.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val upright = composeRule.activity.display.rotation == Surface.ROTATION_0
         try {
-            automation.setRotation(if (landscape) UiAutomation.ROTATION_FREEZE_0 else UiAutomation.ROTATION_FREEZE_90)
+            automation.setRotation(if (upright) UiAutomation.ROTATION_FREEZE_90 else UiAutomation.ROTATION_FREEZE_0)
             awaitUntil(pumping = false) { model.frame.value.state.status == GameStatus.PAUSED }
         } finally {
             automation.setRotation(UiAutomation.ROTATION_UNFREEZE)

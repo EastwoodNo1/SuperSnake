@@ -25,6 +25,11 @@
     <string name="game_over_title">Game over</string>
     <string name="won_title">You win!</string>
     <string name="final_score">Final score: %1$d</string>
+    <string name="pause_glyph" translatable="false">II</string>
+    <string name="dpad_up_glyph" translatable="false">▲</string>
+    <string name="dpad_down_glyph" translatable="false">▼</string>
+    <string name="dpad_left_glyph" translatable="false">◀</string>
+    <string name="dpad_right_glyph" translatable="false">▶</string>
     <string name="dpad_up">Up</string>
     <string name="dpad_down">Down</string>
     <string name="dpad_left">Left</string>

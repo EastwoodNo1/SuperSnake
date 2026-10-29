@@ -83,6 +83,21 @@ class AnnouncementsTest {
     }
 
     @Test
+    fun gameOverIsNotAnnouncedAgainAfterRecreate() {
+        runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
+        val model = driver.play()
+        driver.awaitOverlay(model, Overlay.GAME_OVER)
+        driver.awaitUntil { liveTexts().any { it.startsWith("Game over. Score") } }
+        composeRule.activityRule.scenario.recreate()
+        driver.awaitText("Main menu")
+        val deadline = SystemClock.elapsedRealtime() + QUIET_MILLIS
+        while (SystemClock.elapsedRealtime() < deadline) {
+            assertEquals(emptyList<String>(), liveTexts().filter { it.isNotEmpty() })
+            Thread.sleep(GameDriver.POLL_MILLIS)
+        }
+    }
+
+    @Test
     fun countdownPlaysCountAndGoSounds() {
         val seen = CopyOnWriteArrayList<Feedback>()
         val scope = CoroutineScope(Dispatchers.Main)
@@ -124,5 +139,6 @@ class AnnouncementsTest {
     private companion object {
         const val SUBSCRIBE_WAIT_MILLIS = 3_000L
         const val SETTLE_MILLIS = 500L
+        const val QUIET_MILLIS = 1_500L
     }
 }

@@ -33,12 +33,12 @@ fun DPad(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        DPadKey("▲", stringResource(R.string.dpad_up)) { onKey(GameKey.UP) }
+        DPadKey(stringResource(R.string.dpad_up_glyph), stringResource(R.string.dpad_up)) { onKey(GameKey.UP) }
         Row(horizontalArrangement = Arrangement.spacedBy(KEY_SIZE)) {
-            DPadKey("◀", stringResource(R.string.dpad_left)) { onKey(GameKey.LEFT) }
-            DPadKey("▶", stringResource(R.string.dpad_right)) { onKey(GameKey.RIGHT) }
+            DPadKey(stringResource(R.string.dpad_left_glyph), stringResource(R.string.dpad_left)) { onKey(GameKey.LEFT) }
+            DPadKey(stringResource(R.string.dpad_right_glyph), stringResource(R.string.dpad_right)) { onKey(GameKey.RIGHT) }
         }
-        DPadKey("▼", stringResource(R.string.dpad_down)) { onKey(GameKey.DOWN) }
+        DPadKey(stringResource(R.string.dpad_down_glyph), stringResource(R.string.dpad_down)) { onKey(GameKey.DOWN) }
     }
 }
 

@@ -7,6 +7,10 @@ import android.os.SystemClock
 import android.view.Surface
 import android.view.WindowManager
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -15,6 +19,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
@@ -84,19 +91,72 @@ class LayoutScreenshotTest {
         return model
     }
 
+    private fun assertInsideSafeArea(where: String) {
+        val decor = composeRule.activity.window.decorView
+        val insets =
+            checkNotNull(ViewCompat.getRootWindowInsets(decor)).getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
+            )
+        assertTrue("$where hides the status bar", insets.top > 0)
+        val safe =
+            Rect(
+                insets.left.toFloat(),
+                insets.top.toFloat(),
+                (decor.width - insets.right).toFloat(),
+                (decor.height - insets.bottom).toFloat(),
+            )
+        val matcher =
+            SemanticsMatcher("content node") {
+                val tag = it.config.getOrNull(SemanticsProperties.TestTag)
+                tag != "announcer" &&
+                    (
+                        it.config.contains(SemanticsProperties.Text) ||
+                            it.config.contains(SemanticsActions.OnClick) ||
+                            tag == "board"
+                    )
+            }
+        val nodes = composeRule.onAllNodes(matcher).fetchSemanticsNodes()
+        assertTrue("$where has no content nodes", nodes.isNotEmpty())
+        nodes.filterNot { it.boundsInWindow.isEmpty }.forEach {
+            val rect = it.boundsInWindow
+            val inside =
+                rect.left >= safe.left - EDGE_TOLERANCE_PX &&
+                    rect.top >= safe.top - EDGE_TOLERANCE_PX &&
+                    rect.right <= safe.right + EDGE_TOLERANCE_PX &&
+                    rect.bottom <= safe.bottom + EDGE_TOLERANCE_PX
+            assertTrue("$where node ${it.id} $rect is outside the safe area $safe", inside)
+        }
+    }
+
     private fun pass() {
         shoot("menu")
+        assertInsideSafeArea("menu")
+        composeRule.onNodeWithText("Settings").performScrollTo().performClick()
+        driver.awaitText("Sound")
+        assertInsideSafeArea("settings")
+        shoot("settings")
+        driver.back()
+        driver.awaitText("Play")
+        composeRule.onNodeWithText("High scores").performScrollTo().performClick()
+        driver.awaitText("No scores yet")
+        assertInsideSafeArea("high scores")
+        shoot("high-scores")
+        driver.back()
+        driver.awaitText("Play")
         val model = awaitPlay()
         shoot("game")
+        assertInsideSafeArea("game")
         composeRule.runOnUiThread { model.input(GameInput.TogglePause) }
         driver.awaitText("Resume")
         assertDpadBesideOrBelowBoard()
+        assertInsideSafeArea("pause")
         shoot("pause")
         composeRule.onNodeWithText("Main menu").performClick()
         driver.awaitText("Play")
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
         val over = driver.play()
         driver.awaitOverlay(over, Overlay.GAME_OVER)
+        assertInsideSafeArea("game over")
         shoot("game-over")
         composeRule.onNodeWithText("Main menu").performClick()
         driver.awaitText("Play")
@@ -157,5 +217,6 @@ class LayoutScreenshotTest {
     private companion object {
         const val ROTATE_TIMEOUT_MILLIS = 20_000L
         const val PNG_QUALITY = 100
+        const val EDGE_TOLERANCE_PX = 1f
     }
 }

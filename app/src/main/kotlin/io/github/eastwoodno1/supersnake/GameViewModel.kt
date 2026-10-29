@@ -40,10 +40,14 @@ class GameViewModel(
     val scene = SceneHolder().also { it.onFrame = { sessionClock.release() } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
+    var live = false
+        private set
+
     private var burst: Burst? = null
     private var pendingFeedback: Job = Job()
     private var reduceMotion = false
     private var swipe = SwipeControl(DEFAULT_THRESHOLD_PX)
+    private var deliveredSequence = 0L
     private val state = MutableStateFlow(session.frame)
 
     private val overlayState = MutableStateFlow(Overlay.of(session.frame))
@@ -58,18 +62,16 @@ class GameViewModel(
     val best: StateFlow<Int> = graph.highScores.best.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), 0)
 
     suspend fun newGame() {
-        val difficulty =
-            graph.settings.settings
-                .first()
-                .difficulty
+        val current = graph.settings.settings.first()
         val scale = Settings.Global.getFloat(graph.context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         reduceMotion = Motion.reduced(scale)
         burst = null
+        live = true
         sessionClock.hold()
-        session = GameSession(difficulty, sessionClock, graph.random, graph.recordHighScore)
+        session = GameSession(current.difficulty, sessionClock, graph.random, graph.recordHighScore)
         val first = session.frame
         render(first)
-        val feedback = Feedback.of(first, settings.value)
+        val feedback = Feedback.of(first, current)
         pendingFeedback.cancel()
         pendingFeedback =
             viewModelScope.launch {
@@ -90,7 +92,13 @@ class GameViewModel(
         return action
     }
 
-    fun key(code: Int): Boolean = listOfNotNull(KEYS[code]).onEach { input(it.input) }.isNotEmpty()
+    fun key(code: Int): Boolean = KEY_BINDINGS.press(code, ::input)
+
+    fun undelivered(spoken: Spoken?): Spoken? = Spoken.undelivered(spoken, deliveredSequence)
+
+    fun delivered(spoken: Spoken?) {
+        deliveredSequence = Spoken.delivered(spoken, deliveredSequence)
+    }
 
     fun swipeThreshold(px: Float) {
         swipe = SwipeControl(px)

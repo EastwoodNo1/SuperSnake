@@ -39,4 +39,25 @@ class SpokenTest {
         assertEquals(Line(Phrase.WON, 5), line(Announcement.Won(5)))
         assertEquals(Line(Phrase.NEW_HIGH_SCORE, 6), line(Announcement.NewHighScore(6)))
     }
+
+    @Test
+    fun spokenNewerThanDeliveredIsUndelivered() {
+        val spoken = Spoken.next(null, listOf(Announcement.Go))
+        assertSame(spoken, Spoken.undelivered(spoken, 0L))
+    }
+
+    @Test
+    fun spokenAlreadyDeliveredIsNotRepeated() {
+        val spoken = Spoken.next(null, listOf(Announcement.Go))
+        assertNull(Spoken.undelivered(spoken, 1L))
+        assertNull(Spoken.undelivered(spoken, 2L))
+        assertNull(Spoken.undelivered(null, 0L))
+    }
+
+    @Test
+    fun deliveringAdvancesTheSequence() {
+        val spoken = Spoken.next(null, listOf(Announcement.Go))
+        assertEquals(1L, Spoken.delivered(spoken, 0L))
+        assertEquals(3L, Spoken.delivered(null, 3L))
+    }
 }

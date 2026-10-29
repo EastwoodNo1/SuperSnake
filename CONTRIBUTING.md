@@ -58,6 +58,8 @@ Rules that later plans add, with their enforcer: release tag protection (tag rul
 
 Root check tasks are invoked with a leading colon, for example `:checkNoComments`, because AGP registers same-named tasks in `:app`.
 
+The instrumented tests reset the app's settings and high scores on the device they run on, so run them on an emulator, never on a device with data you want to keep.
+
 ## Practices (not gated)
 
 A machine cannot fully check these. They are taught, and the gates catch only some of the damage if you skip them.

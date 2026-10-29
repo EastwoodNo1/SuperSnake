@@ -16,6 +16,6 @@ class BoardFragment : AndroidFragmentApplication() {
         savedInstanceState: Bundle?,
     ): View {
         val model = ViewModelProvider(requireActivity(), GameViewModel.Factory)[GameViewModel::class.java]
-        return initializeForView(BoardRenderer(model.scene), AndroidApplicationConfiguration())
+        return initializeForView(BoardRenderer(model.scene), AndroidApplicationConfiguration().apply { useImmersiveMode = false })
     }
 }

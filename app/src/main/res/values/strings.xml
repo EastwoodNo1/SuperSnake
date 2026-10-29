@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">SuperSnake</string>
     <string name="play">Play</string>
     <string name="high_scores">High scores</string>
@@ -32,7 +32,7 @@
     <string name="phrase_countdown">%1$d</string>
     <string name="phrase_go">Go</string>
     <string name="phrase_paused">Paused</string>
-    <string name="phrase_orbs">%1$d orbs</string>
+    <string name="phrase_orbs" tools:ignore="PluralsCandidate">%1$d orbs</string>
     <string name="phrase_game_over">Game over. Score %1$d</string>
     <string name="phrase_won">You win! Score %1$d</string>
     <string name="phrase_new_high_score">New high score: %1$d</string>

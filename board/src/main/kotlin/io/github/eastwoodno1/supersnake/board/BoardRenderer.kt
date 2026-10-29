@@ -53,6 +53,7 @@ class BoardRenderer(
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
         scene.crash?.let { cross(it) }
         shapes.end()
+        holder.onFrame()
     }
 
     override fun dispose() {

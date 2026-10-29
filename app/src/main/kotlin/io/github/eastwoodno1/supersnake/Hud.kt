@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,15 +23,35 @@ fun Hud(
     level: String,
     onPause: () -> Unit,
     modifier: Modifier = Modifier,
+    stacked: Boolean = false,
 ) {
     val pause = stringResource(R.string.pause)
-    Row(
-        modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    val scoreText: @Composable () -> Unit = {
         Text(stringResource(R.string.hud_score, score), color = Color(NeonPalette.TEXT), fontWeight = FontWeight.Bold)
-        Text(stringResource(R.string.hud_level, level), Modifier.weight(1f), color = Color(NeonPalette.TEXT))
-        NeonButton("II", onPause, Modifier.semantics { contentDescription = pause })
+    }
+    val levelText: @Composable (Modifier) -> Unit = {
+        Text(stringResource(R.string.hud_level, level), it, color = Color(NeonPalette.TEXT))
+    }
+    val pauseButton: @Composable () -> Unit = { NeonButton("II", onPause, Modifier.semantics { contentDescription = pause }) }
+    if (stacked) {
+        Column(
+            modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            scoreText()
+            levelText(Modifier)
+            pauseButton()
+        }
+    } else {
+        Row(
+            modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            scoreText()
+            levelText(Modifier.weight(1f))
+            pauseButton()
+        }
     }
 }

@@ -45,7 +45,7 @@ Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails o
 The SDLC skills come from the `android-sdlc` plugin. `.claude/settings.json` declares it, but each contributor installs it once:
 
 ```sh
-claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.2.0 --scope project
+claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.3.0 --scope project
 claude plugin install android-sdlc@android-sdlc-skills --scope project
 claude plugin list
 ```
@@ -58,4 +58,6 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents 
 
 ## Status
 
-Plan 1 (foundation) is complete. Plan 2 (game engine) is complete. Plan 3 (app) is written and in progress. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 3 file's **Start here** section has the state.
+Plan 1 (foundation) is complete. Plan 2 (game engine) is complete. Plan 3 (app) is complete. Plan 4 is next. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 3 file's **Start here** section has the state.
+
+![A game of SuperSnake in portrait: the neon snake and orb on the board, with the score, level and pause button above it](docs/images/gameplay.png)

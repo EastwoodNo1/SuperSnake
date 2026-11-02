@@ -1,4 +1,18 @@
+import sdlc.checks.VersionCode
 import javax.inject.Inject
+
+buildscript {
+    dependencies {
+        classpath("sdlc:checks")
+    }
+}
+
+val versionText =
+    providers
+        .fileContents(rootProject.layout.projectDirectory.file("version.txt"))
+        .asText
+        .get()
+        .trim()
 
 abstract class ExtractNatives : DefaultTask() {
     @get:InputFiles
@@ -39,8 +53,8 @@ android {
         applicationId = "io.github.eastwoodno1.supersnake"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = VersionCode.of(versionText)
+        versionName = versionText
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -63,6 +77,7 @@ android {
         abortOnError = true
         checkDependencies = true
         disable += "NewerVersionAvailable"
+        disable += "UseTomlInstead"
     }
     buildFeatures {
         compose = true

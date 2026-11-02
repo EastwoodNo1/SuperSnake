@@ -49,6 +49,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Manifest hardening | none | `checks` runs `:checkReleaseManifest` on the merged release manifest | none |
 | Backup rules name only the two DataStore files | none | `checks` runs `:checkBackupRules` on `backup_rules.xml` and `data_extraction_rules.xml` | none |
 | UI tests pass on three emulators | none | `ui-tests (phone-31)` (required), `ui-tests (phone-37)` and `ui-tests (tablet-37)` (informational until #82) run `:app:connectedDebugAndroidTest` | none |
+| Version code follows `version.txt` | none | `checks`: `:app:assembleRelease` fails unless `versionCode = major*1_000_000 + minor*1_000 + patch`, major at most 2099, minor and patch at most 999 (`0.0.0` is code 1, ADR-0011) | none |
 | Native libraries are 16 KB aligned | none | `checks` runs `zipalign -c -P 16 -v 4` on the release APK | none |
 | Evidence section present and non-empty | none | `pr-rules`: `:checkPullRequest` | PR template |
 | Linear history, squash merge only | none | none | Ruleset: linear history, squash only (ADR-0007) |

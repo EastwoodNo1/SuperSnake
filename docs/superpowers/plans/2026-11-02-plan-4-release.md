@@ -311,7 +311,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 **Interfaces:**
 - Produces: `object VersionCode { fun of(semver: String): Int }` in package `sdlc.checks`. It trims surrounding whitespace, accepts only `MAJOR.MINOR.PATCH` of digits without leading zeros, and throws `IllegalArgumentException` with a message naming the version and the offending field (`major`, `minor`, `patch` or `format`). It returns `major*1_000_000 + minor*1_000 + patch`, except that `0.0.0` returns `1` so the unreleased placeholder keeps today's `versionCode` and a development build still installs over earlier ones.
 
-- [ ] **Step 1: Write the failing `VersionCodeTest`**
+- [x] **Step 1: Write the failing `VersionCodeTest`**
 
   | Test | Assertions |
   |------|------------|
@@ -328,22 +328,22 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   | `malformedRejected` | for `""`, `"1.0"`, `"1.0.0.0"`, `"v1.0.0"`, `"1.0.0-rc.1"`, `"1.a.0"`, `"01.0.0"`, `"-1.0.0"`, `"1. 0.0"`: throws, message contains `format` |
   | `monotonicAcrossBumps` | codes for `1.0.0`, `1.0.1`, `1.1.0`, `1.999.999`, `2.0.0` are strictly increasing |
 
-- [ ] **Step 2: Run them and confirm they fail**
+- [x] **Step 2: Run them and confirm they fail**
 
   Run: `~/.local/bin/mise exec -- ./gradlew :checks:test --tests 'sdlc.checks.VersionCodeTest'`
   Expected: compilation fails with `Unresolved reference 'VersionCode'`.
 
-- [ ] **Step 3: Implement `VersionCode.of` in `VersionCode.kt`.** Parse with one regex, then `toLongOrNull` per field so overflow is a limit error, not a crash.
-- [ ] **Step 4: Run `:checks:check :checks:koverVerify`.** Expected: `BUILD SUCCESSFUL`, `missed="0"` for LINE and BRANCH.
-- [ ] **Step 5: Wire `app/build.gradle.kts` to `version.txt`.** `versionName` is the trimmed file text and `versionCode` is `VersionCode.of(text)`; the file is read with `providers.fileContents(rootProject.layout.projectDirectory.file("version.txt")).asText` so the configuration cache tracks it.
+- [x] **Step 3: Implement `VersionCode.of` in `VersionCode.kt`.** Parse with one regex, then `toLongOrNull` per field so overflow is a limit error, not a crash.
+- [x] **Step 4: Run `:checks:check :checks:koverVerify`.** Expected: `BUILD SUCCESSFUL`, `missed="0"` for LINE and BRANCH.
+- [x] **Step 5: Wire `app/build.gradle.kts` to `version.txt`.** `versionName` is the trimmed file text and `versionCode` is `VersionCode.of(text)`; the file is read with `providers.fileContents(rootProject.layout.projectDirectory.file("version.txt")).asText` so the configuration cache tracks it.
   - **Decision rule:** first try `buildscript { dependencies { classpath("sdlc:checks") } }` in `app/build.gradle.kts` (the included build substitutes `sdlc:checks`, as the root build's `checks` configuration already does). If Gradle cannot resolve it, create a small included build `build-logic/version` holding the same function and tests, and say why in ADR-0011. Record the choice and the reason either way.
-- [ ] **Step 6: Prove it on the APK, three ways**
+- [x] **Step 6: Prove it on the APK, three ways**
   1. `~/.local/bin/mise exec -- ./gradlew :app:assembleRelease && "$ANDROID_HOME/build-tools/37.0.0/aapt2" dump badging app/build/outputs/apk/release/app-release-unsigned.apk | head -1`. Expected: `versionCode='1' versionName='0.0.0'`.
   2. Set `version.txt` to `1.2.3` and repeat. Expected: `versionCode='1002003' versionName='1.2.3'`.
   3. Set it to `1.1000.0` and run `:app:assembleRelease`. Expected: `BUILD FAILED` naming `minor`.
 
   Restore `version.txt` to `0.0.0`. All three outputs go in Evidence.
-- [ ] **Step 7: Write ADR-0011** (version scheme, formula, limits, the `0.0.0` rule, the wiring choice, alternatives rejected: `major*10000+...`, commit count, date-based, from `plan-4-research.md` section 5) and the `CONTRIBUTING.md` line.
+- [x] **Step 7: Write ADR-0011** (version scheme, formula, limits, the `0.0.0` rule, the wiring choice, alternatives rejected: `major*10000+...`, commit count, date-based, from `plan-4-research.md` section 5) and the `CONTRIBUTING.md` line.
 - [ ] **Step 8: Finish per the per-task workflow**
 
 ---

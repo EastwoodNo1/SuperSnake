@@ -22,6 +22,7 @@ import io.github.eastwoodno1.supersnake.domain.Overlay
 import io.github.eastwoodno1.supersnake.domain.Spoken
 import io.github.eastwoodno1.supersnake.domain.SwipeControl
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import io.github.eastwoodno1.supersnake.domain.Settings as AppSettings
 
@@ -37,7 +39,11 @@ class GameViewModel(
 ) : ViewModel() {
     private val sessionClock = HoldableClock(graph.clock)
 
-    val scene = SceneHolder().also { it.onFrame = { sessionClock.release() } }
+    private val generationState = MutableStateFlow(0)
+
+    private val frameTicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    val scene = SceneHolder().also { it.onFrame = { frameTicks.tryEmit(Unit) } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
     var live = false
@@ -55,6 +61,7 @@ class GameViewModel(
     private val feedbackEvents = MutableSharedFlow<Feedback>(extraBufferCapacity = FEEDBACK_BUFFER)
 
     val frame: StateFlow<GameFrame> = state
+    val boardGeneration: StateFlow<Int> = generationState
     val overlay: StateFlow<Overlay> = overlayState
     val spoken: StateFlow<Spoken?> = spokenState
     val feedback: SharedFlow<Feedback> = feedbackEvents
@@ -68,6 +75,7 @@ class GameViewModel(
         burst = null
         live = true
         sessionClock.hold()
+        generationState.update { it + 1 }
         session = GameSession(current.difficulty, sessionClock, graph.random, graph.recordHighScore)
         val first = session.frame
         render(first)
@@ -79,6 +87,12 @@ class GameViewModel(
                 feedbackEvents.emit(feedback)
             }
     }
+
+    suspend fun awaitBoardFrame() {
+        frameTicks.first()
+    }
+
+    fun boardReady() = sessionClock.release()
 
     suspend fun advance() = consume(session.advance())
 

@@ -91,13 +91,22 @@ class LayoutScreenshotTest {
         return model
     }
 
-    private fun assertInsideSafeArea(where: String) {
+    private fun assertInsideSafeArea(
+        where: String,
+        barsVisible: Boolean,
+    ) {
         val decor = composeRule.activity.window.decorView
+        driver.awaitUntil(
+            BARS_SETTLE_MILLIS,
+            { "$where: expected ${expectation(barsVisible)}, found ${composeRule.activity.barsSummary()}" },
+        ) {
+            if (barsVisible) composeRule.activity.allBarsVisible() else composeRule.activity.allBarsHidden()
+        }
         val insets =
             checkNotNull(ViewCompat.getRootWindowInsets(decor)).getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
             )
-        assertTrue("$where hides the status bar", insets.top > 0)
+        if (barsVisible) assertTrue("$where: the status bar inset is ${insets.top}, expected above 0", insets.top > 0)
         val safe =
             Rect(
                 insets.left.toFloat(),
@@ -128,35 +137,38 @@ class LayoutScreenshotTest {
         }
     }
 
+    private fun expectation(barsVisible: Boolean) =
+        if (barsVisible) "status and navigation bars visible" else "status and navigation bars hidden"
+
     private fun pass() {
         shoot("menu")
-        assertInsideSafeArea("menu")
+        assertInsideSafeArea("menu", barsVisible = true)
         composeRule.onNodeWithText("Settings").performScrollTo().performClick()
         driver.awaitText("Sound")
-        assertInsideSafeArea("settings")
+        assertInsideSafeArea("settings", barsVisible = true)
         shoot("settings")
         driver.back()
         driver.awaitText("Play")
         composeRule.onNodeWithText("High scores").performScrollTo().performClick()
         driver.awaitText("No scores yet")
-        assertInsideSafeArea("high scores")
+        assertInsideSafeArea("high scores", barsVisible = true)
         shoot("high-scores")
         driver.back()
         driver.awaitText("Play")
         val model = awaitPlay()
         shoot("game")
-        assertInsideSafeArea("game")
+        assertInsideSafeArea("game", barsVisible = false)
         composeRule.runOnUiThread { model.input(GameInput.TogglePause) }
         driver.awaitText("Resume")
         assertDpadBesideOrBelowBoard()
-        assertInsideSafeArea("pause")
+        assertInsideSafeArea("pause", barsVisible = false)
         shoot("pause")
         composeRule.onNodeWithText("Main menu").performClick()
         driver.awaitText("Play")
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
         val over = driver.play()
         driver.awaitOverlay(over, Overlay.GAME_OVER)
-        assertInsideSafeArea("game over")
+        assertInsideSafeArea("game over", barsVisible = false)
         shoot("game-over")
         composeRule.onNodeWithText("Main menu").performClick()
         driver.awaitText("Play")
@@ -218,5 +230,6 @@ class LayoutScreenshotTest {
         const val ROTATE_TIMEOUT_MILLIS = 20_000L
         const val PNG_QUALITY = 100
         const val EDGE_TOLERANCE_PX = 1f
+        const val BARS_SETTLE_MILLIS = 5_000L
     }
 }

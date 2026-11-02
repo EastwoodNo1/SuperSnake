@@ -31,11 +31,12 @@ class GameDriver(
 
     fun awaitUntil(
         timeoutMillis: Long = TIMEOUT_MILLIS,
+        message: () -> String = { "timed out" },
         condition: () -> Boolean,
     ) {
         val deadline = SystemClock.elapsedRealtime() + timeoutMillis
         while (!condition()) {
-            assertTrue("timed out", SystemClock.elapsedRealtime() < deadline)
+            assertTrue(message(), SystemClock.elapsedRealtime() < deadline)
             rule.waitForIdle()
             Thread.sleep(POLL_MILLIS)
         }

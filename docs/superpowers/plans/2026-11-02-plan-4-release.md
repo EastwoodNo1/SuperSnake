@@ -76,7 +76,7 @@ Together with the spec documents, this plan is self-contained. A new session nee
 4. **App permissions:** Contents: write and Pull requests: write only. Add Issues: write only if a proof run shows label calls failing, and ask the owner first.
 5. **Signing key** (ADR-0005, unchanged in substance): RSA 4096, PKCS12, validity 36500 days, made by the owner with `keytool` outside any git checkout, with an encrypted offline backup whose restore was tested.
 6. **Spec changes** in Task 3: §8 (App credentials live in `release-please`, the release job is gated by a reviewer), §7 row "Release tags are trustworthy" (open point resolved), §11 (engine and attestation rows), ADR-0005 (one line), ADR-0012.
-7. **First release is `1.0.0`**, forced by `release-as` in the release-please config, removed in the PR right after. A failure after the tag exists is fixed by shipping `1.0.1`, never by re-tagging.
+7. **First release is `1.0.0`**, forced by `release-as` in the release-please config, removed in the PR right after. A failure before the release is published is re-run in place; a failure after it is published is fixed by shipping `1.0.1`, never by re-tagging.
 8. **`0.0.0` maps to versionCode 1** **[owner, 2026-11-02]**: the placeholder before the first release keeps today's code 1, so an existing install upgrades; every real version uses the formula.
 9. **Release PRs are exempt from the issue-link and Evidence rules** **[owner, 2026-11-02]**: only PRs labelled `autorelease: pending`. Task 5 Step 1 is already answered: approved.
 10. **`release-smoke` is the 6th required check** **[owner, 2026-11-02]**. Task 2 Step 8 is already answered: yes.
@@ -409,7 +409,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - Consumes: the values in "Exact values". Task 4 and Task 6 follow `docs/release.md` literally, so it must contain the exact commands.
 - Produces: `docs/release.md` sections: Create the key (the keytool command from "Exact values", run outside any checkout), Back it up and test the restore, Compute the fingerprint, Create the GitHub App, Add the secrets and variables, Cut a release, Verify a downloaded APK, Recovery, Play App Signing migration, What losing the key means.
 
-- [ ] **Step 1: Write `docs/release.md`.** Required content, each with the exact command:
+- [x] **Step 1: Write `docs/release.md`.** Required content, each with the exact command:
   - **Fingerprint:** `keytool -exportcert -alias supersnake -keystore "$HOME/supersnake-release/release.p12" | shasum -a 256 | cut -d' ' -f1` (64 lowercase hex characters, the format `apksigner` prints and `RELEASE_CERT_SHA256` holds).
   - **Secrets:** `gh secret set RELEASE_KEYSTORE_BASE64 --env release` fed from `base64 -i release.p12 | tr -d '\n'` (one line); `RELEASE_KEYSTORE_PASSWORD` and `RELEASE_KEY_PASSWORD` (both the store password, because PKCS12 has one) and `RELEASE_KEY_ALIAS` (`supersnake`) from a prompt; `RELEASE_APP_PRIVATE_KEY` into `release-please` from the `.pem` file; `gh variable set RELEASE_APP_CLIENT_ID` and `RELEASE_CERT_SHA256`. No secret value ever appears in a command line or shell history.
   - **Cut a release:** merge the release PR; the `release` run opens an approval request; approve `sign-publish`; then run the verification below.
@@ -418,23 +418,23 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - **Detect silence:** a draft older than an hour in `gh release list` means the approval was not given or a job failed.
   - **Key loss:** installed copies can never update; a new application ID and a new listing are the only way forward. Restore from the offline backup first.
   - **Play App Signing migration:** upload this key to Play App Signing through the Play Console, create a separate upload key, and keep the GitHub key as the app-signing key; steps as in ADR-0005.
-- [ ] **Step 2: Write ADR-0012** "Release workflow with an approval-gated signing job" (status accepted 2026-11-02, owner). Context: the design question (`release` environment limited to `v*` tags versus a release job on `main`). Decision: the five-job workflow, environments, reviewer, tag ruleset with the App as only bypass, immutable releases, split build and sign. Alternatives rejected: a tag-triggered second workflow (the App key must be reachable from `main` anyway, a silent-failure mode, an untestable proof); the keystore outside GitHub (breaks ADR-0005's "only CI signs" and the attestation); AGP injected signing (undocumented, passwords on the command line). Evidence: a summary of `plan-4-release-design.md` with these quotes, each with its URL:
+- [x] **Step 2: Write ADR-0012** "Release workflow with an approval-gated signing job" (status accepted 2026-11-02, owner). Context: the design question (`release` environment limited to `v*` tags versus a release job on `main`). Decision: the five-job workflow, environments, reviewer, tag ruleset with the App as only bypass, immutable releases, split build and sign. Alternatives rejected: a tag-triggered second workflow (the App key must be reachable from `main` anyway, a silent-failure mode, an untestable proof); the keystore outside GitHub (breaks ADR-0005's "only CI signs" and the attestation); AGP injected signing (undocumented, passwords on the command line). Evidence: a summary of `plan-4-release-design.md` with these quotes, each with its URL:
   - "A workflow job cannot access environment secrets until approval is granted by a reviewer" (GitHub secure-use docs)
   - "Once an immutable release is published, its associated Git tag is locked to a specific commit, cannot be changed, and cannot be deleted while the release exists" (immutable releases docs)
   - "Such secret material MUST NOT be accessible to the environment running the user-defined build steps" (SLSA build requirements, Build L3)
   - "Artifact attestations by itself provides SLSA v1.0 Build Level 2" (GitHub docs)
   - the Thunderbird and Signal split of unsigned build and signing
 
-  State the consequences honestly: the reviewer is a click by the same person (self-review allowed because the repo is solo), the tag ruleset has one bypass actor and so differs from `main-protection`'s empty list, evaluate mode is unavailable, and a failure after the tag exists is fixed forward.
-- [ ] **Step 3: Edit ADR-0005 and the spec.**
+  State the consequences honestly: the reviewer is a click by the same person (self-review allowed because the repo is solo), the tag ruleset has one bypass actor and so differs from `main-protection`'s empty list, evaluate mode is unavailable, and a failure after the release is published is fixed forward.
+- [x] **Step 3: Edit ADR-0005 and the spec.**
   - ADR-0005 gains one line under Decision: "The `release` environment requires the owner's approval and allows only `main`."
   - Spec §8: the App's client ID is a variable and its private key a secret in the `release-please` environment; the release job is gated by a required reviewer; the workflow has the five jobs; assets go to the draft and `sign-publish` publishes it; immutable releases are on before the first release; the token is minted with the two permissions only; labels are pre-created.
   - Spec §7.2 "Release tags are trustworthy": drop the open point; write "`release` environment limited to `main` with the owner as required reviewer; tag ruleset on `v*`: creation only by the release App, no update, deletion or force push".
   - Spec §8 "Signing key" bullet "The GitHub App's ID and private key live in the same environment" is replaced by the `release-please` placement.
   - Spec §11: the release-please row's engine becomes "bundled `^17.6.0` (the action's `package.json` at v5.0.0)"; the `actions/attest-build-provenance` row becomes `actions/attest` v4.2.2 (commit `1e69f48acb82d1966a394da916b4c1698aa569d6`); add rows for `actions/download-artifact` v8.0.2 and `actions/upload-artifact` v7.0.2.
   - Reversed decisions propagate: `grep -rn "same environment\|v\* tags\|attest-build-provenance\|17.11.2" docs README.md CONTRIBUTING.md CLAUDE.md` must list only lines that are correct or marked as superseded.
-- [ ] **Step 4: Update `docs/versions.md`** with rows for release-please-action (with the §6 evidence and the honest note), create-github-app-token, attest, download-artifact, each with SHA, source URL and 2026-11-02 verification, and fix the engine statement.
-- [ ] **Step 5: Check the docs.** Run: `~/.local/bin/mise exec -- scripts/gradle-strict.sh :checkNoComments` and the grep from Step 3. Expected: `BUILD SUCCESSFUL`; the grep shows no stale claim.
+- [x] **Step 4: Update `docs/versions.md`** with rows for release-please-action (with the §6 evidence and the honest note), create-github-app-token, attest, download-artifact, each with SHA, source URL and 2026-11-02 verification, and fix the engine statement.
+- [x] **Step 5: Check the docs.** Run: `~/.local/bin/mise exec -- scripts/gradle-strict.sh :checkNoComments` and the grep from Step 3. Expected: `BUILD SUCCESSFUL`; the grep shows no stale claim.
 - [ ] **Step 6: Finish per the per-task workflow**
 
 ---
@@ -592,7 +592,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - [ ] **Step 7: Install on `phone37` and play.** `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
 - [ ] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
 - [ ] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
-- [ ] **Step 10: If a step failed after the tag existed.** Do not re-tag, delete the tag or re-run `release-please`. Re-run the failed jobs in place if the draft is unpublished. If the release was published or the fix needs code, ship `1.0.1` through a normal release PR and say so in `docs/release.md`. Ask the owner before deleting a draft.
+- [ ] **Step 10: If a step failed once the tag existed.** Do not re-tag, delete the tag or re-run `release-please`. Re-run the failed jobs in place if the draft is unpublished. If the release was published or the fix needs code, ship `1.0.1` through a normal release PR and say so in `docs/release.md`. Ask the owner before deleting a draft.
 - [ ] **Step 11: Finish per the per-task workflow** for each PR in this task.
 
 ---

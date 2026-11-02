@@ -56,6 +56,10 @@ Accept the workspace trust prompt when you open the folder in Claude Code. `clau
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents also read [`CLAUDE.md`](CLAUDE.md). Decisions are recorded in [`docs/adr/`](docs/adr/), and the design is in [`docs/superpowers/specs/2026-10-22-supersnake-design.md`](docs/superpowers/specs/2026-10-22-supersnake-design.md). Open [`docs/design/neon-arcade-mockup.html`](docs/design/neon-arcade-mockup.html) in a browser to see the chosen look.
 
+## Releases
+
+Signed APKs will be published on GitHub Releases from 1.0.0. How a release is cut and how to verify a download is in [`docs/release.md`](docs/release.md).
+
 ## Status
 
 Plan 1 (foundation) is complete. Plan 2 (game engine) is complete. Plan 3 (app) is complete. Plan 4 is next. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 3 file's **Start here** section has the state.

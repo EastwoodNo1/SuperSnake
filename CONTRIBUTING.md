@@ -56,7 +56,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Linear history, squash merge only | none | none | Ruleset: linear history, squash only (ADR-0007) |
 | Workflows are safe | pre-push runs zizmor offline | `checks` runs `:checkWorkflows` and zizmor | Fork PR workflows need approval; read-only default token |
 
-Rules that later plans add, with their enforcer: release tag protection (tag ruleset and the release workflow). The full table is spec §7.2.
+Release tags are protected by the `release-tags` ruleset, the owner-approved `release` environment and the release workflow, described in [`docs/release.md`](docs/release.md) and ADR-0012 (applied by the owner in Plan 4). The full table is spec §7.2.
 
 Root check tasks are invoked with a leading colon, for example `:checkNoComments`, because AGP registers same-named tasks in `:app`.
 

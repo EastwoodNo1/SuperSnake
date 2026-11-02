@@ -58,7 +58,7 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and rules. AI agents 
 
 ## Releases
 
-Signed APKs are published on GitHub Releases. How a release is cut and how to verify a download is in [`docs/release.md`](docs/release.md).
+Signed APKs will be published on GitHub Releases from 1.0.0. How a release is cut and how to verify a download is in [`docs/release.md`](docs/release.md).
 
 ## Status
 

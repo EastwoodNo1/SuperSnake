@@ -76,7 +76,7 @@ Together with the spec documents, this plan is self-contained. A new session nee
 4. **App permissions:** Contents: write and Pull requests: write only. Add Issues: write only if a proof run shows label calls failing, and ask the owner first.
 5. **Signing key** (ADR-0005, unchanged in substance): RSA 4096, PKCS12, validity 36500 days, made by the owner with `keytool` outside any git checkout, with an encrypted offline backup whose restore was tested.
 6. **Spec changes** in Task 3: §8 (App credentials live in `release-please`, the release job is gated by a reviewer), §7 row "Release tags are trustworthy" (open point resolved), §11 (engine and attestation rows), ADR-0005 (one line), ADR-0012.
-7. **First release is `1.0.0`**, forced by `release-as` in the release-please config, removed in the PR right after. A failure after the tag exists is fixed by shipping `1.0.1`, never by re-tagging.
+7. **First release is `1.0.0`**, forced by `release-as` in the release-please config, removed in the PR right after. A failure before the release is published is re-run in place; a failure after it is published is fixed by shipping `1.0.1`, never by re-tagging.
 8. **`0.0.0` maps to versionCode 1** **[owner, 2026-11-02]**: the placeholder before the first release keeps today's code 1, so an existing install upgrades; every real version uses the formula.
 9. **Release PRs are exempt from the issue-link and Evidence rules** **[owner, 2026-11-02]**: only PRs labelled `autorelease: pending`. Task 5 Step 1 is already answered: approved.
 10. **`release-smoke` is the 6th required check** **[owner, 2026-11-02]**. Task 2 Step 8 is already answered: yes.
@@ -425,7 +425,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - "Artifact attestations by itself provides SLSA v1.0 Build Level 2" (GitHub docs)
   - the Thunderbird and Signal split of unsigned build and signing
 
-  State the consequences honestly: the reviewer is a click by the same person (self-review allowed because the repo is solo), the tag ruleset has one bypass actor and so differs from `main-protection`'s empty list, evaluate mode is unavailable, and a failure after the tag exists is fixed forward.
+  State the consequences honestly: the reviewer is a click by the same person (self-review allowed because the repo is solo), the tag ruleset has one bypass actor and so differs from `main-protection`'s empty list, evaluate mode is unavailable, and a failure after the release is published is fixed forward.
 - [x] **Step 3: Edit ADR-0005 and the spec.**
   - ADR-0005 gains one line under Decision: "The `release` environment requires the owner's approval and allows only `main`."
   - Spec §8: the App's client ID is a variable and its private key a secret in the `release-please` environment; the release job is gated by a required reviewer; the workflow has the five jobs; assets go to the draft and `sign-publish` publishes it; immutable releases are on before the first release; the token is minted with the two permissions only; labels are pre-created.
@@ -592,7 +592,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - [ ] **Step 7: Install on `phone37` and play.** `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
 - [ ] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
 - [ ] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
-- [ ] **Step 10: If a step failed after the tag existed.** Do not re-tag, delete the tag or re-run `release-please`. Re-run the failed jobs in place if the draft is unpublished. If the release was published or the fix needs code, ship `1.0.1` through a normal release PR and say so in `docs/release.md`. Ask the owner before deleting a draft.
+- [ ] **Step 10: If a step failed once the tag existed.** Do not re-tag, delete the tag or re-run `release-please`. Re-run the failed jobs in place if the draft is unpublished. If the release was published or the fix needs code, ship `1.0.1` through a normal release PR and say so in `docs/release.md`. Ask the owner before deleting a draft.
 - [ ] **Step 11: Finish per the per-task workflow** for each PR in this task.
 
 ---

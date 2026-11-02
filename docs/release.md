@@ -4,7 +4,7 @@ This is the owner's runbook for the signing key and for every release. Design: [
 
 No secret value belongs in a command line, a shell history, a chat, a PR or a log. Every step below that handles a secret reads it from a prompt, standard input or a file outside every checkout.
 
-Commands were checked against the tools' own help on 2026-11-02: `keytool -help -genkeypair`, `keytool -help -exportcert`, `keytool -help -list`, `gh secret set --help`, `gh variable set --help`, `apksigner verify --help`, `gh attestation verify --help`, `gh release verify --help`, `gh run rerun --help` and `openssl enc -help`.
+Commands were checked against the tools' own help on 2026-11-02: `keytool -help -genkeypair`, `keytool -help -exportcert`, `keytool -help -list`, `gh secret set --help`, `gh variable set --help`, `apksigner verify --help` (from `$ANDROID_HOME/build-tools/37.0.0`), `gh attestation verify --help`, `gh release verify --help`, `gh run rerun --help` and `openssl enc -help`.
 
 ## Create the key
 
@@ -28,14 +28,20 @@ Make two encrypted copies and keep them in two separate places (for example an e
 
 ```sh
 cd "$HOME/supersnake-release"
-openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -in release.p12 -out release.p12.enc
+openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -in release.p12 -out "$HOME/supersnake-backup.p12.enc"
 ```
+
+The encrypted file is written outside the key directory. Copy it to the two backup locations, then delete the local `$HOME/supersnake-backup.p12.enc`.
+
+This is AES-CBC, which has no integrity protection: a corrupted or tampered backup can decrypt to garbage without an error. The restore test below (`keytool -list` plus the fingerprint comparison) is what proves the backup is intact.
+
+Tested with LibreSSL 3.3.6 (macOS `/usr/bin/openssl`). Other OpenSSL versions were not tested.
 
 Test the restore into a scratch directory before trusting the backup, and compare the fingerprint with the live key (see the next section):
 
 ```sh
 mkdir -m 700 "$HOME/supersnake-restore-test" && cd "$HOME/supersnake-restore-test"
-openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in <path to the backup>/release.p12.enc -out release.p12
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in <path to the backup>/supersnake-backup.p12.enc -out release.p12
 keytool -list -keystore release.p12
 cd "$HOME" && rm -r "$HOME/supersnake-restore-test"
 ```

@@ -39,8 +39,8 @@ android {
         applicationId = "io.github.eastwoodno1.supersnake"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = rootProject.extra["versionCode"] as Int
+        versionName = rootProject.extra["versionName"] as String
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

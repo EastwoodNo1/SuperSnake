@@ -4,6 +4,7 @@ set -euo pipefail
 apk="${1:?usage: release-smoke.sh <apk>}"
 package="${PACKAGE:-io.github.eastwoodno1.supersnake}"
 timeout_seconds="${SMOKE_TIMEOUT_SECONDS:-120}"
+settle_seconds="${SMOKE_SETTLE_SECONDS:-2}"
 out_dir="${OUT_DIR:-build/release-smoke}"
 
 mkdir -p "$out_dir"
@@ -54,6 +55,9 @@ while [ "$SECONDS" -lt "$deadline" ]; do
   sleep 1
 done
 
+if [ "$reached" -eq 1 ]; then
+  sleep "$settle_seconds"
+fi
 adb logcat -d > "$out_dir/logcat.txt"
 
 if [ "$taps" -eq 0 ]; then

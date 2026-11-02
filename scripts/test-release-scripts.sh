@@ -7,7 +7,9 @@ here="$(cd "$(dirname "$0")" && pwd)"
 unsigned_apk="$(cd "$(dirname "$unsigned_apk")" && pwd)/$(basename "$unsigned_apk")"
 work="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/release-script-tests.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
-apksigner="${APKSIGNER:-${ANDROID_HOME:-}/build-tools/37.0.0/apksigner}"
+[ -n "${ANDROID_HOME:-}" ] || { echo "ANDROID_HOME is not set" >&2; exit 1; }
+apksigner="${APKSIGNER:-$ANDROID_HOME/build-tools/37.0.0/apksigner}"
+[ -x "$apksigner" ] || { echo "apksigner not found: $apksigner" >&2; exit 1; }
 
 fail() {
   echo "assertion failed: $*" >&2
@@ -29,6 +31,24 @@ expect_nonzero() {
   [ "$1" -ne 0 ] || fail "$2: exit 0, wanted non-zero"
 }
 
+expect_in() {
+  grep -qF -- "$2" "$1" || fail "$1 lacks: $2"
+}
+
+expect_not_in() {
+  if grep -qF -- "$2" "$1"; then
+    fail "$1 contains: $2"
+  fi
+}
+
+expect_reached_launch() {
+  local calls="$1/calls.log"
+  expect_in "$calls" "install "
+  expect_in "$calls" "logcat -c"
+  expect_in "$calls" "shell am start"
+  expect_in "$calls" "logcat -d"
+}
+
 make_keystore() {
   local dir="$1" pass="$2" alias="$3"
   KT_PASS="$pass" keytool -genkeypair -keystore "$dir/ks.p12" -storetype PKCS12 \
@@ -40,14 +60,22 @@ fake_adb() {
   local dir="$1"
   mkdir -p "$dir/bin"
   : > "$dir/taps.log"
+  : > "$dir/calls.log"
   printf '#!%s\n' "/usr/bin/env bash" > "$dir/bin/adb"
   cat >> "$dir/bin/adb" <<'FAKE'
 dir="$FAKE_DIR"
+echo "$*" >> "$dir/calls.log"
 case "$*" in
   install*|uninstall*|wait-for-device|"logcat -c"|"shell am start"*|"shell uiautomator dump"*) exit 0 ;;
-  "logcat -d") cat "$dir/logcat.txt" ;;
+  "logcat -d")
+    cat "$dir/logcat.txt"
+    if [ -s "$dir/over.shown" ] && [ -f "$dir/late-logcat.txt" ] && [ $(($(date +%s) - $(cat "$dir/over.shown"))) -ge 2 ]; then
+      cat "$dir/late-logcat.txt"
+    fi
+    ;;
   "shell cat "*)
     if [ -s "$dir/taps.log" ] && [ -f "$dir/dump-after.xml" ]; then
+      [ -s "$dir/over.shown" ] || date +%s > "$dir/over.shown"
       cat "$dir/dump-after.xml"
     else
       cat "$dir/dump.xml"
@@ -68,7 +96,7 @@ over_dump='<hierarchy><node index="0" text="Game over. Score 3" bounds="[0,0][10
 
 run_smoke() {
   local dir="$1"
-  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" OUT_DIR="$dir/out" SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-2}" \
+  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" OUT_DIR="$dir/out" SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-2}" SMOKE_SETTLE_SECONDS="${SMOKE_SETTLE_SECONDS:-0}" \
     "$here/release-smoke.sh" "$unsigned_apk" > "$dir/stdout.txt" 2> "$dir/stderr.txt"
 }
 
@@ -91,8 +119,10 @@ wrongAliasFails() {
   make_keystore "$d" pw-wrong-alias right
   local rc=0
   KS_FILE="$d/ks.p12" KS_PASS=pw-wrong-alias KEY_ALIAS=other KEY_PASS=pw-wrong-alias \
-    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2>&1 || rc=$?
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2> "$d/err.txt" || rc=$?
   expect_nonzero "$rc" "wrong alias"
+  expect_in "$d/err.txt" 'entry "other" does not contain a key'
+  expect_not_in "$d/err.txt" ANDROID_HOME
   [ ! -e "$d/out.apk" ] || fail "an output apk exists after a failed signing"
 }
 
@@ -102,8 +132,10 @@ missingKeystoreFails() {
   mkdir -p "$d"
   local rc=0
   KS_FILE="$d/none.p12" KS_PASS=pw KEY_ALIAS=a KEY_PASS=pw \
-    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2>&1 || rc=$?
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2> "$d/err.txt" || rc=$?
   expect_nonzero "$rc" "missing keystore"
+  expect_in "$d/err.txt" "keystore file not found"
+  expect_not_in "$d/err.txt" ANDROID_HOME
   [ ! -e "$d/out.apk" ] || fail "an output apk exists after a failed signing"
 }
 
@@ -120,6 +152,8 @@ signApkNeverPrintsSecrets() {
   KS_FILE="$d/ks.p12" KS_PASS=topsecretpass KEY_ALIAS=other KEY_PASS=topsecretpass \
     "$here/sign-apk.sh" "$unsigned_apk" "$d/bad.apk" > "$d/bad.txt" 2>&1 || rc=$?
   expect_nonzero "$rc" "failing sign run"
+  expect_in "$d/bad.txt" 'entry "other" does not contain a key'
+  expect_not_in "$d/bad.txt" ANDROID_HOME
   [ -s "$d/ok.txt" ] || fail "the passing run printed nothing, so the check proves nothing"
   [ -s "$d/bad.txt" ] || fail "the failing run printed nothing, so the check proves nothing"
   if grep -q topsecretpass "$d/ok.txt" "$d/bad.txt"; then
@@ -134,6 +168,8 @@ noPlayButtonFailsTheSmoke() {
   local rc=0
   run_smoke "$d" || rc=$?
   expect_nonzero "$rc" "no Play node"
+  expect_in "$d/stderr.txt" "smoke failed: no Play node found"
+  expect_reached_launch "$d"
   [ ! -s "$d/taps.log" ] || fail "a tap was recorded without a Play node"
 }
 
@@ -145,6 +181,8 @@ missingGameOverFailsTheSmoke() {
   local rc=0
   run_smoke "$d" || rc=$?
   expect_nonzero "$rc" "no game over"
+  expect_in "$d/stderr.txt" "smoke failed: no game over"
+  expect_reached_launch "$d"
   [ "$(wc -l < "$d/taps.log")" -eq 1 ] || fail "expected exactly one tap"
 }
 
@@ -156,8 +194,10 @@ fatalExceptionFailsTheSmoke() {
   printf '%s' "$over_dump" > "$d/dump-after.xml"
   printf '11-02 10:00:00.000 E AndroidRuntime: FATAL EXCEPTION: main\n' > "$d/logcat.txt"
   local rc=0
-  run_smoke "$d" || rc=$?
+  SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
   expect_nonzero "$rc" "FATAL EXCEPTION in logcat"
+  expect_in "$d/stderr.txt" "smoke failed: FATAL EXCEPTION"
+  expect_reached_launch "$d"
 }
 
 smokePassesAndKeepsEvidence() {
@@ -176,6 +216,37 @@ smokePassesAndKeepsEvidence() {
   done
 }
 
+crashAfterGameOverFailsTheSmoke() {
+  need release-smoke.sh
+  local d="$work/lateCrash"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  printf '11-02 10:00:05.000 E AndroidRuntime: FATAL EXCEPTION: main\n' > "$d/late-logcat.txt"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=10 SMOKE_SETTLE_SECONDS=2 run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "crash after game over"
+  expect_in "$d/stderr.txt" "smoke failed: FATAL EXCEPTION"
+  expect_reached_launch "$d"
+}
+
+ignoresPlayAgainAndContentDesc() {
+  need release-smoke.sh
+  local d="$work/lookalikes"
+  fake_adb "$d"
+  printf '%s' '<hierarchy><node index="0" text="Play again" bounds="[1,2][3,4]" /><node index="1" text="" content-desc="Play" bounds="[5,6][7,8]" /></hierarchy>' > "$d/dump.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "look-alike nodes"
+  expect_in "$d/stderr.txt" "smoke failed: no Play node found"
+  [ ! -s "$d/taps.log" ] || fail "a tap was recorded for a look-alike node"
+  printf '%s' '<hierarchy><node index="0" text="Play again" bounds="[1,2][3,4]" /><node index="1" text="Play" bounds="[100,200][300,400]" /></hierarchy>' > "$d/dump.xml"
+  rc=0
+  run_smoke "$d" || rc=$?
+  [ "$(wc -l < "$d/taps.log")" -eq 1 ] || fail "expected exactly one tap"
+  grep -q 'input tap 200 300' "$d/taps.log" || fail "tapped something other than the Play node"
+}
+
 tests=(
   signedApkVerifies
   wrongAliasFails
@@ -184,6 +255,8 @@ tests=(
   noPlayButtonFailsTheSmoke
   missingGameOverFailsTheSmoke
   fatalExceptionFailsTheSmoke
+  crashAfterGameOverFailsTheSmoke
+  ignoresPlayAgainAndContentDesc
   smokePassesAndKeepsEvidence
 )
 

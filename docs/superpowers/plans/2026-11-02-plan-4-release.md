@@ -258,7 +258,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 **Process**
 - Every task gets its own GitHub issue, worktree and branch, a squash-merged PR whose title is a Conventional header of at most 64 characters, and a PR body with `Closes #<issue>` and a filled `## Evidence`.
-- **Required checks on `main`:** `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)`, plus `release-smoke` once the owner answers yes in Task 2. `ui-tests (phone-37)` and `ui-tests (tablet-37)` are informational until #82.
+- **Required checks on `main`:** `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)` and `release-smoke`: six required checks. `ui-tests (phone-37)` and `ui-tests (tablet-37)` are informational until #82.
 
 ## Per-task workflow
 

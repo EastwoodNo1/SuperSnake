@@ -23,10 +23,32 @@ dump_ui() {
   mv "$out_dir/ui-dump.xml.next" "$out_dir/ui-dump.xml"
 }
 
-play_bounds() {
-  { grep -o '<node [^>]* text="Play"[^>]*>' "$out_dir/ui-dump.xml" || true; } |
+node_bounds() {
+  { grep -oE "$1" "$out_dir/ui-dump.xml" || true; } |
     head -n 1 |
     sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p'
+}
+
+play_bounds() {
+  node_bounds '<node [^>]* text="Play"[^>]*>'
+}
+
+got_it_bounds() {
+  node_bounds '<node [^>]* text="Got it"[^>]* package="(android|com\.android\.systemui)"[^>]*>'
+}
+
+tap_centre() {
+  local x1 y1 x2 y2
+  read -r x1 y1 x2 y2 <<< "$1"
+  adb shell input tap $(((x1 + x2) / 2)) $(((y1 + y2) / 2))
+}
+
+last_dump_texts() {
+  { grep -o ' text="[^"]*"' "$out_dir/ui-dump.xml" || true; } |
+    sed 's/^ text="//; s/"$//' |
+    { grep -v '^$' || true; } |
+    paste -sd'|' - |
+    sed 's/|/, /g'
 }
 
 adb wait-for-device
@@ -40,11 +62,13 @@ reached=0
 deadline=$((SECONDS + timeout_seconds))
 while [ "$SECONDS" -lt "$deadline" ]; do
   if dump_ui; then
-    if [ "$taps" -eq 0 ]; then
+    bounds="$(got_it_bounds)"
+    if [ -n "$bounds" ]; then
+      tap_centre "$bounds"
+    elif [ "$taps" -eq 0 ]; then
       bounds="$(play_bounds)"
       if [ -n "$bounds" ]; then
-        read -r x1 y1 x2 y2 <<< "$bounds"
-        adb shell input tap $(((x1 + x2) / 2)) $(((y1 + y2) / 2))
+        tap_centre "$bounds"
         taps=1
       fi
     elif grep -qF 'Game over. Score' "$out_dir/ui-dump.xml"; then
@@ -61,11 +85,11 @@ fi
 adb logcat -d > "$out_dir/logcat.txt"
 
 if [ "$taps" -eq 0 ]; then
-  echo "smoke failed: no Play node found, zero interactions" >&2
+  echo "smoke failed: no Play node found, zero interactions; last dump texts: $(last_dump_texts)" >&2
   exit 1
 fi
 if [ "$reached" -eq 0 ]; then
-  echo "smoke failed: no game over within ${timeout_seconds}s" >&2
+  echo "smoke failed: no game over within ${timeout_seconds}s; last dump texts: $(last_dump_texts)" >&2
   exit 1
 fi
 if grep -qF 'FATAL EXCEPTION' "$out_dir/logcat.txt"; then

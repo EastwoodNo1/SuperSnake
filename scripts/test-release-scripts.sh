@@ -74,7 +74,10 @@ case "$*" in
     fi
     ;;
   "shell cat "*)
-    if [ -s "$dir/taps.log" ] && [ -f "$dir/dump-after.xml" ]; then
+    taps_done=$(($(wc -l < "$dir/taps.log")))
+    if [ -f "$dir/dump-$taps_done.xml" ]; then
+      cat "$dir/dump-$taps_done.xml"
+    elif [ -s "$dir/taps.log" ] && [ -f "$dir/dump-after.xml" ]; then
       [ -s "$dir/over.shown" ] || date +%s > "$dir/over.shown"
       cat "$dir/dump-after.xml"
     else
@@ -247,6 +250,68 @@ ignoresPlayAgainAndContentDesc() {
   grep -q 'input tap 200 300' "$d/taps.log" || fail "tapped something other than the Play node"
 }
 
+dismissesTheFullScreenConfirmation() {
+  need release-smoke.sh
+  local d="$work/immersive"
+  fake_adb "$d"
+  local overlay='<node index="0" text="Viewing full screen" package="android" bounds="[100,50][900,100]" /><node index="1" text="To exit, swipe down from the top." package="android" bounds="[100,100][900,150]" /><node index="2" text="Got it" resource-id="android:id/ok" package="android" bounds="[800,100][1000,200]" />'
+  printf '<hierarchy>%s</hierarchy>' "$overlay" > "$d/dump.xml"
+  printf '%s' "$play_dump" > "$d/dump-1.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke behind the confirmation"
+  [ "$(wc -l < "$d/taps.log")" -eq 2 ] || fail "expected two taps"
+  sed -n 1p "$d/taps.log" | grep -q 'input tap 900 150' || fail "first tap was not on Got it"
+  sed -n 2p "$d/taps.log" | grep -q 'input tap 200 300' || fail "second tap was not on Play"
+}
+
+dismissesTheConfirmationAfterPlay() {
+  need release-smoke.sh
+  local d="$work/immersiveLate"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '<hierarchy><node index="0" text="Got it" package="com.android.systemui" bounds="[800,100][1000,200]" /></hierarchy>' > "$d/dump-1.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke with the confirmation after Play"
+  [ "$(wc -l < "$d/taps.log")" -eq 2 ] || fail "expected two taps"
+}
+
+ignoresGotItFromOtherPackages() {
+  need release-smoke.sh
+  local d="$work/otherGotIt"
+  fake_adb "$d"
+  printf '<hierarchy><node index="0" text="Got it" package="some.other.app" bounds="[800,100][1000,200]" /></hierarchy>' > "$d/dump.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "Got it from another package"
+  [ ! -s "$d/taps.log" ] || fail "tapped a Got it that is not from the system UI"
+}
+
+timeoutNamesTheLastDumpTexts() {
+  need release-smoke.sh
+  local d="$work/lastTexts"
+  fake_adb "$d"
+  printf '<hierarchy><node index="0" text="Viewing full screen" package="x" bounds="[0,0][1,1]" /><node index="1" text="Other" package="x" bounds="[0,0][1,1]" /></hierarchy>' > "$d/dump.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "no Play node"
+  expect_in "$d/stderr.txt" "last dump texts: Viewing full screen, Other"
+}
+
+lastTextsKeepCommasInsideATextTogether() {
+  need release-smoke.sh
+  local d="$work/commaTexts"
+  fake_adb "$d"
+  printf '<hierarchy><node index="0" text="To exit, swipe down from the top." package="x" bounds="[0,0][1,1]" /><node index="1" text="Got it" package="x" bounds="[0,0][1,1]" /></hierarchy>' > "$d/dump.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "no Play node"
+  expect_in "$d/stderr.txt" "last dump texts: To exit, swipe down from the top., Got it"
+}
+
 tests=(
   signedApkVerifies
   wrongAliasFails
@@ -257,6 +322,11 @@ tests=(
   fatalExceptionFailsTheSmoke
   crashAfterGameOverFailsTheSmoke
   ignoresPlayAgainAndContentDesc
+  dismissesTheFullScreenConfirmation
+  dismissesTheConfirmationAfterPlay
+  ignoresGotItFromOtherPackages
+  timeoutNamesTheLastDumpTexts
+  lastTextsKeepCommasInsideATextTogether
   smokePassesAndKeepsEvidence
 )
 

@@ -364,7 +364,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - `scripts/test-release-scripts.sh <unsigned.apk>`: runs every test, prints `PASS <name>` per test and `<n> passed`, exits 1 on any failure. Later tasks add tests to it.
   - CI check name `release-smoke`.
 
-- [ ] **Step 1: Write the failing `scripts/test-release-scripts.sh`.** Each test runs in a subshell. The smoke tests put a fake `adb` first on `PATH`; it answers `install`, `logcat`, `shell uiautomator dump`, `shell input tap` and `exec-out screencap` from files the test writes.
+- [x] **Step 1: Write the failing `scripts/test-release-scripts.sh`.** Each test runs in a subshell. The smoke tests put a fake `adb` first on `PATH`; it answers `install`, `logcat`, `shell uiautomator dump`, `shell input tap` and `exec-out screencap` from files the test writes.
 
   | Test | Assertions |
   |------|------------|
@@ -377,10 +377,10 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   | `fatalExceptionFailsTheSmoke` | game-over text present but logcat holds `FATAL EXCEPTION` exits non-zero |
   | `smokePassesAndKeepsEvidence` | Play found, tapped once, game-over text present, clean logcat exits 0 and `OUT_DIR` holds the three files |
 
-- [ ] **Step 2: Run it and confirm it fails.** Run: `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the scripts under test do not exist; no `PASS` line, exit 1.
-- [ ] **Step 3: Implement the three scripts.** Poll the dump every second; compute the tap point from the node's `bounds="[x1,y1][x2,y2]"`; grep `adb logcat -d` for `FATAL EXCEPTION`. Run `shellcheck` 0.9.0 on all four scripts. Expected: no output.
-- [ ] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`.
-- [ ] **Step 5: Add the `release-smoke` job to `ci.yml`.** Job outline (`name: release-smoke`, `runs-on: ubuntu-24.04`, `timeout-minutes: 45`, `permissions: contents: read`):
+- [x] **Step 2: Run it and confirm it fails.** Run: `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the scripts under test do not exist; no `PASS` line, exit 1.
+- [x] **Step 3: Implement the three scripts.** Poll the dump every second; compute the tap point from the node's `bounds="[x1,y1][x2,y2]"`; grep `adb logcat -d` for `FATAL EXCEPTION`. Run `shellcheck` 0.9.0 on all four scripts. Expected: no output.
+- [x] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`.
+- [x] **Step 5: Add the `release-smoke` job to `ci.yml`.** Job outline (`name: release-smoke`, `runs-on: ubuntu-24.04`, `timeout-minutes: 45`, `permissions: contents: read`):
   1. checkout, mise, locked tools, SDK packages, KVM, `setup-gradle`, exactly as `ui-tests` does
   2. `Build release APK`: `mise exec -- ./gradlew :app:assembleRelease`
   3. `Sign with a throwaway key`: `scripts/sign-throwaway.sh app/build/outputs/apk/release/app-release-unsigned.apk build/release-smoke/app-release.apk`
@@ -388,11 +388,11 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   5. `actions/upload-artifact` with `if: always()`, name `release-smoke`, path `build/release-smoke/`
 
   Add to `checks`, after the 16 KB step, a step `Release script tests` running `scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Run `:checkWorkflows` and zizmor. Expected: `BUILD SUCCESSFUL`, no findings.
-- [ ] **Step 6: Prove the smoke fails on a crashing build.** On a local scratch branch (never pushed), add `error("smoke proof")` at the top of `MainActivity.onCreate`, build the release APK, sign it with `sign-throwaway.sh` and run the script on `phone37`. Expected: exit non-zero, `logcat.txt` shows `FATAL EXCEPTION` with `smoke proof`. Then run it on the unmodified build. Expected: exit 0 and a `game-over.png` showing the game-over overlay. Both outputs go in Evidence; discard the scratch branch.
+- [x] **Step 6: Prove the smoke fails on a crashing build.** On a local scratch branch (never pushed), add `error("smoke proof")` at the top of `MainActivity.onCreate`, build the release APK, sign it with `sign-throwaway.sh` and run the script on `phone37`. Expected: exit non-zero, `logcat.txt` shows `FATAL EXCEPTION` with `smoke proof`. Then run it on the unmodified build. Expected: exit 0 and a `game-over.png` showing the game-over overlay. Both outputs go in Evidence; discard the scratch branch.
 - [ ] **Step 7: Push and watch `release-smoke` pass on the CI emulator.** Run: `gh pr checks <n> --watch`. Expected: `release-smoke` passes, and its artifact holds `game-over.png`. If it fails only because the API 31 image is too slow under SwiftShader, raise `SMOKE_TIMEOUT_SECONDS` in the job; if it still fails, stop and ask the owner.
 - [ ] **Step 8: [owner, answered 2026-11-02: yes] Ask whether `release-smoke` becomes the 6th required check.** Recommendation: **yes**: it catches R8, libGDX-native and ProGuard breaks that no other check builds, uses no secret and runs for every PR. The cost is one more required job (about 10 minutes) and that PRs open before this merges, including #106 and Dependabot #41, must rebase once. Record the answer in the PR.
 - [ ] **Step 9: If yes, make it required.** Add `{"context": "release-smoke", "integration_id": 15368}` to `required_status_checks` in both `expected-settings.json` and the `ruleset_body` of `apply-repo-settings.sh`. **[owner]** run `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake`. Expected: `all settings match`. Update the `CONTRIBUTING.md` rules table (six required checks) and this plan's required-checks line under "Process". If no, record "informational" in the table instead.
-- [ ] **Step 10: Record the sources in `docs/versions.md`** (no new action here; note that the smoke replaces Plan 3 Task 9's manual run).
+- [x] **Step 10: Record the sources in `docs/versions.md`** (no new action here; note that the smoke replaces Plan 3 Task 9's manual run).
 - [ ] **Step 11: Finish per the per-task workflow**
 
 ---

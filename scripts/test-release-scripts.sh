@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+unsigned_apk="${1:?usage: test-release-scripts.sh <unsigned.apk>}"
+here="$(cd "$(dirname "$0")" && pwd)"
+[ -f "$unsigned_apk" ] || { echo "apk not found: $unsigned_apk" >&2; exit 1; }
+unsigned_apk="$(cd "$(dirname "$unsigned_apk")" && pwd)/$(basename "$unsigned_apk")"
+work="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/release-script-tests.XXXXXX")"
+trap 'rm -rf "$work"' EXIT
+apksigner="${APKSIGNER:-${ANDROID_HOME:-}/build-tools/37.0.0/apksigner}"
+
+fail() {
+  echo "assertion failed: $*" >&2
+  exit 1
+}
+
+need() {
+  for script in "$@"; do
+    [ -x "$here/$script" ] || fail "missing or not executable: scripts/$script"
+  done
+}
+
+expect_status() {
+  local want="$1" got="$2" what="$3"
+  [ "$got" -eq "$want" ] || fail "$what: exit $got, wanted $want"
+}
+
+expect_nonzero() {
+  [ "$1" -ne 0 ] || fail "$2: exit 0, wanted non-zero"
+}
+
+make_keystore() {
+  local dir="$1" pass="$2" alias="$3"
+  KT_PASS="$pass" keytool -genkeypair -keystore "$dir/ks.p12" -storetype PKCS12 \
+    -alias "$alias" -keyalg RSA -keysize 2048 -validity 2 -dname "CN=test" \
+    -storepass:env KT_PASS -keypass:env KT_PASS > /dev/null 2>&1 || fail "keytool could not make a keystore"
+}
+
+fake_adb() {
+  local dir="$1"
+  mkdir -p "$dir/bin"
+  : > "$dir/taps.log"
+  printf '#!%s\n' "/usr/bin/env bash" > "$dir/bin/adb"
+  cat >> "$dir/bin/adb" <<'FAKE'
+dir="$FAKE_DIR"
+case "$*" in
+  install*|uninstall*|wait-for-device|"logcat -c"|"shell am start"*|"shell uiautomator dump"*) exit 0 ;;
+  "logcat -d") cat "$dir/logcat.txt" ;;
+  "shell cat "*)
+    if [ -s "$dir/taps.log" ] && [ -f "$dir/dump-after.xml" ]; then
+      cat "$dir/dump-after.xml"
+    else
+      cat "$dir/dump.xml"
+    fi
+    ;;
+  "shell input tap "*) echo "$*" >> "$dir/taps.log" ;;
+  "exec-out screencap"*) printf 'png' ;;
+  *) echo "unexpected adb call: $*" >&2; exit 99 ;;
+esac
+FAKE
+  chmod +x "$dir/bin/adb"
+  : > "$dir/logcat.txt"
+  printf '<hierarchy><node index="0" text="Snake" bounds="[0,0][10,10]" /></hierarchy>' > "$dir/dump.xml"
+}
+
+play_dump='<hierarchy><node index="0" text="Play" bounds="[100,200][300,400]" /></hierarchy>'
+over_dump='<hierarchy><node index="0" text="Game over. Score 3" bounds="[0,0][10,10]" /></hierarchy>'
+
+run_smoke() {
+  local dir="$1"
+  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" OUT_DIR="$dir/out" SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-2}" \
+    "$here/release-smoke.sh" "$unsigned_apk" > "$dir/stdout.txt" 2> "$dir/stderr.txt"
+}
+
+signedApkVerifies() {
+  need sign-throwaway.sh
+  local rc=0
+  "$here/sign-throwaway.sh" "$unsigned_apk" "$work/signed.apk" > /dev/null 2>&1 || rc=$?
+  expect_status 0 "$rc" "sign-throwaway"
+  rc=0
+  local out
+  out="$("$apksigner" verify -v "$work/signed.apk" 2>&1)" || rc=$?
+  expect_status 0 "$rc" "apksigner verify"
+  case "$out" in *Verifies*) ;; *) fail "verify output lacks Verifies: $out" ;; esac
+}
+
+wrongAliasFails() {
+  need sign-apk.sh
+  local d="$work/wrongalias"
+  mkdir -p "$d"
+  make_keystore "$d" pw-wrong-alias right
+  local rc=0
+  KS_FILE="$d/ks.p12" KS_PASS=pw-wrong-alias KEY_ALIAS=other KEY_PASS=pw-wrong-alias \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2>&1 || rc=$?
+  expect_nonzero "$rc" "wrong alias"
+  [ ! -e "$d/out.apk" ] || fail "an output apk exists after a failed signing"
+}
+
+missingKeystoreFails() {
+  need sign-apk.sh
+  local d="$work/missingks"
+  mkdir -p "$d"
+  local rc=0
+  KS_FILE="$d/none.p12" KS_PASS=pw KEY_ALIAS=a KEY_PASS=pw \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/out.apk" > /dev/null 2>&1 || rc=$?
+  expect_nonzero "$rc" "missing keystore"
+  [ ! -e "$d/out.apk" ] || fail "an output apk exists after a failed signing"
+}
+
+signApkNeverPrintsSecrets() {
+  need sign-apk.sh
+  local d="$work/secrets"
+  mkdir -p "$d"
+  make_keystore "$d" topsecretpass right
+  local rc=0
+  KS_FILE="$d/ks.p12" KS_PASS=topsecretpass KEY_ALIAS=right KEY_PASS=topsecretpass \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/ok.apk" > "$d/ok.txt" 2>&1 || rc=$?
+  expect_status 0 "$rc" "passing sign run"
+  rc=0
+  KS_FILE="$d/ks.p12" KS_PASS=topsecretpass KEY_ALIAS=other KEY_PASS=topsecretpass \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/bad.apk" > "$d/bad.txt" 2>&1 || rc=$?
+  expect_nonzero "$rc" "failing sign run"
+  [ -s "$d/ok.txt" ] || fail "the passing run printed nothing, so the check proves nothing"
+  [ -s "$d/bad.txt" ] || fail "the failing run printed nothing, so the check proves nothing"
+  if grep -q topsecretpass "$d/ok.txt" "$d/bad.txt"; then
+    fail "a secret reached the output"
+  fi
+}
+
+noPlayButtonFailsTheSmoke() {
+  need release-smoke.sh
+  local d="$work/noplay"
+  fake_adb "$d"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "no Play node"
+  [ ! -s "$d/taps.log" ] || fail "a tap was recorded without a Play node"
+}
+
+missingGameOverFailsTheSmoke() {
+  need release-smoke.sh
+  local d="$work/nogameover"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "no game over"
+  [ "$(wc -l < "$d/taps.log")" -eq 1 ] || fail "expected exactly one tap"
+}
+
+fatalExceptionFailsTheSmoke() {
+  need release-smoke.sh
+  local d="$work/fatal"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  printf '11-02 10:00:00.000 E AndroidRuntime: FATAL EXCEPTION: main\n' > "$d/logcat.txt"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "FATAL EXCEPTION in logcat"
+}
+
+smokePassesAndKeepsEvidence() {
+  need release-smoke.sh
+  local d="$work/pass"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "clean smoke"
+  [ "$(wc -l < "$d/taps.log")" -eq 1 ] || fail "expected exactly one tap"
+  grep -q 'input tap 200 300' "$d/taps.log" || fail "tap was not at the centre of the Play node"
+  for file in ui-dump.xml logcat.txt game-over.png; do
+    [ -f "$d/out/$file" ] || fail "missing evidence file $file"
+  done
+}
+
+tests=(
+  signedApkVerifies
+  wrongAliasFails
+  missingKeystoreFails
+  signApkNeverPrintsSecrets
+  noPlayButtonFailsTheSmoke
+  missingGameOverFailsTheSmoke
+  fatalExceptionFailsTheSmoke
+  smokePassesAndKeepsEvidence
+)
+
+passed=0
+failed=0
+for name in "${tests[@]}"; do
+  ( set -e; "$name" )
+  rc=$?
+  if [ "$rc" -eq 0 ]; then
+    echo "PASS $name"
+    passed=$((passed + 1))
+  else
+    echo "FAIL $name"
+    failed=$((failed + 1))
+  fi
+done
+
+echo "$passed passed"
+if [ "$failed" -ne 0 ]; then
+  echo "$failed failed" >&2
+  exit 1
+fi

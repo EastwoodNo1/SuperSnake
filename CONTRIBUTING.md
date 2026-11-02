@@ -15,7 +15,7 @@ Follow the quick start in [`README.md`](README.md): install mise, point `ANDROID
 5. **Stack large work.** Split it into small PRs with `gh stack` (practice).
 6. **Checks.** Let the hooks run. Run `scripts/gradle-strict.sh check` before you push.
 7. **Pull request.** Title is a Conventional Commit header of at most 64 characters. The body fills the template: `Why`, `What`, `Closes #<issue>` and `Evidence`.
-8. **Merge.** Squash merge only, once the required checks are green: `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)`. `ui-tests (phone-37)` and `ui-tests (tablet-37)` run on every PR but are informational until #82. The branch must be up to date with `main`.
+8. **Merge.** Squash merge only, once the required checks are green: `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)`, `release-smoke`. `ui-tests (phone-37)` and `ui-tests (tablet-37)` run on every PR but are informational until #82. The branch must be up to date with `main`.
 
 Commit format:
 
@@ -50,6 +50,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Backup rules name only the two DataStore files | none | `checks` runs `:checkBackupRules` on `backup_rules.xml` and `data_extraction_rules.xml` | none |
 | UI tests pass on three emulators | none | `ui-tests (phone-31)` (required), `ui-tests (phone-37)` and `ui-tests (tablet-37)` (informational until #82) run `:app:connectedDebugAndroidTest` | none |
 | Version code follows `version.txt` | none | `checks` runs `:app:assembleRelease`: the build fails for a malformed or over-limit `version.txt` (`versionCode = major*1_000_000 + minor*1_000 + patch`, ADR-0011) | none |
+| The R8 release APK starts and reaches game over | none | `release-smoke` (required) signs the release APK with a throwaway key, installs it on an API 31 emulator, taps Play, waits for game over and fails on any `FATAL EXCEPTION`; `checks` runs the script tests | none |
 | Native libraries are 16 KB aligned | none | `checks` runs `zipalign -c -P 16 -v 4` on the release APK | none |
 | Evidence section present and non-empty | none | `pr-rules`: `:checkPullRequest` | PR template |
 | Linear history, squash merge only | none | none | Ruleset: linear history, squash only (ADR-0007) |

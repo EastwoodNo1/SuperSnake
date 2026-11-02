@@ -66,6 +66,7 @@ Release dates for Maven artifacts are the Last-Modified header of the published 
 
 - `actions/setup-java` is not used: the JDK comes from mise. mise itself is installed from the release archive with a pinned SHA-256, then `mise install --locked`.
 - Android SDK in CI: the runner's preinstalled SDK plus `sdkmanager` for exactly `platforms;android-37.0` and `build-tools;37.0.0`.
+- `release-smoke` (2026-11-02) adds no action: it reuses the pinned `android-emulator-runner`, `checkout`, `setup-gradle` and `upload-artifact` of `ui-tests`. It signs with `apksigner` from `build-tools;37.0.0` and a throwaway 2048-bit key made by `keytool` from the mise JDK. Its script replaces the manual release-build run of Plan 3 Task 9. Sources: the Android docs for `apksigner` and `uiautomator`, read 2026-10-29 for Plan 4 research.
 - `gradle/verification-metadata.xml` covers the root build and the included build `build-logic/checks` when it is run through the root (`:checks:check`). Running `-p build-logic/checks` on its own is not covered, so CI uses the `:checks:` form.
 
 ## Dependency verification updates

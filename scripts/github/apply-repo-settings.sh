@@ -67,7 +67,8 @@ ruleset_body='{
         {"context": "pr-rules", "integration_id": 15368},
         {"context": "analyze (java-kotlin)", "integration_id": 15368},
         {"context": "analyze (actions)", "integration_id": 15368},
-        {"context": "ui-tests (phone-31)", "integration_id": 15368}
+        {"context": "ui-tests (phone-31)", "integration_id": 15368},
+        {"context": "release-smoke", "integration_id": 15368}
       ]
     }}
   ]

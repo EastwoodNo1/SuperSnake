@@ -14,7 +14,7 @@ Google Play needs a `versionCode` that is a positive integer, strictly increasin
 
 - Limits: major at most 2099, minor and patch at most 999. The highest code is 2,099,999,999. A larger field or a malformed version fails the build with a message naming the version and the field (`major`, `minor`, `patch` or `format`).
 - `0.0.0` maps to 1, the owner decision of 2026-11-02. The unreleased placeholder keeps the code every earlier build had, so a development build still installs over them. Every real version uses the formula.
-- Wiring: `app/build.gradle.kts` declares `buildscript { dependencies { classpath("sdlc:checks") } }`. The included build `build-logic/checks` substitutes `sdlc:checks`, so no second included build and no Gradle plugin were needed. A `buildscript` block cannot read the version catalog and the dependency has no version to pin, so Android Lint's `UseTomlInstead` is disabled for `:app`, next to `NewerVersionAvailable`. The file is read with `providers.fileContents`, so the configuration cache tracks it.
+- Wiring: the root `build.gradle.kts` declares `buildscript { dependencies { classpath("sdlc:checks") } }`, reads `version.txt` with `providers.fileContents` (so the configuration cache tracks it), computes `VersionCode.of` and exposes `extra["versionName"]` and `extra["versionCode"]`. `:app` reads them from `rootProject.extra`. The included build `build-logic/checks` substitutes `sdlc:checks`, so no second included build and no Gradle plugin were needed. The classpath sits in the root build because Android Lint's `UseTomlInstead` flags it in `:app`, and the check stays enabled.
 
 Options considered:
 

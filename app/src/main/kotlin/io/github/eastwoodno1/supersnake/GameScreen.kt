@@ -103,7 +103,8 @@ fun GameScreen(
     }
     val systemBars = WindowInsets.systemBars
     val layoutDirection = LocalLayoutDirection.current
-    LaunchedEffect(viewModel, systemBars, density, layoutDirection) {
+    val generation by viewModel.boardGeneration.collectAsStateWithLifecycle()
+    LaunchedEffect(viewModel, generation, systemBars, density, layoutDirection) {
         withTimeoutOrNull(BARS_SETTLE_MILLIS) {
             snapshotFlow {
                 systemBars.getTop(density) + systemBars.getBottom(density) +

@@ -22,6 +22,7 @@ import io.github.eastwoodno1.supersnake.domain.Overlay
 import io.github.eastwoodno1.supersnake.domain.Spoken
 import io.github.eastwoodno1.supersnake.domain.SwipeControl
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,7 +38,9 @@ class GameViewModel(
 ) : ViewModel() {
     private val sessionClock = HoldableClock(graph.clock)
 
-    val scene = SceneHolder().also { it.onFrame = { sessionClock.release() } }
+    private val frameTicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    val scene = SceneHolder().also { it.onFrame = { frameTicks.tryEmit(Unit) } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
     var live = false
@@ -79,6 +82,12 @@ class GameViewModel(
                 feedbackEvents.emit(feedback)
             }
     }
+
+    suspend fun awaitBoardFrame() {
+        frameTicks.first()
+    }
+
+    fun boardReady() = sessionClock.release()
 
     suspend fun advance() = consume(session.advance())
 

@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -34,6 +37,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -51,10 +55,12 @@ import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameKey
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 @Composable
@@ -82,7 +88,8 @@ fun GameScreen(
     val score by viewModel.select { it.state.score }
     val level by viewModel.select { it.state.difficulty.label }
     val countdown by viewModel.select { it.countdown }
-    val thresholdPx = with(LocalDensity.current) { 24.dp.toPx() }
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 24.dp.toPx() }
     val scope = rememberCoroutineScope()
     val view = LocalView.current
     val beeps = remember { BeepPlayer() }
@@ -93,6 +100,18 @@ fun GameScreen(
         bars.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         bars.hide(WindowInsetsCompat.Type.systemBars())
         onDispose { bars.show(WindowInsetsCompat.Type.systemBars()) }
+    }
+    val systemBars = WindowInsets.systemBars
+    val layoutDirection = LocalLayoutDirection.current
+    LaunchedEffect(viewModel, systemBars, density, layoutDirection) {
+        withTimeoutOrNull(BARS_SETTLE_MILLIS) {
+            snapshotFlow {
+                systemBars.getTop(density) + systemBars.getBottom(density) +
+                    systemBars.getLeft(density, layoutDirection) + systemBars.getRight(density, layoutDirection)
+            }.first { it == 0 }
+        }
+        viewModel.awaitBoardFrame()
+        viewModel.boardReady()
     }
     DisposableEffect(view, bars) {
         val listener =
@@ -186,6 +205,8 @@ fun GameScreen(
         Announcer(fresh)
     }
 }
+
+private const val BARS_SETTLE_MILLIS = 1_500L
 
 private suspend fun awaitDisplayFrame() =
     suspendCancellableCoroutine { continuation ->

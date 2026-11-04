@@ -133,8 +133,11 @@ To see it run, install it on a device or emulator with `adb install SuperSnake-<
 
 ## Recovery
 
-- **A job failed before the release was published.** Re-run it in place: `gh run rerun <id> --failed --repo EastwoodNo1/SuperSnake`. If the tag exists but its draft has no assets, re-run the failed jobs the same way.
-- **A stale draft** shows up in `gh release list`. Delete it only after asking; a draft is not covered by immutability.
+- **A job failed before the release was published.** Re-run only the failed jobs, in place: `gh run rerun <id> --failed --repo EastwoodNo1/SuperSnake`. If the tag exists but its draft has no assets, re-run the failed jobs the same way. GitHub allows re-runs for 30 days after the run.
+- **Never re-run the whole run** (`gh run rerun <id>` without `--failed`). The `release-please` job would find the release already made, report `release_created` as false, and every later job would be skipped without an error.
+- **The `release-please` job itself failed after it created the tag or the draft.** Its re-run cannot hand the tag to the later jobs, for the same reason. The version is burned: the `release-tags` ruleset lets only the App delete a `v*` tag. Ship the next patch: set `release-as` to it in `release-please-config.json` in the PR that fixes the cause.
+- **The approval was rejected, or nobody approved it.** A rejected `sign-publish` fails the run; `gh run rerun <id> --failed` asks for approval again. A deployment that waits 30 days without approval fails the run, and by then the 30-day re-run window has closed too, so the version is burned: ship the next patch.
+- **A stale draft** shows up in `gh release list`. Delete it only after asking; a draft is not covered by immutability, but its tag stays, so its version is burned.
 - **A failure after publish** ships as the next patch version. Immutable releases lock the tag, and even after deleting such a release GitHub says "you cannot reuse the same tag name", so the version number is burned. Tags are never re-pointed or deleted by hand.
 - **The approval request is missing.** The `release` environment allows only `main` and needs a reviewer; check the run's Deployments panel and `gh api repos/EastwoodNo1/SuperSnake/environments/release`.
 - **The signature check fails.** The job fails closed on an empty, malformed or different fingerprint. Compare `RELEASE_CERT_SHA256` with the fingerprint of the key in `RELEASE_KEYSTORE_BASE64`; do not edit the check.

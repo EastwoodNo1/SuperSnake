@@ -183,3 +183,17 @@ A new stable AGP made a lint check fail the strict gate. The owner chose a small
 - **"Memory versus the story."** Memory steers, the ADLC record tells; example: PROMPT-020.
 - **"Reconstruction gives way to capture."** Observed notes replaced reconstructed records, with gaps GAP-012 and GAP-014 recorded.
 - Caveat: GAP-015.
+
+## Update: CYCLE-010 and CYCLE-011 (fourth fold-in)
+
+### What happened?
+Plan 3 ran subagent-driven (10 tasks, PRs #72 to #94), then full screen, then Plan 4 was written (#108) and Tasks 1 to 3 merged. Only then was Plan 4 independently reviewed, with fixes before the owner-gated Task 4.
+
+### Presentation candidates
+- **"Green CI that ran zero tests."** Verify the verifier. Example: the API 37 legs and `scripts/check-ui-test-results.sh` (PROMPT-022, DEC-043).
+- **"Subagent-driven development at scale."** Implementer, reviewer, fix rounds capped at 5, a ledger of rulings. Example: Task 5 needed 5 fix rounds.
+- **"A fix that broke another feature."** Example: #106 froze Restart; review caught it.
+- **"Human-gated steps."** Secrets and org settings stay with the owner (Plan 4 Task 4).
+- **"Review the plan before you run it."** Example: a check order that could never print success; a proof that would write a weakened live setting (DEC-049). Review came after three tasks had merged.
+- **Visualization:** a timeline of the Task 5 fix rounds; a before/after of the plan's owner sequence.
+- Caveats: GAP-016 to GAP-018.

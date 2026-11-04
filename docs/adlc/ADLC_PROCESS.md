@@ -19,10 +19,10 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 
 - Historical reconstruction: **Complete for the accessible evidence (first fold-in, 2026-10-27)**; open gaps are listed in the register
 - Earliest reliably documented point: 2026-10-20 (first captured session); first commit 2026-10-22 (`e900708`)
-- Current lifecycle position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
+- Current lifecycle position (updated 2026-11-04): Plan 3 (app) complete (PR #94), full screen done (#106), Plan 4 (release) Tasks 1 to 3 merged and the plan reviewed and fixed (issue #115); Task 4 awaits owner steps. Earlier position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
 - Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), per-PR evidence not re-read; see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
-- Last documentation checkpoint: 2026-10-28 (third fold-in, in the AGP 9.5.0 PR)
-- Last folded session: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
+- Last documentation checkpoint: 2026-11-04 (fourth fold-in, in the Plan 4 review-fixes PR, issue #115). Before that: 2026-10-28 (third fold-in)
+- Last folded session: c5ff6184-56b9-4a90-be4e-05c70df7fc31 (2026-10-28 to 2026-11-02, Plan 3 execution and Plan 4 start), in the fourth fold-in. Before that: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
 
 ## 3. Actual Lifecycle Overview
 
@@ -36,7 +36,8 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 | Adoption and first fold-in (CYCLE-006) | Apply it to SuperSnake | Plugin 0.2.0, four staged notes | Adoption commit, reconstruction | `docs/adlc/` | Privacy scan by the main agent | n/a | In progress (Prospective validation) |
 | Game engine (CYCLE-007) | Engine in `:domain` and `:data` | Plan 2, design doc | Owner decisions, 8 subagent tasks, whole-range review | PRs #47 to #67, rules C13-C25, ADR-0008 | Gate, coverage 100%, per-task and final review | Plan rewritten after owner redirect; 4 seam defects fixed | Done |
 | App plan (CYCLE-008) | Plan the Android app | Plan 2 handoff contract | Parallel research, three owner questions | Plan 3, ADR-0009, ADR-0010 | Owner approval | One recommendation rejected; one colour changed | Planned; execution Prospective |
-| App, release (Plans 3 and 4) | The playable game and release | Plan 3 | Not started | Not started | Not started | n/a | Prospective |
+| App execution (CYCLE-010) | The playable game | Plan 3 | Subagent-driven tasks with review and fix rounds; full screen | PRs #72 to #106, guard script, plugin v0.3.0 | Per-task and whole-range review, CI; API 37 legs informational (#82) | Task 5 took 5 fix rounds; #106 regression fixed | Done |
+| Release plan and its review (CYCLE-011) | Release design and plan | Plan 3 closed, owner research request | Research, ADR-0011/0012, Plan 4, Tasks 1-3, independent plan review and fixes | PRs #108 to #114; issue #115 | Sonnet review (4 critical, 8 important), spot-checks, re-review of the diff | Review came after three tasks merged | Task 4 Prospective |
 
 ## 4. Actual Lifecycle Pattern
 
@@ -388,12 +389,18 @@ Early (2026-10-20 to 23): human-led choices with AI facilitation and research. E
 
 AGP 9.5.0 became stable during the Plan 3 execution session and lint's AndroidGradlePluginVersion check failed `:app:lintDebug`. The owner chose a separate bump PR before Task 1 (DEC-041; commits `5d55438`, `c3fe5e5`). Status: pending PR checks. The session has no note yet (GAP-015). Observed notes for the ADLC feature session and the Plan 3 planning session were folded (DEC-042, PROMPT-019, PROMPT-020).
 
+### Update: CYCLE-010 and CYCLE-011 (fourth fold-in, 2026-11-04)
+
+CYCLE-010 (Plan 3 execution, 2026-10-28 to 2026-11-02): ten tasks run subagent-driven; the CI UI-test legs showed green with 0 tests on API 37, which led to a guard script and to making those legs informational (DEC-043); full screen broke Restart and was fixed before merge. Record: [session](sessions/2026-10-28-plan-3-execution-and-plan-4-start.md). Decisions DEC-043 to DEC-048.
+
+CYCLE-011 (Plan 4 review, 2026-11-04): the owner found Plan 4 had had only owner review. An independent Sonnet review found critical defects (a check order that could never print success, a mismatch proof writing a weakened live setting, secrets before environments, unticked merged steps). Fixes: DEC-049 to DEC-052. Lessons: review plans before execution; a "done = all ticked" rule needs a clause for merged tasks; review settings scripts for compare-order bugs (jq -S does not sort arrays). Gaps: GAP-016 to GAP-018.
+
 ## 12. Current State and Next Step
 
 - Current lifecycle position: foundation and engine complete; Plan 3 (app) planned and approved, not executed
 - Current validated state: Plan 1 gates merged on `main`; this documentation awaits the privacy scan
 - Open issues: Dependabot Kotlin PR #41 (capped by CodeQL); issue #44 (ADLC adoption); spec design point on the `release` environment (DEC-030); `docs/release.md` not yet written
-- Next recommended activity: merge the AGP 9.5.0 PR (issue #71), then Plan 3 Task 1 (#70)
+- Next recommended activity (updated 2026-11-04): merge the review-fixes PR (issue #115) and the separate setup-gradle `ci:` bump, then the owner performs Plan 4 Task 4 steps (App, signing key, settings script with `--check`)
 
 ## Supporting Documentation
 

@@ -72,3 +72,8 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 - REQ-005: kotlinx-serialization recorded as a transitive dependency of savedstate (DEC-045).
 - REQ-008: `ui-tests (phone-31)` required; 37 legs informational under #82 (DEC-043).
 - Gap: no per-task test table for Plan 3 was read; see GAP-016.
+
+## Update (fifth fold-in, 2026-11-05)
+
+- REQ-011 (release): the `release-smoke` CI job (REQ-011, #112) failed in practice on an API 31 system SIM dialog. Fix in issue #117: Design DEC-053; Implementation `scripts/release-smoke.sh`; Test `resumesAfterAnInterruption` and `ignoresResumeFromOtherPackages` (RED 1 failure, GREEN 17 passed, as reported by the main agent); Validation by CI Pending; Outcome Pending validation. Plan 4 counts were updated to 27 in Task 5 Step 4 (R).
+- REQ-008: required check `release-smoke` was red on #116 and main before this fix; informational legs red due to #82 (DEC-054).

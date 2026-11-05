@@ -443,3 +443,14 @@ Reconstructed prompt intent - not verbatim: the owner wanted the game full scree
 Reconstructed prompt intent - not verbatim: the owner asked whether Plan 4 had been reviewed; the answer was only by the owner. The owner then asked for an independent Sonnet subagent review. Verbatim follow-up: "fix all of this", with a re-review if needed so a fresh session can execute the plan. Initial (plan merged after owner review only) -> Output (review: holds with fixes, 4 critical, 8 important) -> Problem (a never-printing "all settings match", a mismatch proof that writes a weakened live setting, secrets before environments, unticked merged steps) -> Refinement (fixes, DEC-049 to DEC-051) -> Result (second Sonnet re-review of the diff: every finding fixed, verdict "ready for a fresh session to execute Task 4"; its two small notes were applied).
 
 Prompt patterns added: **Ask for an independent review before execution**; **Verify the verifier** (a guard on executed-test counts).
+
+## PROMPT-026 - "PR 116 isn't green" (2026-11-05)
+
+- **Lifecycle phase:** Review, reporting. **Related cycle:** CYCLE-012. **Evidence status:** Reconstructed from the main agent's context (SRC-014); the quoted words are as reported.
+- Verbatim prompt: "PR 116 isn't green".
+- Initial (agent reports PR #116 ready) -> Output (a ready claim) -> Problem (the informational API 37 legs were red; the agent had treated the known #82 crash as background noise) -> Refinement (owner's correction; agent restated that required checks passed and that three informational legs were red, with the reason) -> Result (report corrected; the owner then merged #116 because the safety classifier blocked the agent's merge command).
+- Pattern: **Say what is red, even when it is known and not required.** A "ready" claim needs the whole check list, not only the required subset.
+
+## PROMPT-027 - Fix the release-smoke timeout (issue #117)
+
+Reconstructed prompt intent - not verbatim: after the smoke timed out on #116 and on main, the work was framed as issue #117 with a RED-first fix. Initial (smoke waits for the game) -> Output (timeout) -> Problem (a settings SIM dialog paused the game; nothing tapped Resume) -> Refinement (tap the game's own Resume, package-restricted; two tests; RED then GREEN) -> Result (1 failure, then 17 passed, as reported).

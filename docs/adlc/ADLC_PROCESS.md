@@ -21,8 +21,8 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 - Earliest reliably documented point: 2026-10-20 (first captured session); first commit 2026-10-22 (`e900708`)
 - Current lifecycle position (updated 2026-11-04): Plan 3 (app) complete (PR #94), full screen done (#106), Plan 4 (release) Tasks 1 to 3 merged and the plan reviewed and fixed (issue #115); Task 4 awaits owner steps. Earlier position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
 - Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), per-PR evidence not re-read; see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
-- Last documentation checkpoint: 2026-11-04 (fourth fold-in, in the Plan 4 review-fixes PR, issue #115). Before that: 2026-10-28 (third fold-in)
-- Last folded session: c5ff6184-56b9-4a90-be4e-05c70df7fc31 (2026-10-28 to 2026-11-02, Plan 3 execution and Plan 4 start), in the fourth fold-in. Before that: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
+- Last documentation checkpoint: 2026-11-05 (fifth fold-in, in the release-smoke resume PR, issue #117). Before that: 2026-11-04 (fourth fold-in, issue #115); 2026-10-28 (third fold-in)
+- Last folded session: 3c11e9a7-1ec2-4ab6-836f-18a7e76e7b29 (2026-11-05, plugin reload only, no-op), in the fifth fold-in. Before that: c5ff6184-56b9-4a90-be4e-05c70df7fc31 (2026-10-28 to 2026-11-02, Plan 3 execution and Plan 4 start), in the fourth fold-in. Before that: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
 
 ## 3. Actual Lifecycle Overview
 
@@ -411,3 +411,7 @@ CYCLE-011 (Plan 4 review, 2026-11-04): the owner found Plan 4 had had only owner
 - [Source and Uncertainty Register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
 - [Presentation Source Guide](PRESENTATION_SOURCE_GUIDE.md)
 - [Session records](sessions/README.md)
+
+## Update: release-smoke resume fix (fifth fold-in, 2026-11-05)
+
+CYCLE-012 (issue #117): `release-smoke` timed out on PR #116 and on main because an API 31 emulator SIM dialog paused the game; `scripts/release-smoke.sh` now taps the game's own Resume (package-restricted), with two tests (RED 1 failure, GREEN 17 passed, as reported). The agent's "ready" report on #116 ignored red informational legs (#82) until the owner corrected it; the owner merged #116 after the safety classifier blocked the agent's merge. Decisions DEC-053, DEC-054; gaps GAP-019 to GAP-021. Record: [session](sessions/2026-11-05-plugin-reload-no-op.md) (no-op note; the cycle itself is from main-agent context, SRC-014).

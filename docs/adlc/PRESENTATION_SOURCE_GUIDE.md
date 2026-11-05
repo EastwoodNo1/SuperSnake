@@ -197,3 +197,15 @@ Plan 3 ran subagent-driven (10 tasks, PRs #72 to #94), then full screen, then Pl
 - **"Review the plan before you run it."** Example: a check order that could never print success; a proof that would write a weakened live setting (DEC-049). Review came after three tasks had merged.
 - **Visualization:** a timeline of the Task 5 fix rounds; a before/after of the plan's owner sequence.
 - Caveats: GAP-016 to GAP-018.
+
+## Update: release-smoke resume fix (fifth fold-in, 2026-11-05)
+
+### What happened?
+The release smoke job timed out because a system dialog paused the game and nothing resumed it. The fix was written RED first. Separately, an agent called a PR ready while informational legs were red, and the owner corrected it.
+
+### Presentation candidates
+- **"A smoke test needs to survive its environment."** Key message: an emulator can interrupt the app under test; the test must handle it without tapping other apps. Example: package-restricted Resume and `ignoresResumeFromOtherPackages`.
+- **"Known red is still red."** Key message: a ready report lists every red check, including known informational ones. Example: "PR 116 isn't green" (PROMPT-026, DEC-054).
+- **"Automation limits are a feature."** The safety classifier blocked the agent's merge; the owner merged. Human gate worked as designed.
+- Visualization: a two-lane diagram of required checks against informational legs.
+- Caveats: GAP-019 to GAP-021.

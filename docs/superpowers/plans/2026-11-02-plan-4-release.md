@@ -362,7 +362,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - Produces:
   - `scripts/sign-apk.sh <in.apk> <out.apk>`: reads `KS_FILE`, `KS_PASS`, `KEY_ALIAS`, `KEY_PASS` from the environment, runs `apksigner sign` with `--ks-pass env:KS_PASS` and `--key-pass env:KEY_PASS`, then `apksigner verify`. It prints no secret and exits non-zero on any failure.
   - `scripts/sign-throwaway.sh <in.apk> <out.apk>`: makes a 2048-bit PKCS12 key with a random password in a temporary directory, calls `sign-apk.sh`, and removes the key on exit.
-  - `scripts/release-smoke.sh <apk>`: environment `PACKAGE`, `SMOKE_TIMEOUT_SECONDS` (120), `OUT_DIR` (`build/release-smoke`). It taps the system's full-screen "Got it" confirmation (package `android` or `com.android.systemui` only) whenever it appears, and names the last dump's texts on a timeout. Exit 0 only when it installed the APK, tapped the node whose text is `Play` found in a `uiautomator dump`, saw a dump containing `Game over. Score` before the timeout, and `adb logcat -d` has no `FATAL EXCEPTION`. It always leaves `ui-dump.xml`, `logcat.txt` and `game-over.png` (a screenshot, also on failure) in `OUT_DIR`. A run that found no Play node counts as zero interactions and fails.
+  - `scripts/release-smoke.sh <apk>`: environment `PACKAGE`, `SMOKE_TIMEOUT_SECONDS` (120), `OUT_DIR` (`build/release-smoke`). It taps the system's full-screen "Got it" confirmation (package `android` or `com.android.systemui` only) whenever it appears, taps the game's own `Resume` (package `${PACKAGE}` only) when a system dialog paused the round, and names the last dump's texts on a timeout. Exit 0 only when it installed the APK, tapped the node whose text is `Play` found in a `uiautomator dump`, saw a dump containing `Game over. Score` before the timeout, and `adb logcat -d` has no `FATAL EXCEPTION`. It always leaves `ui-dump.xml`, `logcat.txt` and `game-over.png` (a screenshot, also on failure) in `OUT_DIR`. A run that found no Play node counts as zero interactions and fails.
   - `scripts/test-release-scripts.sh <unsigned.apk>`: runs every test, prints `PASS <name>` per test and `<n> passed`, exits 1 on any failure. Later tasks add tests to it.
   - CI check name `release-smoke`.
 
@@ -381,7 +381,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 - [x] **Step 2: Run it and confirm it fails.** Run: `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the scripts under test do not exist; no `PASS` line, exit 1.
 - [x] **Step 3: Implement the three scripts.** Poll the dump every second; compute the tap point from the node's `bounds="[x1,y1][x2,y2]"`; grep `adb logcat -d` for `FATAL EXCEPTION`. Run `shellcheck` 0.9.0 on all four scripts. Expected: no output.
-- [x] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`. (The full-screen work in #106 and #112 later raised it to 15 tests.)
+- [x] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`. (The full-screen work in #106 and #112 later raised it to 15 tests, and #117 to 17.)
 - [x] **Step 5: Add the `release-smoke` job to `ci.yml`.** Job outline (`name: release-smoke`, `runs-on: ubuntu-24.04`, `timeout-minutes: 45`, `permissions: contents: read`):
   1. checkout, mise, locked tools, SDK packages, KVM, `setup-gradle`, exactly as `ui-tests` does
   2. `Build release APK`: `mise exec -- ./gradlew :app:assembleRelease`
@@ -522,7 +522,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
     | `publishSkipsWhenAlreadyPublished` | with `isDraft` false, exit 0, output `already published`, no `upload` and no `edit` in the log |
 
 - [ ] **Step 3: Run both and confirm they fail.** Run: `~/.local/bin/mise exec -- ./gradlew :checks:test --tests 'sdlc.checks.PullRequestBodyTest'` and `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the first fails on the new assertions; the second prints no `PASS` for the ten new tests.
-- [ ] **Step 4: Implement the three scripts and the `PullRequestBody` exemption.** Run `shellcheck` 0.9.0 on the scripts, then `:checks:check :checks:koverVerify` (100% LINE and BRANCH) and the script tests. Expected: `BUILD SUCCESSFUL`, `25 passed` (the 15 existing tests and the ten new ones).
+- [ ] **Step 4: Implement the three scripts and the `PullRequestBody` exemption.** Run `shellcheck` 0.9.0 on the scripts, then `:checks:check :checks:koverVerify` (100% LINE and BRANCH) and the script tests. Expected: `BUILD SUCCESSFUL`, `27 passed` (the 17 existing tests and the ten new ones).
 - [ ] **Step 5: Write `release-please-config.json` and `.release-please-manifest.json`** exactly as in "Exact values".
 - [ ] **Step 6: Write `release.yml`.** First re-verify every pin in "Exact values" (`gh api repos/<repo>/releases/latest` and `git/ref/tags/<tag>`); if one is outdated, stop and bump it in its own `ci:` PR before continuing. Top-level `name: Release`, `on: push: branches: [main]`, `permissions: {}`, `concurrency: {group: release, cancel-in-progress: false}`. Jobs (every job has `runs-on: ubuntu-24.04` and a `timeout-minutes`):
 

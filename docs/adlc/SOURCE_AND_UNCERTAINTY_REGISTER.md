@@ -99,3 +99,13 @@ Sources added: SRC-010 staged note of session 35559d8c; SRC-011 staged note of s
 | GAP-018 | Task 4 of Plan 4 and the actual effect of the fixes are Prospective | CYCLE-011 | Unknown until Task 4 runs | plan | Open |
 
 Sources added: SRC-012 staged note of session c5ff6184 (Observed for human messages and two compaction summaries); SRC-013 main-agent context for the Plan 4 review (issue #115), Observed as reported.
+
+## Update (fifth fold-in, 2026-11-05)
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-019 | The release-smoke resume fix (issue #117) has no staged note; it rests on the main agent's context. Run IDs, the RED and GREEN outputs and the exact quote "PR 116 isn't green" were not read from primary evidence | CYCLE-012 | Moderate | SRC-014 | Open |
+| GAP-020 | Whether the merge block was a safety classifier decision or a permission setting is as reported by the main agent; not verified | CYCLE-012 | Low | SRC-014 | Open |
+| GAP-021 | CI result of the #117 fix is Prospective at fold-in time | CYCLE-012 | Unknown until the PR runs | issue #117 | Open |
+
+Sources added: SRC-014 main-agent context for issue #117 (Observed as reported); SRC-015 staged note of session 3c11e9a7 (trivial, plugin commands only; purpose Unknown).

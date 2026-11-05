@@ -279,6 +279,32 @@ dismissesTheConfirmationAfterPlay() {
   [ "$(wc -l < "$d/taps.log")" -eq 2 ] || fail "expected two taps"
 }
 
+resumesAfterAnInterruption() {
+  need release-smoke.sh
+  local d="$work/interrupted"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '<hierarchy><node index="0" text="Paused" package="io.github.eastwoodno1.supersnake" bounds="[0,0][10,10]" /><node index="1" text="Resume" package="io.github.eastwoodno1.supersnake" bounds="[474,1082][608,1135]" /></hierarchy>' > "$d/dump-1.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke after a system dialog paused the game"
+  [ "$(wc -l < "$d/taps.log")" -eq 2 ] || fail "expected two taps"
+  grep -qF 'shell input tap 541 1108' "$d/taps.log" || fail "did not tap Resume"
+}
+
+ignoresResumeFromOtherPackages() {
+  need release-smoke.sh
+  local d="$work/otherResume"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '<hierarchy><node index="0" text="Resume" package="some.other.app" bounds="[474,1082][608,1135]" /></hierarchy>' > "$d/dump-1.xml"
+  local rc=0
+  run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "Resume from another package"
+  [ "$(wc -l < "$d/taps.log")" -eq 1 ] || fail "tapped a Resume that is not the app's"
+}
+
 ignoresGotItFromOtherPackages() {
   need release-smoke.sh
   local d="$work/otherGotIt"
@@ -324,6 +350,8 @@ tests=(
   ignoresPlayAgainAndContentDesc
   dismissesTheFullScreenConfirmation
   dismissesTheConfirmationAfterPlay
+  resumesAfterAnInterruption
+  ignoresResumeFromOtherPackages
   ignoresGotItFromOtherPackages
   timeoutNamesTheLastDumpTexts
   lastTextsKeepCommasInsideATextTogether

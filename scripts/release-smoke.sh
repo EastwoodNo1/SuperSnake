@@ -37,6 +37,10 @@ got_it_bounds() {
   node_bounds '<node [^>]* text="Got it"[^>]* package="(android|com\.android\.systemui)"[^>]*>'
 }
 
+resume_bounds() {
+  node_bounds "<node [^>]* text=\"Resume\"[^>]* package=\"${package//./\\.}\"[^>]*>"
+}
+
 tap_centre() {
   local x1 y1 x2 y2
   read -r x1 y1 x2 y2 <<< "$1"
@@ -74,6 +78,11 @@ while [ "$SECONDS" -lt "$deadline" ]; do
     elif grep -qF 'Game over. Score' "$out_dir/ui-dump.xml"; then
       reached=1
       break
+    else
+      bounds="$(resume_bounds)"
+      if [ -n "$bounds" ]; then
+        tap_centre "$bounds"
+      fi
     fi
   fi
   sleep 1

@@ -24,3 +24,5 @@ Sections:
 - Gaps and uncertainty
 
 Every statement is classified Observed, Reconstructed, Unknown or Prospective. Session records are history: do not rewrite them after fold-in, add corrections to the logs instead.
+
+- 2026-11-05-plugin-reload-no-op.md: session 3c11e9a7, plugin inspection and reload only; trivial, no project work. The release-smoke resume fix (issue #117) has no staged note of its own; it is recorded in the logs from the main agent's context (SRC-014).

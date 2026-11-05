@@ -88,3 +88,14 @@ Sources added: SRC-007 Plan 2, its design doc and ADR-0008; SRC-008 Plan 3 and A
 | GAP-015 | The AGP 9.5.0 session has no staged note yet; the trigger and the owner's choice are taken from the main agent's context and git | CYCLE-009 | Rationale and alternatives thin | `5d55438`, `c3fe5e5` | Open until its note is folded |
 
 Sources added: SRC-010 staged note of session 35559d8c; SRC-011 staged note of session ea322ed1.
+
+### Added in the fourth fold-in (2026-11-04)
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-015 update | The AGP session is covered in the observed note of session c5ff6184 (SRC-012), but at summary level only | CYCLE-009 | Rationale still thin | SRC-012 | Partly closed |
+| GAP-016 | The digest of session c5ff6184 was size-capped; Tasks 6 to 9 and many subagent prompts are Reconstructed from compaction summaries; merge hashes not verified | CYCLE-010 | Moderate | SRC-012 | Open |
+| GAP-017 | The Plan 4 review report and the second re-review were not read by the documenter; findings and verdicts come from the main agent's context (re-review verdict: ready for Task 4). The reviewer's tag-object SHA was corrected to commit 8da46b53 by the main session | CYCLE-011 | Counts (4 critical, 8 important) unverified here | SRC-013 | Open |
+| GAP-018 | Task 4 of Plan 4 and the actual effect of the fixes are Prospective | CYCLE-011 | Unknown until Task 4 runs | plan | Open |
+
+Sources added: SRC-012 staged note of session c5ff6184 (Observed for human messages and two compaction summaries); SRC-013 main-agent context for the Plan 4 review (issue #115), Observed as reported.

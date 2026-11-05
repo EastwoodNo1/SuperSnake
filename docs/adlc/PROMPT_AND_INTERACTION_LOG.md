@@ -418,3 +418,28 @@ Initial (scan all transcripts at the end) -> Output (AI agreed on per-session ca
 - Decisions: DEC-026 and DEC-042; [record](sessions/2026-10-27-adlc-feature-build.md)
 
 Prompt patterns added: **Owner asks "should we hand off?"** and the agent recommends finishing the self-contained plan PR first (PROMPT-019).
+
+## PROMPT-021 - Execute Plan 3 subagent-driven (session c5ff6184)
+
+- **Lifecycle phase:** Implementation. **Related cycle:** CYCLE-010. **Evidence status:** Observed (note).
+- Verbatim prompt: "Execute docs/superpowers/plans/2026-10-28-plan-3-app.md with superpowers:subagent-driven-development, starting at the first task that is not done."
+- Effect: ten tasks, each with issue, worktree, PR, implementer, spec and quality review, at most 5 fix rounds. Later "ok, keep going" (verbatim) was read as approval to merge after green checks.
+- Record: [session](sessions/2026-10-28-plan-3-execution-and-plan-4-start.md)
+
+## PROMPT-022 - "go with your recommendation"
+
+Verbatim prompt: "go with your recommendation". Context: API 37 impasse; resolved as DEC-043. Refinement chain: Initial (run UI tests on three emulator legs) -> Output (all legs green) -> Problem (the 37 legs ran 0 tests) -> Refinement (disk-size plus a guard script failing on no XML, tests=0 or failures) -> Result (the guard exposed the real emulator crash).
+
+## PROMPT-023 - Research release best practice
+
+Verbatim prompt: "please research online and check for best practices and give me a recommendation based on findings and evidence". Drove DEC-047 and DEC-048, ADR-0011 and ADR-0012.
+
+## PROMPT-024 - Full screen and scope questions
+
+Reconstructed prompt intent - not verbatim: the owner wanted the game full screen, process death to return to the menu, a summary of Plan 4 scope, and asked which GitHub App to create with which permissions. Full screen caused a Restart regression found in review (PR #106).
+
+## PROMPT-025 - Has Plan 4 been reviewed? Fix it
+
+Reconstructed prompt intent - not verbatim: the owner asked whether Plan 4 had been reviewed; the answer was only by the owner. The owner then asked for an independent Sonnet subagent review. Verbatim follow-up: "fix all of this", with a re-review if needed so a fresh session can execute the plan. Initial (plan merged after owner review only) -> Output (review: holds with fixes, 4 critical, 8 important) -> Problem (a never-printing "all settings match", a mismatch proof that writes a weakened live setting, secrets before environments, unticked merged steps) -> Refinement (fixes, DEC-049 to DEC-051) -> Result (second Sonnet re-review of the diff: every finding fixed, verdict "ready for a fresh session to execute Task 4"; its two small notes were applied).
+
+Prompt patterns added: **Ask for an independent review before execution**; **Verify the verifier** (a guard on executed-test counts).

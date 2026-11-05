@@ -63,3 +63,12 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 - REQ-005 (minimal, current dependencies): AGP bumped to 9.5.0 (DEC-041), version recorded in the spec and Plan 3 (`c3fe5e5`). Whether `docs/versions.md` was updated in the same PR was not checked in this fold-in. Pending PR validation.
 - REQ-009: no change; contrast figures confirmed by the observed note (3.66:1 against the background, 1.92:1 against the orb).
 - Gap: no test-level link exists for the AGP bump beyond the strict `check` gate (Prospective).
+
+### Updates in the fourth fold-in (2026-11-04)
+
+- REQ-011 (release): Plan 4 Tasks 1 to 3 merged: `version.txt` and VersionCode (#110, DEC-048), release scripts and the `release-smoke` CI job (#112), `docs/release.md` and ADR-0012 (#114, DEC-047, supersedes DEC-030). Task 4 (App, signing key, settings script) is Prospective. The Plan 4 review (issue #115) fixed plan defects in the settings check (DEC-049 to DEC-051); no test yet proves the `--check` mode (P).
+- REQ-009 (accessibility): Plan 3 Task 6 added accessibility and font-scale tests (#88). Results not re-read (R from note).
+- REQ-004: setup-gradle pin staleness found by review; bump pending in a separate PR (DEC-052).
+- REQ-005: kotlinx-serialization recorded as a transitive dependency of savedstate (DEC-045).
+- REQ-008: `ui-tests (phone-31)` required; 37 legs informational under #82 (DEC-043).
+- Gap: no per-task test table for Plan 3 was read; see GAP-016.

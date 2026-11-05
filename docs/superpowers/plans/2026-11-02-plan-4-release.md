@@ -51,18 +51,20 @@ Together with the spec documents, this plan is self-contained. A new session nee
   - an open PR (`gh pr list`)
 
   Continue there, and re-run the first unticked step's verification before moving on.
+- **A task whose PR is merged** but which still has unticked steps (`gh pr list --state merged --search "<PR title> in:title"`) is resumed at its first unticked step. Never redo merged work. Task 5 Steps 11 and 12 and the Task 6 owner steps happen after a merge on purpose; the "ticked by" note on each says which PR ticks them.
 - **A task is not started** if none of those exist.
 - Run `git pull --ff-only` in the main checkout first; `origin/main` is the record.
 - **Start from the first task that is not done.** Never skip a task.
 
-### State at handoff (2026-11-02)
+### State at handoff (2026-11-04)
 
-- **Plan 3 is complete.** `main` is at `d4d7260` (`test: wait for each DataStore to close before reopening (#105)`). The issue for this plan is #107.
-- **PR #106** (`feat: play the game in full screen`, branch `feat/full-screen`) may still be open. It changes the app, not the release tooling; rebase onto whatever lands first.
+- **Tasks 1 to 3 are done:** #110, #112, #114. The plan was then reviewed independently (2026-11-04, issue #115) and corrected; **the next task is Task 4.**
+- **`release-smoke` is required in the files, not yet on GitHub.** `expected-settings.json`, `apply-repo-settings.sh`, `CONTRIBUTING.md` and `CLAUDE.md` name six required checks, but the live `main-protection` ruleset still has five (`gh api repos/EastwoodNo1/SuperSnake/rulesets/25873911`, 2026-11-04), because the owner has not run the settings script since Task 2. The owner runs it in Task 4 Step 5 at the latest; running it earlier is harmless.
+- **PR #106** (full screen) is merged. `main` was at `f73ce6d` when the review started.
 - **Dependabot PR #41** (Kotlin 2.4.20 to 2.4.21) is open. CodeQL lists "Kotlin 1.8.0 to 2.4.20" (re-read 2026-10-29), so it stays open (ADR-0006). Releases build on 2.4.20.
 - **Issue #82** (API 37 `ui-tests` legs required again) is open. `ui-tests (phone-37)` and `ui-tests (tablet-37)` stay informational.
 - **Plugin:** `v0.3.0`, pinned in `.claude/settings.json`.
-- **Repo state on 2026-10-29** (`gh api`): no environments, one ruleset (`main-protection`), immutable releases off, no `autorelease` labels, no tags, no `version.txt` or `CHANGELOG.md`, no `docs/release.md`. `app/build.gradle.kts` hardcodes `versionCode = 1` and `versionName = "1.0"`.
+- **Repo state on 2026-11-04** (`gh api`): no environments (`total_count` 0), one ruleset (`main-protection`), immutable releases off (`{"enabled":false,...}`), no `autorelease` labels, no tags, no `CHANGELOG.md`. `version.txt` holds `0.0.0` and `docs/release.md` exists (Tasks 1 and 3).
 - **ADLC capture is on.** Every PR runs the fold-in in the per-task workflow.
 - **Never commit** `local.properties`, `.idea/`, `.gradle/`, `.superpowers/`, `.claude/settings.local.json`, any keystore, any `.pem` file or any secret value.
 
@@ -139,7 +141,7 @@ The keytool command (the owner runs it, Task 4):
 mkdir -m 700 "$HOME/supersnake-release" && cd "$HOME/supersnake-release" && keytool -genkeypair -v -keystore release.p12 -storetype PKCS12 -alias supersnake -keyalg RSA -keysize 4096 -sigalg SHA384withRSA -validity 36500 -dname "CN=SuperSnake, O=EastwoodNo1"
 ```
 
-Pinned actions (all re-read on 2026-11-02 and unchanged from the 2026-10-29 research; every executor re-verifies on the day it uses them):
+Pinned actions (read on 2026-11-02; every executor re-verifies each pin on the day it uses it, and a newer release is bumped in its own `ci:` PR first, as `setup-gradle` v6.4.1 was on 2026-11-04):
 
 ```text
 actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -166,7 +168,7 @@ actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
   - Labels: the permission map lists add and remove label under both `issues: write` and `pull-requests: write`; issue threads 1072 and 1074 show pre-created labels fixing failures. The two labels are created in Task 4.
 - **Immutable releases** (GA 2025-10-28; docs "Preventing changes to your releases"): assets and tag are locked at publish; the documented flow is draft, attach assets, publish; existing releases stay mutable, so enable it before the first release. API `GET`/`PUT`/`DELETE /repos/{owner}/{repo}/immutable-releases`; today it returned `{"enabled":false,"enforced_by_owner":false}`. A published immutable release gets a release attestation (`gh release verify`).
 - **Environments** (docs "Deployments and environments"): the branch rule is matched against the run's `GITHUB_REF`; secrets in an environment are unavailable until required reviewers approve; with prevent self-review off, the owner can approve their own job; reviewers and wait timers are available on public repos of the free plan; admins can be barred from bypassing.
-- **Rulesets:** `creation`, `update`, `deletion` and `non_fast_forward` restrict everyone except bypass actors; GitHub Apps can be bypass actors (`actor_type: Integration`). The `refs/tags/v*` pattern is untested on GitHub. **Evaluate mode is conditional on Enterprise plans** in the docs source (`repo-rules-enterprise`), and this is a personal repo, so Task 4 expects the API to refuse it.
+- **Rulesets:** `creation`, `update`, `deletion` and `non_fast_forward` restrict everyone except bypass actors; GitHub Apps can be bypass actors (`actor_type: Integration`). The `refs/tags/v*` pattern is untested on GitHub. **Evaluate mode is conditional on Enterprise plans** in the docs source (`repo-rules-enterprise`), and this is a personal repo, so Task 4 sets `active` directly; the App is a bypass actor from the start.
 - **Signing:** apksigner, not AGP's undocumented `android.injected.signing.*`. `--ks-pass env:VAR` keeps passwords off the command line. A throwaway-key run on the real unsigned APK passed on 2026-10-29: `Verifies`, v3 scheme only (minSdk 31), `Number of signers: 1`, `certificate SHA-256 digest` printed in lowercase hex, `zipalign -c -P 16 4` still passed after signing, the unsigned APK gave `DOES NOT VERIFY`.
 - **Key:** Android docs: "Your key should be valid for at least 25 years", and for Play it must be valid past 2033-10-22. RSA is the conservative choice, not a documented rule.
 - **versionCode** (developer.android.com versioning): positive integer, strictly increasing, Play maximum 2,100,000,000. `major*1_000_000 + minor*1_000 + patch` has maximum 2,099,999,999 at 2099.999.999.
@@ -193,11 +195,11 @@ Agents never see secret values and never run the settings script (the classifier
 
 | # | Step | Task |
 |---|------|------|
-| O1 | Answer the open owner questions: `release-smoke` required (Task 2), pr-rules exemption (Task 5) | 2, 5 |
+| O1 | Answer the open owner questions: `release-smoke` required (Task 2), pr-rules exemption (Task 5). Answered 2026-11-02 | 2, 5 |
 | O2 | Create the GitHub App "SuperSnake Release": contents write, pull requests write, metadata read, no webhook, installed on this repo only. Generate a private key. Give the session the App slug | 4 |
 | O3 | Run `keytool`, make two encrypted offline backups, test a restore, compute the certificate SHA-256 | 4 |
-| O4 | Create the environments (the script does), then add secrets with `gh secret set --env` and variables with `gh variable set` | 4 |
-| O5 | Run `scripts/github/apply-repo-settings.sh` | 2 (if yes), 4 |
+| O4 | Run `scripts/github/apply-repo-settings.sh [--check]`: `--check` reads and compares only; without it the script writes first. The write run creates the environments | 4 |
+| O5 | Add secrets with `gh secret set --env` and variables with `gh variable set`, after the environments exist | 4 |
 | O6 | Run the tag-creation negative test and the proof workflow | 5, 6 |
 | O7 | Merge the release PR and approve the `sign-publish` deployment | 6 |
 
@@ -306,7 +308,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 **Files:**
 - Create: `version.txt` (`0.0.0` and a newline), `build-logic/checks/src/main/kotlin/sdlc/checks/VersionCode.kt`, `build-logic/checks/src/test/kotlin/sdlc/checks/VersionCodeTest.kt`, `docs/adr/0011-version-code.md`
-- Modify: `app/build.gradle.kts`, `CONTRIBUTING.md` (one line under "Rules": the formula and the limits)
+- Modify: `build.gradle.kts` (root: the `sdlc:checks` classpath and `version.txt`, see ADR-0011), `app/build.gradle.kts`, `CONTRIBUTING.md` (one line under "Rules": the formula and the limits)
 
 **Interfaces:**
 - Produces: `object VersionCode { fun of(semver: String): Int }` in package `sdlc.checks`. It trims surrounding whitespace, accepts only `MAJOR.MINOR.PATCH` of digits without leading zeros, and throws `IllegalArgumentException` with a message naming the version and the offending field (`major`, `minor`, `patch` or `format`). It returns `major*1_000_000 + minor*1_000 + patch`, except that `0.0.0` returns `1` so the unreleased placeholder keeps today's `versionCode` and a development build still installs over earlier ones.
@@ -344,7 +346,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
   Restore `version.txt` to `0.0.0`. All three outputs go in Evidence.
 - [x] **Step 7: Write ADR-0011** (version scheme, formula, limits, the `0.0.0` rule, the wiring choice, alternatives rejected: `major*10000+...`, commit count, date-based, from `plan-4-research.md` section 5) and the `CONTRIBUTING.md` line.
-- [ ] **Step 8: Finish per the per-task workflow**
+- [x] **Step 8: Finish per the per-task workflow** (PR #110)
 
 ---
 
@@ -360,7 +362,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - Produces:
   - `scripts/sign-apk.sh <in.apk> <out.apk>`: reads `KS_FILE`, `KS_PASS`, `KEY_ALIAS`, `KEY_PASS` from the environment, runs `apksigner sign` with `--ks-pass env:KS_PASS` and `--key-pass env:KEY_PASS`, then `apksigner verify`. It prints no secret and exits non-zero on any failure.
   - `scripts/sign-throwaway.sh <in.apk> <out.apk>`: makes a 2048-bit PKCS12 key with a random password in a temporary directory, calls `sign-apk.sh`, and removes the key on exit.
-  - `scripts/release-smoke.sh <apk>`: environment `PACKAGE`, `SMOKE_TIMEOUT_SECONDS` (120), `OUT_DIR` (`build/release-smoke`). Exit 0 only when it installed the APK, tapped the node whose text is `Play` found in a `uiautomator dump`, saw a dump containing `Game over. Score` before the timeout, and `adb logcat -d` has no `FATAL EXCEPTION`. It always leaves `ui-dump.xml`, `logcat.txt` and `game-over.png` (a screenshot, also on failure) in `OUT_DIR`. A run that found no Play node counts as zero interactions and fails.
+  - `scripts/release-smoke.sh <apk>`: environment `PACKAGE`, `SMOKE_TIMEOUT_SECONDS` (120), `OUT_DIR` (`build/release-smoke`). It taps the system's full-screen "Got it" confirmation (package `android` or `com.android.systemui` only) whenever it appears, and names the last dump's texts on a timeout. Exit 0 only when it installed the APK, tapped the node whose text is `Play` found in a `uiautomator dump`, saw a dump containing `Game over. Score` before the timeout, and `adb logcat -d` has no `FATAL EXCEPTION`. It always leaves `ui-dump.xml`, `logcat.txt` and `game-over.png` (a screenshot, also on failure) in `OUT_DIR`. A run that found no Play node counts as zero interactions and fails.
   - `scripts/test-release-scripts.sh <unsigned.apk>`: runs every test, prints `PASS <name>` per test and `<n> passed`, exits 1 on any failure. Later tasks add tests to it.
   - CI check name `release-smoke`.
 
@@ -379,7 +381,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 - [x] **Step 2: Run it and confirm it fails.** Run: `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the scripts under test do not exist; no `PASS` line, exit 1.
 - [x] **Step 3: Implement the three scripts.** Poll the dump every second; compute the tap point from the node's `bounds="[x1,y1][x2,y2]"`; grep `adb logcat -d` for `FATAL EXCEPTION`. Run `shellcheck` 0.9.0 on all four scripts. Expected: no output.
-- [x] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`.
+- [x] **Step 4: Run the script tests.** Expected: eight `PASS` lines and `8 passed`. (The full-screen work in #106 and #112 later raised it to 15 tests.)
 - [x] **Step 5: Add the `release-smoke` job to `ci.yml`.** Job outline (`name: release-smoke`, `runs-on: ubuntu-24.04`, `timeout-minutes: 45`, `permissions: contents: read`):
   1. checkout, mise, locked tools, SDK packages, KVM, `setup-gradle`, exactly as `ui-tests` does
   2. `Build release APK`: `mise exec -- ./gradlew :app:assembleRelease`
@@ -389,11 +391,11 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
   Add to `checks`, after the 16 KB step, a step `Release script tests` running `scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Run `:checkWorkflows` and zizmor. Expected: `BUILD SUCCESSFUL`, no findings.
 - [x] **Step 6: Prove the smoke fails on a crashing build.** On a local scratch branch (never pushed), add `error("smoke proof")` at the top of `MainActivity.onCreate`, build the release APK, sign it with `sign-throwaway.sh` and run the script on `phone37`. Expected: exit non-zero, `logcat.txt` shows `FATAL EXCEPTION` with `smoke proof`. Then run it on the unmodified build. Expected: exit 0 and a `game-over.png` showing the game-over overlay. Both outputs go in Evidence; discard the scratch branch.
-- [ ] **Step 7: Push and watch `release-smoke` pass on the CI emulator.** Run: `gh pr checks <n> --watch`. Expected: `release-smoke` passes, and its artifact holds `game-over.png`. If it fails only because the API 31 image is too slow under SwiftShader, raise `SMOKE_TIMEOUT_SECONDS` in the job; if it still fails, stop and ask the owner.
-- [ ] **Step 8: [owner, answered 2026-11-02: yes] Ask whether `release-smoke` becomes the 6th required check.** Recommendation: **yes**: it catches R8, libGDX-native and ProGuard breaks that no other check builds, uses no secret and runs for every PR. The cost is one more required job (about 10 minutes) and that PRs open before this merges, including #106 and Dependabot #41, must rebase once. Record the answer in the PR.
-- [ ] **Step 9: If yes, make it required.** Add `{"context": "release-smoke", "integration_id": 15368}` to `required_status_checks` in both `expected-settings.json` and the `ruleset_body` of `apply-repo-settings.sh`. **[owner]** run `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake`. Expected: `all settings match`. Update the `CONTRIBUTING.md` rules table (six required checks) and this plan's required-checks line under "Process". If no, record "informational" in the table instead.
+- [x] **Step 7: Push and watch `release-smoke` pass on the CI emulator.** (Done in #112: `gh pr checks 112` shows `release-smoke pass`.) Run: `gh pr checks <n> --watch`. Expected: `release-smoke` passes, and its artifact holds `game-over.png`. If it fails only because the API 31 image is too slow under SwiftShader, raise `SMOKE_TIMEOUT_SECONDS` in the job; if it still fails, stop and ask the owner.
+- [x] **Step 8: [owner, answered 2026-11-02: yes] Ask whether `release-smoke` becomes the 6th required check.** Recommendation: **yes**: it catches R8, libGDX-native and ProGuard breaks that no other check builds, uses no secret and runs for every PR. The cost is one more required job (about 10 minutes) and that PRs open before this merges, including #106 and Dependabot #41, must rebase once. Record the answer in the PR.
+- [x] **Step 9: If yes, make it required.** Add `{"context": "release-smoke", "integration_id": 15368}` to `required_status_checks` in both `expected-settings.json` (sorted by `context`, because the script compares against a sorted read-back) and the `ruleset_body` of `apply-repo-settings.sh`. Update the `CONTRIBUTING.md` rules table (six required checks) and this plan's required-checks line under "Process". (Files done in #112; the sort order fixed for issue #115. The owner's script run moved to Task 4 Step 5.)
 - [x] **Step 10: Record the sources in `docs/versions.md`** (no new action here; note that the smoke replaces Plan 3 Task 9's manual run).
-- [ ] **Step 11: Finish per the per-task workflow**
+- [x] **Step 11: Finish per the per-task workflow** (PR #112)
 
 ---
 
@@ -435,7 +437,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - Reversed decisions propagate: `grep -rn "same environment\|v\* tags\|attest-build-provenance\|17.11.2" docs README.md CONTRIBUTING.md CLAUDE.md` must list only lines that are correct or marked as superseded.
 - [x] **Step 4: Update `docs/versions.md`** with rows for release-please-action (with the §6 evidence and the honest note), create-github-app-token, attest, download-artifact, each with SHA, source URL and 2026-11-02 verification, and fix the engine statement.
 - [x] **Step 5: Check the docs.** Run: `~/.local/bin/mise exec -- scripts/gradle-strict.sh :checkNoComments` and the grep from Step 3. Expected: `BUILD SUCCESSFUL`; the grep shows no stale claim.
-- [ ] **Step 6: Finish per the per-task workflow**
+- [x] **Step 6: Finish per the per-task workflow** (PR #114)
 
 ---
 
@@ -448,28 +450,32 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 **Interfaces:**
 - Produces, in `expected-settings.json` (the script builds its API bodies from these values, so there is one source) and read back by the script:
-  - `environments`: for `release-please` and `release`: `deployment_branch_policy` (`custom_branch_policies: true`, `protected_branches: false`), `branch_policies` (`["main"]`), `reviewers` (empty, and the owner's user id for `release`), `prevent_self_review` (false), `can_admins_bypass` (`true` for `release-please`, `false` for `release`), `secrets` (sorted names), as in "Exact values".
+  - `environments`: for `release-please` and `release`: `deployment_branch_policy` (`custom_branch_policies: true`, `protected_branches: false`), `branch_policies` (`["main"]`), `reviewers` (empty for `release-please`; for `release` one entry of type `User` with the owner's id from `gh api users/EastwoodNo1 --jq .id`, `286747515` on 2026-11-04), `prevent_self_review` (false), `can_admins_bypass` (`true` for `release-please`, `false` for `release`), `secrets` (sorted names), as in "Exact values".
   - `variables`: `["RELEASE_APP_CLIENT_ID", "RELEASE_CERT_SHA256"]`.
-  - `release_tags`: ruleset `release-tags` with `target`, `enforcement`, `include`, `rule_types`, and `bypass_actors` (the App's numeric id as `actor_id`, `actor_type: Integration`, `bypass_mode: always`).
+  - `release_tags`: ruleset `release-tags` with `target` (`tag`), `enforcement` (`active`; evaluate mode needs an Enterprise plan, see "Research facts"), `include`, `rule_types`, and `bypass_actors` (the App's numeric id as `actor_id`, `actor_type: Integration`, `bypass_mode: always`).
   - `release_labels`: `["autorelease: pending", "autorelease: tagged"]`.
-  - `immutable_releases`: `{"enabled": true}`.
-- The script keeps its contract: idempotent writes, then a comparison, ending with `all settings match` or `MISMATCH: <key>` and exit 1. Label names are URL-encoded with `jq -rn --arg n "$name" '$n|@uri'`. Branch policies are listed before they are created.
+  - `immutable_releases`: `{"enabled": true}` (the read-back projects only `enabled`; the API also returns `enforced_by_owner`).
+  - Every array the script reads back sorted is sorted the same way in the expected file, because `jq -S` sorts object keys but not arrays.
+- `apply-repo-settings.sh [--check] <owner/repo>`:
+  - Without `--check`, the contract is unchanged: idempotent writes, then the read-back comparison, ending with `all settings match` or `MISMATCH: <key>` and exit 1.
+  - With `--check`, it makes no write at all and runs only the read-back comparison. A read that answers 404 (an environment, ruleset or label that does not exist yet) yields `null` for that key, so the comparison prints `MISMATCH` instead of aborting.
+  - Label names are URL-encoded with `jq -rn --arg n "$name" '$n|@uri'`. Branch policies are listed before they are created.
+- Agents never run the script in either mode; the **[owner]** runs every invocation below and pastes the output.
 
 - [ ] **Step 1: [owner] Create the GitHub App** (O2): "SuperSnake Release", contents write, pull requests write, metadata read, no webhook, installed on `EastwoodNo1/SuperSnake` only; generate the private key and keep the `.pem` outside every checkout. Give the session the App slug. The session reads the public ids with `gh api apps/<slug> --jq '{id, client_id}'` and puts `id` into `expected-settings.json`; it never sees the `.pem`.
 - [ ] **Step 2: [owner] Create the signing key** (O3) with the keytool command from "Exact values", on a trusted machine, never in an agent session. Make two encrypted backups in separate places and restore one into a scratch directory to prove it (`keytool -list -keystore <restored>` shows alias `supersnake`). Compute the fingerprint as `docs/release.md` says. Tell the session only that this is done.
-- [ ] **Step 3: Extend `expected-settings.json` first, then `apply-repo-settings.sh`.** Run the script's comparison before the writes exist. Expected: `MISMATCH` for `environments`, `release_tags`, `release_labels`, `immutable_releases` (RED).
-- [ ] **Step 4: Implement the writes.**
+- [ ] **Step 3: Write the RED.** Extend `expected-settings.json` with the new keys and add `--check` and the new read-backs to `apply-repo-settings.sh`, with no new writes yet. **[owner]** runs `scripts/github/apply-repo-settings.sh --check EastwoodNo1/SuperSnake`. Expected: exit 1 and `MISMATCH` for `environments`, `variables`, `release_tags`, `release_labels` and `immutable_releases`, plus `ruleset` while the live ruleset lacks `release-smoke` (RED). Nothing on GitHub changes.
+- [ ] **Step 4: Implement the writes** (skipped under `--check`).
   - Environments: `PUT repos/$repo/environments/<name>` with the policy, reviewers, `prevent_self_review` and `can_admins_bypass`; then `POST .../deployment-branch-policies` with `{"name":"main","type":"branch"}` for each missing policy.
-  - Ruleset `release-tags`: create or update by name, body from `expected-settings.json`.
+  - Ruleset `release-tags`: create or update by name, body from `expected-settings.json`, `enforcement` `active`.
   - Labels: create or update each name with a colour and description.
   - `PUT repos/$repo/immutable-releases`.
-  - Read each back with `gh api` and add the keys to the `jq` object. Secrets and variables are read-only checks: `repos/$repo/environments/<name>/secrets`, `repos/$repo/actions/variables`, names only.
-  - Set `release_tags.enforcement` to `evaluate` first. If the API answers 422 (Evaluate mode needs an Enterprise plan; expected on this personal repo), set it to `active` and say so in the PR. The App is already a bypass actor, so `active` is safe for its own tag.
-- [ ] **Step 5: [owner] Add the secrets and variables** (O4) with the commands in `docs/release.md`: the four `release` secrets, `RELEASE_APP_PRIVATE_KEY` in `release-please`, the two variables. Check: `gh api repos/EastwoodNo1/SuperSnake/environments/release/secrets --jq '[.secrets[].name]|sort'` lists exactly the four names.
-- [ ] **Step 6: [owner] Run the script** (O5): `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake`. Expected: `all settings match`.
-- [ ] **Step 7: Prove the check fails when a setting is wrong.** Temporarily set `can_admins_bypass` to `true` for `release` in `expected-settings.json` and run the script's read-back (the **[owner]** runs it). Expected: `MISMATCH: environments` and exit 1. Revert and run again. Expected: `all settings match`. Both outputs go in Evidence.
+  - Secrets and variables are never written; they are read-back checks only: `repos/$repo/environments/<name>/secrets`, `repos/$repo/actions/variables`, names only.
+- [ ] **Step 5: [owner] Apply the settings** (O4): `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake`. This creates the environments and makes `release-smoke` required. Expected: exit 1 with `MISMATCH` for `environments` (the secret lists are still empty) and `variables` only; every other key matches.
+- [ ] **Step 6: [owner] Add the secrets and variables** (O5) with the commands in `docs/release.md`: the four `release` secrets, `RELEASE_APP_PRIVATE_KEY` in `release-please`, the two variables. Then run `scripts/github/apply-repo-settings.sh --check EastwoodNo1/SuperSnake`. Expected: `all settings match`.
+- [ ] **Step 7: Prove the check fails when a setting is wrong.** Temporarily set `can_admins_bypass` to `true` for `release` in `expected-settings.json`. **[owner]** runs `--check` (never the write mode for this step, which would weaken the live setting). Expected: `MISMATCH: environments` and exit 1. Revert the file and run `--check` again. Expected: `all settings match`. Both outputs go in Evidence.
 - [ ] **Step 8: [owner] Prove the ruleset blocks a human.** With the owner's own `gh` login, run `gh api -X POST repos/EastwoodNo1/SuperSnake/git/refs -f ref=refs/tags/v0.0.0-denied -f sha=$(git rev-parse HEAD)`. Expected: HTTP 422 or 403 naming the ruleset. If a tag was created instead, the pattern does not match: delete it with `gh api -X DELETE repos/EastwoodNo1/SuperSnake/git/refs/tags/v0.0.0-denied`, fix `include`, and repeat.
-- [ ] **Step 9: Finish per the per-task workflow.** The Evidence section holds the RED output, `all settings match`, the mismatch proof and the tag refusal.
+- [ ] **Step 9: Finish per the per-task workflow.** The Evidence section holds the RED output, the Step 5 and Step 6 outputs, the mismatch proof and the tag refusal.
 
 ---
 
@@ -516,17 +522,19 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
     | `publishSkipsWhenAlreadyPublished` | with `isDraft` false, exit 0, output `already published`, no `upload` and no `edit` in the log |
 
 - [ ] **Step 3: Run both and confirm they fail.** Run: `~/.local/bin/mise exec -- ./gradlew :checks:test --tests 'sdlc.checks.PullRequestBodyTest'` and `bash scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk`. Expected: the first fails on the new assertions; the second prints no `PASS` for the ten new tests.
-- [ ] **Step 4: Implement the three scripts and the `PullRequestBody` exemption.** Run `shellcheck` 0.9.0 on the scripts, then `:checks:check :checks:koverVerify` (100% LINE and BRANCH) and the script tests. Expected: `BUILD SUCCESSFUL`, `18 passed`.
+- [ ] **Step 4: Implement the three scripts and the `PullRequestBody` exemption.** Run `shellcheck` 0.9.0 on the scripts, then `:checks:check :checks:koverVerify` (100% LINE and BRANCH) and the script tests. Expected: `BUILD SUCCESSFUL`, `25 passed` (the 15 existing tests and the ten new ones).
 - [ ] **Step 5: Write `release-please-config.json` and `.release-please-manifest.json`** exactly as in "Exact values".
-- [ ] **Step 6: Write `release.yml`.** Top-level `name: Release`, `on: push: branches: [main]`, `permissions: {}`, `concurrency: {group: release, cancel-in-progress: false}`. Jobs (every job has `runs-on: ubuntu-24.04` and a `timeout-minutes`):
+- [ ] **Step 6: Write `release.yml`.** First re-verify every pin in "Exact values" (`gh api repos/<repo>/releases/latest` and `git/ref/tags/<tag>`); if one is outdated, stop and bump it in its own `ci:` PR before continuing. Top-level `name: Release`, `on: push: branches: [main]`, `permissions: {}`, `concurrency: {group: release, cancel-in-progress: false}`. Jobs (every job has `runs-on: ubuntu-24.04` and a `timeout-minutes`):
 
   | Job | needs, if | environment | permissions | Does |
   |-----|-----------|-------------|-------------|------|
   | `release-please` | none | `release-please` | `{}` | mint the App token, run release-please; job outputs `release_created`, `tag_name`, `version`, `sha` from the step outputs |
   | `build` | `release-please`; `release_created == 'true'` | none | `contents: read` | checkout `sha` with `fetch-depth: 0`; `check-release-ref.sh "$SHA" "$TAG" "$VERSION"`; the same tools steps as `checks`; strict gate with `:checkNoComments :checkWorkflows :checkReleaseManifest :checkBackupRules :app:assembleRelease`; `:checks:check :checks:koverVerify`; the 16 KB `zipalign` check; upload `app-release-unsigned.apk` as `unsigned-apk` |
-  | `smoke` | `build` | none | `contents: read` | download `unsigned-apk`; `sign-throwaway.sh`; the API 31 emulator step; `release-smoke.sh`; upload `build/release-smoke/` as `release-smoke` |
+  | `smoke` | `build` | none | `contents: read` | the setup steps below; download `unsigned-apk`; `sign-throwaway.sh`; the API 31 emulator step; `release-smoke.sh`; upload `build/release-smoke/` as `release-smoke` |
   | `sign-publish` | `release-please`, `build`, `smoke` | `release` | `contents: write`, `attestations: write`, `id-token: write`, `artifact-metadata: write` | see below |
-  | `verify-published` | `release-please`, `sign-publish` | none | `contents: read` | `gh release download` the two assets; `sha256sum -c`; `verify-signature.sh` with the `RELEASE_CERT_SHA256` variable; `gh attestation verify --repo`; the API 31 emulator step; `release-smoke.sh` on the downloaded APK; upload evidence as `release-smoke-published` |
+  | `verify-published` | `release-please`, `sign-publish` | none | `contents: read` | the setup steps below; `gh release download` the two assets; `sha256sum -c`; `verify-signature.sh` with the `RELEASE_CERT_SHA256` variable; `gh attestation verify --repo`; `gh release verify` (up to three tries, 20 seconds apart, because the release attestation can lag the publish); the API 31 emulator step; `release-smoke.sh` on the downloaded APK; upload evidence as `release-smoke-published` |
+
+  **Setup steps** for `smoke`, `sign-publish` and `verify-published`: copy them verbatim from the `release-smoke` job in `ci.yml`. They are checkout of the release `sha` with `persist-credentials: false`, `Install mise`, `Install locked tools` and `Install Android SDK packages`, plus `Enable KVM` for the two emulator jobs. None of the three runs Gradle, so none needs `setup-gradle`. Every step that calls `gh` gets `GH_TOKEN: ${{ github.token }}` in its own `env:`. Tools come from `$ANDROID_HOME/build-tools/37.0.0` (`apksigner`, `zipalign`) and the mise JDK.
 
   The `uses:` lines (copy the pins from "Exact values"; the outline of the first job):
 
@@ -550,13 +558,13 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
           manifest-file: .release-please-manifest.json
   ```
 
-  `sign-publish` steps, in order, with the secrets only in the `env:` of the step that needs them: checkout `sha`; `actions/download-artifact` `unsigned-apk`; SDK packages (`build-tools;37.0.0`); decode `RELEASE_KEYSTORE_BASE64` into `$RUNNER_TEMP/release.p12` and run `sign-apk.sh` to `$RUNNER_TEMP/dist/SuperSnake-<version>.apk` with `KS_PASS`, `KEY_ALIAS`, `KEY_PASS`; `verify-signature.sh` against `vars.RELEASE_CERT_SHA256`; `zipalign -c -P 16 -v 4` on the signed APK; `sha256sum` into `SuperSnake-<version>.apk.sha256` from inside `$RUNNER_TEMP/dist` (so `sha256sum -c` works for downloaders); `actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6` with `subject-path` the APK; `publish-release.sh` with `GH_TOKEN: ${{ github.token }}`; and last `if: always()` `rm -f "$RUNNER_TEMP/release.p12"`. If `GITHUB_TOKEN` cannot upload to or publish the draft (HTTP 403), stop and ask the owner; the App key is not available in this environment by design.
+  `sign-publish` steps, in order, with the secrets only in the `env:` of the step that needs them: the setup steps (no KVM); `actions/download-artifact` `unsigned-apk`; decode `RELEASE_KEYSTORE_BASE64` into `$RUNNER_TEMP/release.p12` and run `sign-apk.sh` to `$RUNNER_TEMP/dist/SuperSnake-<version>.apk` with `KS_PASS`, `KEY_ALIAS`, `KEY_PASS`; `verify-signature.sh` against `vars.RELEASE_CERT_SHA256`; `"$ANDROID_HOME/build-tools/37.0.0/zipalign" -c -P 16 -v 4` on the signed APK in `$RUNNER_TEMP/dist`; `sha256sum` into `SuperSnake-<version>.apk.sha256` from inside `$RUNNER_TEMP/dist` (so `sha256sum -c` works for downloaders); `actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6` with `subject-path` the APK; `publish-release.sh` with `GH_TOKEN: ${{ github.token }}`; and last `if: always()` `rm -f "$RUNNER_TEMP/release.p12"`. If `GITHUB_TOKEN` cannot upload to or publish the draft (HTTP 403), stop and ask the owner; the App key is not available in this environment by design.
 - [ ] **Step 7: Write `release-proof.yml`.** A temporary workflow: `on: workflow_dispatch`, `permissions: {}`, one job in environment `release-please` that mints the App token (same inputs) and, with `GH_TOKEN` set to it, creates `refs/tags/v0.0.0-proof` at `GITHUB_SHA`, reads it back, deletes it, and fails if any of the three calls fails. It proves what the swallowed 422 would hide: the App can create and delete a `v*` tag under `release-tags`, and the token is scoped as intended. Task 6 removes it.
 - [ ] **Step 8: Run the local checks.** Run: `~/.local/bin/mise exec -- scripts/gradle-strict.sh :checkWorkflows :checkNoComments` and `~/.local/bin/mise exec -- zizmor .github/`. Expected: `BUILD SUCCESSFUL`, no findings. If `WorkflowSafety` needs a new rule for `environment:`, add it test-first; otherwise leave it.
-- [ ] **Step 9: Update the docs.** `CONTRIBUTING.md`: the two exemption rows and the release-tag row; spec §7.2 with the owner's decision; `docs/versions.md` if any pin changed.
+- [ ] **Step 9: Update the docs.** `CONTRIBUTING.md`: the rules-table row "Every PR links an issue" and the Evidence row gain the `autorelease: pending` exemption, and the release-tags paragraph under the table (today's line 59) names `release.yml`; spec §7.2 rows "Every PR links an issue" and "Evidence section present and non-empty" record the owner's decision; `docs/versions.md` if any pin changed.
 - [ ] **Step 10: Finish per the per-task workflow** (the PR's required checks include the new `PullRequestBodyTest` cases through `:checks:check`).
-- [ ] **Step 11: After merge, verify the first `release-please` run.** Run: `gh run list --workflow Release --limit 1` and `gh pr list --search 'release 1.0.0'`. Expected: the run succeeded; the PR `chore(main): release 1.0.0` exists, its title is 26 characters, `version.txt` reads `1.0.0` in its diff. Then run `gh pr checks <n>` on it. Expected: the required checks run (the App token is not `GITHUB_TOKEN`, so they do) and `pr-rules` passes through the exemption; `gh pr view <n> --json labels` shows `autorelease: pending`. If the log shows a label error, stop and ask the owner about Issues: write. If the body is cut off by GitHub's length limit because the first changelog covers the whole history, say so and ask before adding `bootstrap-sha`.
-- [ ] **Step 12: [owner] Run the proof workflow** (O6): `gh workflow run release-proof.yml --ref main`, then `gh run watch`. Expected: success, and `gh api repos/EastwoodNo1/SuperSnake/git/ref/tags/v0.0.0-proof` answers 404 afterwards. A failure means the ruleset or the App is wrong: stop, fix Task 4's settings, and run it again before Task 6. Paste the run link in the PR.
+- [ ] **Step 11: After merge, verify the first `release-please` run** (ticked by Task 6 Step 1's PR, with this output in its Evidence). Run: `gh run list --workflow Release --limit 1` and `gh pr list --search 'release 1.0.0'`. Expected: the run succeeded; the PR `chore(main): release 1.0.0` exists, its title is 26 characters, `version.txt` reads `1.0.0` in its diff. Then run `gh pr checks <n>` on it. Expected: the required checks run (the App token is not `GITHUB_TOKEN`, so they do) and `pr-rules` passes through the exemption; `gh pr view <n> --json labels` shows `autorelease: pending`. If the log shows a label error, stop and ask the owner about Issues: write. If the body is cut off by GitHub's length limit because the first changelog covers the whole history, say so and ask before adding `bootstrap-sha`.
+- [ ] **Step 12: [owner] Run the proof workflow** (O6; ticked by Task 6 Step 1's PR): `gh workflow run release-proof.yml --ref main`, then `gh run watch`. Expected: success, and `gh api repos/EastwoodNo1/SuperSnake/git/ref/tags/v0.0.0-proof` answers 404 afterwards. A failure means the ruleset or the App is wrong: stop, fix Task 4's settings, and run it again before Task 6. Paste the run link in the PR.
 
 ---
 
@@ -566,23 +574,24 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 **Files:**
 - Delete: `.github/workflows/release-proof.yml`
-- Modify: `release-please-config.json` (remove `release-as`), `docs/release.md` (the verified commands), this plan (tick Tasks 5 and 6), `README.md` (link the latest release)
+- Modify: `release-please-config.json` (remove `release-as`), `docs/release.md` (the verified commands), this plan, `README.md` (link the latest release)
+- Ticking: the Step 1 PR ticks Task 5 Steps 11 and 12 and Task 6 Steps 1 and 2. The Step 8 PR also does Step 9 and ticks Steps 3 to 11 (Step 10 as "not needed" when nothing failed).
 
 **Interfaces:**
 - Consumes: everything above. Produces the published release `v1.0.0` with `SuperSnake-1.0.0.apk` and `SuperSnake-1.0.0.apk.sha256`.
 
 - [ ] **Step 1: Remove the proof workflow.** PR `ci: remove the tag proof workflow`, merged through the normal gates. Expected: `gh workflow list` no longer lists `release-proof`.
-- [ ] **Step 2: Check the starting state.** Run: `gh api repos/EastwoodNo1/SuperSnake/immutable-releases`, `gh api repos/EastwoodNo1/SuperSnake/rulesets --jq '.[] | [.name,.enforcement] | @tsv'` and `gh release list`. Expected: `{"enabled":true,...}`, `release-tags` is `active` (`evaluate` was refused, or was switched in an owner-run settings change), `main-protection` is `active`, and no release exists.
+- [ ] **Step 2: Check the starting state.** Run: `gh api repos/EastwoodNo1/SuperSnake/immutable-releases`, `gh api repos/EastwoodNo1/SuperSnake/rulesets --jq '.[] | [.name,.enforcement] | @tsv'` and `gh release list`. Expected: `{"enabled":true,...}`, `release-tags` and `main-protection` are both `active`, and no release exists.
 - [ ] **Step 3: [owner] Merge the release PR `chore(main): release 1.0.0`** (O7) once its required checks are green and its diff shows `version.txt` at `1.0.0` and a changelog.
 - [ ] **Step 4: Watch the run.** Run: `gh run watch` on the `Release` run. Expected, in order: `release-please` creates the tag and a **draft** (`gh release list` shows `Draft v1.0.0`; `git ls-remote --tags origin v1.0.0` prints the merge commit), `build` and `smoke` pass, `sign-publish` waits for approval.
 - [ ] **Step 5: [owner] Approve the `sign-publish` deployment** (O7) in the run page, after reading the job's commands.
 - [ ] **Step 6: Verify the published release.** In a fresh directory outside any checkout:
 
   ```sh
-  gh release download v1.0.0 --repo EastwoodNo1/SuperSnake --dir "$(mktemp -d)"
+  d="$(mktemp -d)" && cd "$d" && gh release download v1.0.0 --repo EastwoodNo1/SuperSnake
   ```
 
-  In that directory run each command and paste its real output:
+  In `$d` run each command and paste its real output:
   - `sha256sum -c SuperSnake-1.0.0.apk.sha256`. Expected: `SuperSnake-1.0.0.apk: OK`.
   - `"$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs SuperSnake-1.0.0.apk`. Expected: `Verifies`, one signer, and a digest equal to the `RELEASE_CERT_SHA256` variable.
   - `gh attestation verify SuperSnake-1.0.0.apk --repo EastwoodNo1/SuperSnake`. Expected: verification succeeded.
@@ -592,7 +601,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 - [ ] **Step 7: Install on `phone37` and play.** `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
 - [ ] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
 - [ ] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
-- [ ] **Step 10: If a step failed once the tag existed.** Do not re-tag, delete the tag or re-run `release-please`. Re-run the failed jobs in place if the draft is unpublished. If the release was published or the fix needs code, ship `1.0.1` through a normal release PR and say so in `docs/release.md`. Ask the owner before deleting a draft.
+- [ ] **Step 10: If a step failed once the tag existed.** Follow `docs/release.md` "Recovery". Do not re-tag, delete the tag or re-run the whole run; only `gh run rerun <id> --failed`, and only while the draft is unpublished and the `release-please` job itself succeeded. Otherwise `1.0.0` is burned: in the PR that fixes the cause, set `release-as` to `1.0.1` (never leave it at `1.0.0`, or release-please proposes the burned version again), ship `1.0.1` through a normal release PR, and replace `1.0.0` with `1.0.1` in Steps 6 to 9. Say so in `docs/release.md`. Ask the owner before deleting a draft.
 - [ ] **Step 11: Finish per the per-task workflow** for each PR in this task.
 
 ---

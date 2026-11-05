@@ -141,11 +141,11 @@ The keytool command (the owner runs it, Task 4):
 mkdir -m 700 "$HOME/supersnake-release" && cd "$HOME/supersnake-release" && keytool -genkeypair -v -keystore release.p12 -storetype PKCS12 -alias supersnake -keyalg RSA -keysize 4096 -sigalg SHA384withRSA -validity 36500 -dname "CN=SuperSnake, O=EastwoodNo1"
 ```
 
-Pinned actions (read on 2026-11-02; every executor re-verifies each pin on the day it uses it, and a newer release is bumped in its own `ci:` PR first, as `setup-gradle` v6.4.1 was on 2026-11-04):
+Pinned actions (read on 2026-11-02; every executor re-verifies each pin on the day it uses it, and a newer release is bumped in its own `ci:` PR first, as `setup-gradle` v6.4.1 was on 2026-11-05 in #118):
 
 ```text
 actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6
+gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
 actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
 actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
 ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d

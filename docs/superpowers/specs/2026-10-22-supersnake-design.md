@@ -466,7 +466,7 @@ The repo name and GitHub owner, and the plugin's internal layout following curre
 |------|---------|----------|--------|
 | actions/checkout | v7.0.1 | 2026-07-20 | releases/latest |
 | actions/setup-java | v6.1.0 | 2026-10-14 | Not used: the JDK comes from mise (R9). Listed only as a record |
-| gradle/actions (setup-gradle) | v6.4.0 | 2026-09-28 | releases/latest. Use `cache-provider: basic` (MIT-licensed), not the default proprietary Enhanced Caching. Wrapper validation is built in, so no separate step is needed (github.com/gradle/actions/blob/main/docs/setup-gradle.md) |
+| gradle/actions (setup-gradle) | v6.4.1 | 2026-10-28 | releases/latest. Use `cache-provider: basic` (MIT-licensed), not the default proprietary Enhanced Caching. Wrapper validation is built in, so no separate step is needed (github.com/gradle/actions/blob/main/docs/setup-gradle.md) |
 | github/codeql-action | v4.39.1 | 2026-10-21 | releases (not the `codeql-bundle` tag) |
 | actions/attest | v4.2.2, commit `1e69f48acb82d1966a394da916b4c1698aa569d6` | 2026-08-04 | releases/latest and git/ref/tags. Replaces `actions/attest-build-provenance` v4.2.2 (2026-08-06), now a wrapper whose README says new implementations should use `actions/attest` (superseded 2026-11-02) |
 | actions/download-artifact | v8.0.2 | 2026-10-07 | releases/latest. Used from Plan 4 |

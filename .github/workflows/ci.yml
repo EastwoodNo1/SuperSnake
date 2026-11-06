@@ -81,6 +81,14 @@ jobs:
             api-level: "37.0"
             target: google_atd
             profile: pixel_tablet
+          - name: phone-37-apis
+            api-level: "37.0"
+            target: google_apis
+            profile: pixel_7
+          - name: tablet-37-apis
+            api-level: "37.0"
+            target: google_apis
+            profile: pixel_tablet
           - name: phone-31
             api-level: "31"
             target: google_apis
@@ -112,6 +120,10 @@ jobs:
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
           "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
+      - name: Update command-line tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmdline-tools;latest"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" --version
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -132,7 +144,10 @@ jobs:
           heap-size: 512M
           disk-size: 6000M
           disable-animations: false
-          script: mise exec -- ./gradlew :app:connectedDebugAndroidTest
+          script: |
+            cat "$HOME/.android/avd/test.ini"
+            grep -E '^(image.sysdir|tag.id|hw.gpu)' "$HOME/.android/avd/test.avd/config.ini"
+            mise exec -- ./gradlew :app:connectedDebugAndroidTest
       - name: Require executed tests
         run: scripts/check-ui-test-results.sh
       - name: Upload test results

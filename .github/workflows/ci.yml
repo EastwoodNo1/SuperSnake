@@ -125,6 +125,8 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmdline-tools;23.0"
           echo "$ANDROID_HOME/cmdline-tools/23.0/bin" >> "$GITHUB_PATH"
           "$ANDROID_HOME/cmdline-tools/23.0/bin/sdkmanager" --version
+      - name: Show tools on PATH
+        run: command -v avdmanager sdkmanager
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -145,6 +147,8 @@ jobs:
           heap-size: 512M
           disk-size: 6000M
           disable-animations: false
+          pre-emulator-launch-script: |
+            sed -i 's/^target=android-0$/target=android-${{ matrix.api-level }}/' "$HOME/.android/avd/test.ini"
           script: |
             cat "$HOME/.android/avd/test.ini"
             grep -E '^(image.sysdir|tag.id|hw.gpu)' "$HOME/.android/avd/test.avd/config.ini"

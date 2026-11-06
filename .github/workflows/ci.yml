@@ -75,11 +75,11 @@ jobs:
         include:
           - name: phone-37
             api-level: "37.0"
-            target: google_atd
+            target: google_apis
             profile: pixel_7
           - name: tablet-37
             api-level: "37.0"
-            target: google_atd
+            target: google_apis
             profile: pixel_tablet
           - name: phone-31
             api-level: "31"
@@ -132,6 +132,9 @@ jobs:
           heap-size: 512M
           disk-size: 6000M
           disable-animations: false
+          pre-emulator-launch-script: |
+            sed -i 's/^target=android-0$/target=android-${{ matrix.api-level }}/' "$HOME/.android/avd/test.ini"
+            grep -qx 'target=android-${{ matrix.api-level }}' "$HOME/.android/avd/test.ini"
           script: mise exec -- ./gradlew :app:connectedDebugAndroidTest
       - name: Require executed tests
         run: scripts/check-ui-test-results.sh

@@ -1,6 +1,7 @@
 package io.github.eastwoodno1.supersnake
 
 import android.os.SystemClock
+import android.util.Log
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -128,10 +129,12 @@ class FullScreenTest {
     fun barsAreHiddenAgainWhenWindowFocusReturnsWithThemShown() {
         driver.play()
         assertBars(false, "game before the shade")
+        val expanded = SystemClock.elapsedRealtime()
         shell("cmd statusbar expand-notifications")
-        driver.awaitUntil(BARS_SETTLE_MILLIS, { "the window kept focus under the notification shade" }) {
+        driver.awaitUntil(SHADE_FOCUS_MILLIS, { "the window kept focus under the notification shade" }) {
             !composeRule.activity.hasWindowFocus()
         }
+        Log.i("FullScreenTest", "shade took focus after ${SystemClock.elapsedRealtime() - expanded} ms")
         showBars()
         assertBars(true, "bars shown under the shade")
         shell("cmd statusbar collapse")
@@ -143,5 +146,6 @@ class FullScreenTest {
 
     private companion object {
         const val BARS_SETTLE_MILLIS = 5_000L
+        const val SHADE_FOCUS_MILLIS = 30_000L
     }
 }

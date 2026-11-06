@@ -75,17 +75,9 @@ jobs:
         include:
           - name: phone-37
             api-level: "37.0"
-            target: google_atd
-            profile: pixel_7
-          - name: tablet-37
-            api-level: "37.0"
-            target: google_atd
-            profile: pixel_tablet
-          - name: phone-37-apis
-            api-level: "37.0"
             target: google_apis
             profile: pixel_7
-          - name: tablet-37-apis
+          - name: tablet-37
             api-level: "37.0"
             target: google_apis
             profile: pixel_tablet
@@ -120,13 +112,6 @@ jobs:
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
           "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
-      - name: Update command-line tools
-        run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmdline-tools;23.0"
-          echo "$ANDROID_HOME/cmdline-tools/23.0/bin" >> "$GITHUB_PATH"
-          "$ANDROID_HOME/cmdline-tools/23.0/bin/sdkmanager" --version
-      - name: Show tools on PATH
-        run: command -v avdmanager sdkmanager
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -149,10 +134,8 @@ jobs:
           disable-animations: false
           pre-emulator-launch-script: |
             sed -i 's/^target=android-0$/target=android-${{ matrix.api-level }}/' "$HOME/.android/avd/test.ini"
-          script: |
-            cat "$HOME/.android/avd/test.ini"
-            grep -E '^(image.sysdir|tag.id|hw.gpu)' "$HOME/.android/avd/test.avd/config.ini"
-            mise exec -- ./gradlew :app:connectedDebugAndroidTest
+            grep -qx 'target=android-${{ matrix.api-level }}' "$HOME/.android/avd/test.ini"
+          script: mise exec -- ./gradlew :app:connectedDebugAndroidTest
       - name: Require executed tests
         run: scripts/check-ui-test-results.sh
       - name: Upload test results

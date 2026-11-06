@@ -64,7 +64,7 @@ Proof on 2026-11-02, with a throwaway key made by the exact command above in a t
 
 The release job needs an App token because PRs and tags made with `GITHUB_TOKEN` do not start other workflows (spec section 8). In GitHub, open Settings, Developer settings, GitHub Apps, New GitHub App:
 
-- Name `SuperSnake Release`, or `SuperSnake Release EastwoodNo1` if the name is taken.
+- Name `Release Manager TheoS`; GitHub derives the slug `release-manager-theos` from it.
 - Homepage URL `https://github.com/EastwoodNo1/SuperSnake`.
 - Webhook: Active unchecked.
 - Repository permissions: Contents Read and write, Pull requests Read and write, Metadata Read-only. Every other permission stays No access.

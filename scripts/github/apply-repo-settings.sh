@@ -108,6 +108,54 @@ else
   api -X POST "repos/$repo/labels" -f name=dependencies -f color=0366d6 -f description="Dependency updates" >/dev/null
 fi
 
+while IFS= read -r env_name; do
+  jq --arg n "$env_name" '.environments[$n] | {
+    wait_timer: 0,
+    prevent_self_review,
+    can_admins_bypass,
+    reviewers: [.reviewers[] | {type, id}],
+    deployment_branch_policy
+  }' "$expected_file" | api -X PUT "repos/$repo/environments/$env_name" --input - >/dev/null
+  existing_policies="$(api "repos/$repo/environments/$env_name/deployment-branch-policies" --jq '.branch_policies[].name')"
+  while IFS= read -r policy; do
+    if ! printf '%s\n' "$existing_policies" | grep -Fxq -- "$policy"; then
+      jq -n --arg n "$policy" '{name: $n, type: "branch"}' \
+        | api -X POST "repos/$repo/environments/$env_name/deployment-branch-policies" --input - >/dev/null
+    fi
+  done < <(jq -r --arg n "$env_name" '.environments[$n].branch_policies[]' "$expected_file")
+done < <(jq -r '.environments | keys[]' "$expected_file")
+
+tag_body="$(jq '.release_tags | {
+  name,
+  target,
+  enforcement,
+  bypass_actors,
+  conditions: {ref_name: {include, exclude: []}},
+  rules: [.rule_types[] | {type: .}]
+}' "$expected_file")"
+tag_id="$(ruleset_id_by_name release-tags)"
+if [ -n "$tag_id" ]; then
+  printf '%s' "$tag_body" | api -X PUT "repos/$repo/rulesets/$tag_id" --input - >/dev/null
+else
+  printf '%s' "$tag_body" | api -X POST "repos/$repo/rulesets" --input - >/dev/null
+fi
+
+while IFS= read -r label_name; do
+  case "$label_name" in
+    "autorelease: pending") label_color=fbca04; label_description="A release PR is open" ;;
+    "autorelease: tagged") label_color=0e8a16; label_description="The release PR is merged and tagged" ;;
+    *) echo "no colour defined for label $label_name" >&2; exit 2 ;;
+  esac
+  encoded="$(jq -rn --arg n "$label_name" '$n|@uri')"
+  if api "repos/$repo/labels/$encoded" >/dev/null 2>&1; then
+    api -X PATCH "repos/$repo/labels/$encoded" -f color="$label_color" -f description="$label_description" >/dev/null
+  else
+    api -X POST "repos/$repo/labels" -f name="$label_name" -f color="$label_color" -f description="$label_description" >/dev/null
+  fi
+done < <(jq -r '.release_labels[]' "$expected_file")
+
+api -X PUT "repos/$repo/immutable-releases" >/dev/null
+
 fi
 
 ruleset_id="$(ruleset_id_by_name main-protection)"

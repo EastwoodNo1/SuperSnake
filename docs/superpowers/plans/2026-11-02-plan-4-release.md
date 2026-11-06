@@ -196,7 +196,7 @@ Agents never see secret values and never run the settings script (the classifier
 | # | Step | Task |
 |---|------|------|
 | O1 | Answer the open owner questions: `release-smoke` required (Task 2), pr-rules exemption (Task 5). Answered 2026-11-02 | 2, 5 |
-| O2 | Create the GitHub App "SuperSnake Release": contents write, pull requests write, metadata read, no webhook, installed on this repo only. Generate a private key. Give the session the App slug | 4 |
+| O2 | Create the GitHub App "Release Manager TheoS": contents write, pull requests write, metadata read, no webhook, installed on this repo only. Generate a private key. Give the session the App slug | 4 |
 | O3 | Run `keytool`, make two encrypted offline backups, test a restore, compute the certificate SHA-256 | 4 |
 | O4 | Run `scripts/github/apply-repo-settings.sh [--check]`: `--check` reads and compares only; without it the script writes first. The write run creates the environments | 4 |
 | O5 | Add secrets with `gh secret set --env` and variables with `gh variable set`, after the environments exist | 4 |
@@ -462,7 +462,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - Label names are URL-encoded with `jq -rn --arg n "$name" '$n|@uri'`. Branch policies are listed before they are created.
 - Agents never run the script in either mode; the **[owner]** runs every invocation below and pastes the output.
 
-- [ ] **Step 1: [owner] Create the GitHub App** (O2): "SuperSnake Release", contents write, pull requests write, metadata read, no webhook, installed on `EastwoodNo1/SuperSnake` only; generate the private key and keep the `.pem` outside every checkout. Give the session the App slug. The session reads the public ids with `gh api apps/<slug> --jq '{id, client_id}'` and puts `id` into `expected-settings.json`; it never sees the `.pem`.
+- [ ] **Step 1: [owner] Create the GitHub App** (O2): "Release Manager TheoS", contents write, pull requests write, metadata read, no webhook, installed on `EastwoodNo1/SuperSnake` only; generate the private key and keep the `.pem` outside every checkout. Give the session the App slug. The session reads the public ids with `gh api apps/<slug> --jq '{id, client_id}'` and puts `id` into `expected-settings.json`; it never sees the `.pem`.
 - [ ] **Step 2: [owner] Create the signing key** (O3) with the keytool command from "Exact values", on a trusted machine, never in an agent session. Make two encrypted backups in separate places and restore one into a scratch directory to prove it (`keytool -list -keystore <restored>` shows alias `supersnake`). Compute the fingerprint as `docs/release.md` says. Tell the session only that this is done.
 - [ ] **Step 3: Write the RED.** Extend `expected-settings.json` with the new keys and add `--check` and the new read-backs to `apply-repo-settings.sh`, with no new writes yet. **[owner]** runs `scripts/github/apply-repo-settings.sh --check EastwoodNo1/SuperSnake`. Expected: exit 1 and `MISMATCH` for `environments`, `variables`, `release_tags`, `release_labels` and `immutable_releases`, plus `ruleset` while the live ruleset lacks `release-smoke` (RED). Nothing on GitHub changes.
 - [ ] **Step 4: Implement the writes** (skipped under `--check`).

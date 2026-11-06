@@ -21,7 +21,7 @@
 | actions/create-github-app-token | v3.3.0, commit `64ab729a6294000f5aa4a4bc0b73d1f32bc45510`. First-party GitHub action (MIT, 905 stars) | 2026-10-12 | https://api.github.com/repos/actions/create-github-app-token/releases/latest and git/ref/tags/v3.3.0 | 2026-11-02 |
 | actions/attest | v4.2.2, commit `1e69f48acb82d1966a394da916b4c1698aa569d6`. Replaces `actions/attest-build-provenance` v4.2.2, which is a wrapper whose README says new implementations should use `actions/attest`. Needs `id-token: write`, `attestations: write` and `artifact-metadata: write` | 2026-08-04 | https://api.github.com/repos/actions/attest/releases/latest and git/ref/tags/v4.2.2 | 2026-11-02 |
 | actions/download-artifact | v8.0.2, commit `9000827ccba6bdab643e8b6fd33ac0654aef8333` | 2026-10-07 | https://api.github.com/repos/actions/download-artifact/releases/latest and git/ref/tags/v8.0.2 | 2026-11-02 |
-| AGP | 9.5.0 | 2026-10-28 | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-10-28 |
+| AGP | 9.5.1 (bumped from 9.5.0 because lint `AndroidGradlePluginVersion` failed the strict gate once 9.5.1 was out; the 9.5.0 and 32.5.0 companion entries are removed from `gradle/verification-metadata.xml`) | 2026-11-05 (`last-modified` of `gradle-9.5.1.pom`) | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-11-06 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
 | Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
 | activity-compose | 1.13.0 | 2026-03-11 | https://dl.google.com/android/maven2/androidx/activity/activity-compose/maven-metadata.xml | 2026-10-23 |
@@ -84,6 +84,8 @@ Dependabot bumps Gradle dependencies but cannot regenerate `gradle/verification-
 5. Commit with a Conventional message, push to the Dependabot branch and wait for CI to pass.
 
 How `aapt2-9.5.0-16666295-linux.jar` was derived, on 2026-10-28: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.0-16666295/aapt2-9.5.0-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f`, SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
+
+Same for `aapt2-9.5.1-16666295-linux.jar`, on 2026-11-06: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.1-16666295/aapt2-9.5.1-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f` (byte-identical to the 9.5.0 jar), SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
 
 ## mise pin in CI
 

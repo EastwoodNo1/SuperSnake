@@ -5,6 +5,7 @@ apk="${1:?usage: release-smoke.sh <apk>}"
 package="${PACKAGE:-io.github.eastwoodno1.supersnake}"
 timeout_seconds="${SMOKE_TIMEOUT_SECONDS:-120}"
 settle_seconds="${SMOKE_SETTLE_SECONDS:-2}"
+replay_after="${SMOKE_REPLAY_DUMPS:-5}"
 out_dir="${OUT_DIR:-build/release-smoke}"
 
 mkdir -p "$out_dir"
@@ -62,6 +63,7 @@ adb logcat -c
 adb shell am start -W -n "$package/.MainActivity" > /dev/null
 
 taps=0
+menu_dumps=0
 reached=0
 deadline=$((SECONDS + timeout_seconds))
 while [ "$SECONDS" -lt "$deadline" ]; do
@@ -82,6 +84,19 @@ while [ "$SECONDS" -lt "$deadline" ]; do
       bounds="$(resume_bounds)"
       if [ -n "$bounds" ]; then
         tap_centre "$bounds"
+        menu_dumps=0
+      else
+        bounds="$(play_bounds)"
+        if [ -z "$bounds" ]; then
+          menu_dumps=0
+        else
+          menu_dumps=$((menu_dumps + 1))
+          if [ "$menu_dumps" -ge "$replay_after" ] && [ "$taps" -lt 3 ]; then
+            tap_centre "$bounds"
+            taps=$((taps + 1))
+            menu_dumps=0
+          fi
+        fi
       fi
     fi
   fi

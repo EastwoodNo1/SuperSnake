@@ -293,6 +293,32 @@ resumesAfterAnInterruption() {
   grep -qF 'shell input tap 541 1108' "$d/taps.log" || fail "did not tap Resume"
 }
 
+tapsPlayAgainWhenTheTapWasLost() {
+  need release-smoke.sh
+  local d="$work/lostPlay"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$play_dump" > "$d/dump-1.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=20 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke after a lost Play tap"
+  [ "$(wc -l < "$d/taps.log")" -eq 2 ] || fail "expected two taps"
+  [ "$(grep -c 'input tap 200 300' "$d/taps.log")" -eq 2 ] || fail "both taps were not on Play"
+}
+
+stopsTappingPlayAfterThreeTries() {
+  need release-smoke.sh
+  local d="$work/deadPlay"
+  fake_adb "$d"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  local rc=0
+  SMOKE_TIMEOUT_SECONDS=30 run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "Play never starts a round"
+  expect_in "$d/stderr.txt" "smoke failed: no game over"
+  [ "$(wc -l < "$d/taps.log")" -eq 3 ] || fail "expected exactly three Play taps"
+}
+
 ignoresResumeFromOtherPackages() {
   need release-smoke.sh
   local d="$work/otherResume"
@@ -351,6 +377,8 @@ tests=(
   dismissesTheFullScreenConfirmation
   dismissesTheConfirmationAfterPlay
   resumesAfterAnInterruption
+  tapsPlayAgainWhenTheTapWasLost
+  stopsTappingPlayAfterThreeTries
   ignoresResumeFromOtherPackages
   ignoresGotItFromOtherPackages
   timeoutNamesTheLastDumpTexts

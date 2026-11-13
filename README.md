@@ -38,7 +38,7 @@ scripts/bootstrap.sh
 
 `scripts/bootstrap.sh` sets `core.hooksPath=.githooks`, checks the mise version, the Temurin checksum and the Android SDK packages, runs `mise install --locked` and installs `gh-stack`. It prints `hooks installed` once the hooks are active.
 
-Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails on any Gradle deprecation except one allowlisted Gradle message (Configuration.setVisible, emitted by Kover).
+Use `scripts/gradle-strict.sh <tasks>` when you want the strict gate: it fails on any Gradle deprecation except two allowlisted Gradle messages, both emitted by Kover (Configuration.setVisible and Task.getAnt).
 
 ### Claude Code plugin (once per machine)
 

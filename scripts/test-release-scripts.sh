@@ -365,7 +365,7 @@ lastTextsKeepCommasInsideATextTogether() {
 }
 
 signer_digest() {
-  "$apksigner" verify --print-certs "$1" 2>&1 | sed -n 's/^Signer #1 certificate SHA-256 digest: //p'
+  "$apksigner" verify -v --print-certs "$1" 2>&1 | sed -n 's/^.*Signer: certificate SHA-256 digest: //p' | sed -n 1p
 }
 
 fake_apksigner() {

@@ -109,3 +109,15 @@ Sources added: SRC-012 staged note of session c5ff6184 (Observed for human messa
 | GAP-021 | CI result of the #117 fix is Prospective at fold-in time | CYCLE-012 | Unknown until the PR runs | issue #117 | Open |
 
 Sources added: SRC-014 main-agent context for issue #117 (Observed as reported); SRC-015 staged note of session 3c11e9a7 (trivial, plugin commands only; purpose Unknown).
+
+## Update (sixth fold-in, 2026-11-13)
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-022 | Task 4 outcome unknown: `--check` and apply runs, secret upload and the PR depend on the owner; the implementer and reviewer outputs are known only from summaries | CYCLE-013 | High | SRC-016 | Open |
+| GAP-023 | Whether a newer cmdline-tools fixes the `target` was never isolated; Unknown | CYCLE-014 | Low | SRC-017 | Open |
+| GAP-024 | PR 2 for #82 (required checks, docs) is Prospective; the final report of the session is not in the digest | CYCLE-014 | Moderate | SRC-017 | Open |
+| GAP-025 | The #126 fix (runs, RED 2 failed, GREEN 19 passed, the coordinator's cmux watcher and cross-session messages) rests on the coordinator's report, not primary evidence; CI result Pending | CYCLE-012 | Moderate | SRC-018 | Open |
+| GAP-026 | `release-smoke` flakiness root cause beyond the SIM dialog is Unknown; GAP-021 is superseded by the second timeout (issue #126) | CYCLE-012 | Moderate | SRC-017, SRC-018 | Open |
+
+Sources added: SRC-016 staged note of session 154bc22a (digest-based; no PR or CI output inspected); SRC-017 staged note of session 3e97d016 (Observed run IDs, PR numbers); SRC-018 coordinator report for issue #126 (Observed as reported). Privacy: the exposed key content and App identifiers are deliberately not recorded.

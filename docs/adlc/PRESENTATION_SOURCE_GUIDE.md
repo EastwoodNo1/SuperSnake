@@ -209,3 +209,19 @@ The release smoke job timed out because a system dialog paused the game and noth
 - **"Automation limits are a feature."** The safety classifier blocked the agent's merge; the owner merged. Human gate worked as designed.
 - Visualization: a two-lane diagram of required checks against informational legs.
 - Caveats: GAP-019 to GAP-021.
+
+## Update: Plan 4 Task 4, API 37 fix, smoke tap (sixth fold-in, 2026-11-13)
+
+### What happened?
+Two parallel sessions ran under a coordinator. One started Plan 4 Task 4 and stopped at owner-only steps, after a key was exposed by an @-mention and rotated. The other found that the API 37 emulator abort came from an AVD config line, not from tool versions, and fixed it in six CI iterations. The coordinator also fixed a second release-smoke timeout.
+
+### Presentation candidates
+- **"A secret leaked by an @-mention."** Key message: harness convenience can break secret handling; rotate and change the workflow. Example: PROMPT-029, DEC-056 (no key content recorded).
+- **"The crash that was really a config line."** Key message: `target=android-0` in `test.ini`, not versions, caused the abort. Example: runs 1 to 6 as a hypothesis loop (DEC-059).
+- **"Stop at the gate and ask."** The agent refused `--no-verify` and the owner approved a small PR (DEC-058).
+- **"Honest evidence."** The agent corrected its own PR-body overclaim about PATH.
+- **"One tap is not enough."** A lost tap needs a bounded retry (DEC-061, RED 2 failed then 19 passed).
+- **"Least privilege answered by the agent."** Workflows write refused (DEC-055).
+- **"Agents have limits the plan sets."** The coordinator declined to run an owner-only script (DEC-062).
+- Visualization: a six-run table of the #82 hypothesis loop; a two-lane diagram of coordinator and parallel sessions.
+- Caveats: GAP-022 to GAP-026.

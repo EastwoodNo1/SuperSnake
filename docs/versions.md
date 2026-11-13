@@ -2,7 +2,7 @@
 
 | Item | Version | Release date | Source | Verified on |
 |------|---------|--------------|--------|-------------|
-| Gradle | 9.8.2 (distribution SHA-256 `21bd5da2de49b642904077f38c0efdc7778e92b3ed0889392dca61b97e389607`) | 2026-10-19 | https://services.gradle.org/versions/current | 2026-10-23 |
+| Gradle | 9.9.1 (distribution SHA-256 `d8a18a7a841dd5df825d35a685fad6f2d7f12ac0c280e57b67c27b4a520ba228`, wrapper jar SHA-256 `621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8`, both from services.gradle.org). Embeds Kotlin 2.4.21 for the Gradle runtime only; project code still compiles with Kotlin 2.4.20 (ADR-0006) | 2026-11-10 | https://services.gradle.org/versions/current | 2026-11-13 |
 | JDK toolchain | Temurin 25.0.5+8 (toolchain 25), installed via mise | 2026-10-22 | https://github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8 | 2026-10-23 |
 | mise | 2026.10.18 | 2026-10-23 | https://github.com/jdx/mise/releases/tag/v2026.10.18 | 2026-10-23 |
 | gh | 2.103.2 (via `aqua:cli/cli`; the latest stable, bumped from 2.103.0) | 2026-10-23 | https://github.com/cli/cli/releases/tag/v2.103.2 (and `gh api repos/cli/cli/releases/latest`) | 2026-10-26 |
@@ -94,5 +94,7 @@ The mise version and the SHA-256 of its linux-x64 archive are written in three p
 ## Known issues
 
 - With AGP 9.5.0 on Gradle 9.8.2, a cold configuration still emits one Gradle deprecation, five times: `The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11.` AGP 9.5.0 no longer emits it. The frames are in `kotlinx.kover.gradle.plugin` (`ConfigurationsKt.asBucket`, `asTransitiveDependencies`, `asProducer`, `PrepareKoverKt.prepare`), found on 2026-10-28 with `./gradlew help -Dorg.gradle.deprecation.trace=true --warning-mode=all --no-configuration-cache`. `scripts/gradle-strict.sh` allowlists exactly this message and fails on any other deprecation. Remove the allowlist when a stable Kover no longer emits it.
+
+- Gradle 9.9.1 deprecates `Task.getAnt()` ("scheduled to be removed in Gradle 10"), and Kover 0.9.11 calls it on every `koverVerify` run: `KoverDoVerifyTask.verify` calls `AbstractKoverReportTask.context` (AbstractKoverReportTask.kt:79), which calls `DefaultTask.getAnt`. Found on 2026-11-13 with `--rerun-tasks -Dorg.gradle.deprecation.trace=true`; local runs missed it because `koverVerify` was up to date. Kover 0.9.11 is the newest release, so `scripts/gradle-strict.sh` allowlists the exact message (owner decision, 2026-11-13). Reported upstream as Kotlin/kotlinx-kover#842. Remove the allowlist entry when a Kover release fixes it, and before moving to Gradle 10.
 
 - On the API 37 CI emulator, `avdmanager` writes `target=android-0` into `~/.android/avd/test.ini` for the `37.0` system image, and the emulator then aborts with `Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma`. `ui-tests` rewrites it to `target=android-<api-level>` in `pre-emulator-launch-script` and fails the leg if the ini does not have it. Found on 2026-11-06 with emulator 37.2.13 (build 16740729, stable channel), `google_apis` 37.0 r08 and cmdline-tools 12.0 and 23.0 (the latest stable: https://dl.google.com/android/repository/repository2-3.xml). Remove the rewrite when a runner's `avdmanager` writes the right target. The API 37 legs use `google_apis` because `google_atd` has no system bars.

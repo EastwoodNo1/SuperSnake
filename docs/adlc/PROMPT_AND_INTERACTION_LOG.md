@@ -454,3 +454,30 @@ Prompt patterns added: **Ask for an independent review before execution**; **Ver
 ## PROMPT-027 - Fix the release-smoke timeout (issue #117)
 
 Reconstructed prompt intent - not verbatim: after the smoke timed out on #116 and on main, the work was framed as issue #117 with a RED-first fix. Initial (smoke waits for the game) -> Output (timeout) -> Problem (a settings SIM dialog paused the game; nothing tapped Resume) -> Refinement (tap the game's own Resume, package-restricted; two tests; RED then GREEN) -> Result (1 failure, then 17 passed, as reported).
+
+## Update (sixth fold-in, 2026-11-13)
+
+## PROMPT-028 - Run Plan 4 from the first undone task (session 154bc22a)
+
+- **Lifecycle phase:** Implementation. **Related cycle:** CYCLE-013. **Evidence status:** Observed (session note).
+- Verbatim prompt: "Execute docs/superpowers/plans/2026-11-02-plan-4-release.md with superpowers:subagent-driven-development, starting at the first task that is not done. Follow the plan's "Start here" and "Progress lives in git" sections; don't rely on earlier sessions."
+- Result: the agent found Task 4 next, stopped at the owner-reserved steps and asked for what it needed. Reconstructed prompt intent - not verbatim: do not touch the parallel #82 scope; rebase onto main if it moves; create variables and secrets in the protected environment and upload the key with the `gh` secret command without reading it.
+
+## PROMPT-029 - An @-mention exposed a key (session 154bc22a)
+
+- **Lifecycle phase:** Security handling. **Related cycle:** CYCLE-013. **Evidence status:** Observed (session note). Reconstructed prompt intent - not verbatim.
+- Initial (owner @-mentioned the key file) -> Output (the harness attached the file contents to the agent's context) -> Problem (a secret is in the transcript) -> Refinement (agent flagged it, asked for rotation and deletion of the old key, said it would never open the file, gave plain-text paths and a `!` upload command) -> Result (owner rotated the key; upload 404 until the environment existed; no key content is kept in these docs).
+- Pattern: **Never @-mention a secret path.** The harness inlines the file.
+
+## PROMPT-030 - Fix issue #82 (session 3e97d016)
+
+- **Lifecycle phase:** Debugging. **Related cycle:** CYCLE-014. **Evidence status:** Observed (session note).
+- Verbatim prompt: "Fix issue #82: make the ui-tests (phone-37) and (tablet-37) legs pass in CI so they can be required again. Read #82 in full first, including what PR #81 already tried, and the api37-ci-emulator memory. Use superpowers:systematic-debugging and android-sdlc:android-ci. Work in a worktree on branch ci/api37-legs."
+- Reconstructed prompt intent - not verbatim: find the cause first, verify versions on the day, done means three consecutive green runs with links, stop and report if no verified fix exists, no unverified emulator build, two PRs with PR 2 held.
+- Initial (update cmdline-tools) -> Output (all legs red within 30 s) -> Problem (`sdkmanager` installs to `latest-2`) -> Refinement (install `cmdline-tools;23.0` on PATH) -> Result (target still `android-0`) -> Refinement (rewrite `test.ini` before launch with a verifying grep) -> Result (abort gone; legs then needed `google_apis` and longer waits).
+- Verbatim prompt: "yes, start the AGP PR" (owner approval after the agent refused `--no-verify`).
+- Pattern: **Stop at the gate and ask**; **Print the evidence in the run that tests the claim** (the PR body overclaimed on PATH and was corrected).
+
+## PROMPT-031 - Fix the second release-smoke timeout (issue #126)
+
+Reconstructed prompt intent - not verbatim (coordinator report, SRC-018): after #119, runs 42210528377 and 42216049940 still timed out. Initial (resume after interruption) -> Output (still timed out) -> Problem (the SIM dialog swallowed the single Play tap; the last dump was the main menu) -> Refinement (tap Play again when the menu persists for five dumps, at most three taps; two tests) -> Result (RED 2 failed, GREEN 19 passed, as reported; CI Pending).

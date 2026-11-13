@@ -77,3 +77,9 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 
 - REQ-011 (release): the `release-smoke` CI job (REQ-011, #112) failed in practice on an API 31 system SIM dialog. Fix in issue #117: Design DEC-053; Implementation `scripts/release-smoke.sh`; Test `resumesAfterAnInterruption` and `ignoresResumeFromOtherPackages` (RED 1 failure, GREEN 17 passed, as reported by the main agent); Validation by CI Pending; Outcome Pending validation. Plan 4 counts were updated to 27 in Task 5 Step 4 (R).
 - REQ-008: required check `release-smoke` was red on #116 and main before this fix; informational legs red due to #82 (DEC-054).
+
+## Update (sixth fold-in, 2026-11-13)
+
+- REQ-011 (release): Task 4 started (issue #121): Design DEC-055 to DEC-057; Implementation local commits `a2edf5e` (RED) and `5333dd7`, unpushed; Test fake-`gh` harness and shellcheck as reported by the agents; Validation Pending the owner's `--check` and apply runs; Outcome Pending validation. The smoke fix (issue #126): Design DEC-061; Implementation `scripts/release-smoke.sh`; Test `tapsPlayAgainWhenTheTapWasLost`, `stopsTappingPlayAfterThreeTries` (RED 2 failed, GREEN 19 passed, as reported); Outcome Pending CI.
+- REQ-008 (CI UI tests): API 37 legs fixed in PR #124 (DEC-059): 61 of 61 on phone-31, phone-37 and tablet-37 over three consecutive runs plus one more. Making them required again is PR 2 (Prospective). Closes the informational status from DEC-043 once that PR merges.
+- REQ-004 (latest versions): AGP 9.5.1 adopted (#123, DEC-058).

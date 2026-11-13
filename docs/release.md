@@ -111,6 +111,8 @@ Read back the names (values are never shown): `gh secret list --env release`, `g
 4. The job signs, uploads the APK and its checksum to the draft release, publishes it, and the last job verifies the published release.
 5. Verify the download by hand, below.
 
+The `release` workflow runs one at a time (concurrency group `release`, nothing cancelled). A run waiting for your approval therefore blocks every later run, including the `release-please` job of the next push, and a third queued run replaces the second pending one. Approve or reject the waiting run first; the next push to `main` starts release-please again.
+
 A draft older than an hour in `gh release list --repo EastwoodNo1/SuperSnake` means the approval was not given or a job failed. That list is the only silence detector, so look at it after every merge of a release PR.
 
 ## Verify a downloaded APK

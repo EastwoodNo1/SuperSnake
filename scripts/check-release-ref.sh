@@ -9,7 +9,7 @@ if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
   echo "tag $tag does not exist on origin" >&2
   exit 1
 fi
-git fetch --quiet --force origin main "refs/tags/$tag:refs/tags/$tag"
+git fetch --quiet --force origin "+refs/heads/main:refs/remotes/origin/main" "refs/tags/$tag:refs/tags/$tag"
 
 tagged="$(git rev-parse "refs/tags/$tag^{commit}")"
 full="$(git rev-parse "$sha^{commit}")"

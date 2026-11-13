@@ -415,7 +415,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - **Fingerprint:** `keytool -exportcert -alias supersnake -keystore "$HOME/supersnake-release/release.p12" | shasum -a 256 | cut -d' ' -f1` (64 lowercase hex characters, the format `apksigner` prints and `RELEASE_CERT_SHA256` holds).
   - **Secrets:** `gh secret set RELEASE_KEYSTORE_BASE64 --env release` fed from `base64 -i release.p12 | tr -d '\n'` (one line); `RELEASE_KEYSTORE_PASSWORD` and `RELEASE_KEY_PASSWORD` (both the store password, because PKCS12 has one) and `RELEASE_KEY_ALIAS` (`supersnake`) from a prompt; `RELEASE_APP_PRIVATE_KEY` into `release-please` from the `.pem` file; `gh variable set RELEASE_APP_CLIENT_ID` and `RELEASE_CERT_SHA256`. No secret value ever appears in a command line or shell history.
   - **Cut a release:** merge the release PR; the `release` run opens an approval request; approve `sign-publish`; then run the verification below.
-  - **Verify an APK:** `apksigner verify --print-certs SuperSnake-<v>.apk` (digest equals `RELEASE_CERT_SHA256`), `sha256sum -c SuperSnake-<v>.apk.sha256`, `gh attestation verify SuperSnake-<v>.apk --repo EastwoodNo1/SuperSnake`, `gh release verify v<v> --repo EastwoodNo1/SuperSnake`.
+  - **Verify an APK:** `apksigner verify -v --print-certs SuperSnake-<v>.apk` (digest equals `RELEASE_CERT_SHA256`), `sha256sum -c SuperSnake-<v>.apk.sha256`, `gh attestation verify SuperSnake-<v>.apk --repo EastwoodNo1/SuperSnake`, `gh release verify v<v> --repo EastwoodNo1/SuperSnake`.
   - **Recovery:** a failed job before publish is re-run in place (`gh run rerun <id> --failed`); a stale draft is visible in `gh release list` and the owner deletes it only after asking; a failure after publish ships as the next patch version, because the tag name is burned (docs: "you cannot reuse the same tag name"); tags are never re-pointed. If the tag exists but its draft has no assets, re-run the failed jobs.
   - **Detect silence:** a draft older than an hour in `gh release list` means the approval was not given or a job failed.
   - **Key loss:** installed copies can never update; a new application ID and a new listing are the only way forward. Restore from the offline backup first.
@@ -490,7 +490,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 **Interfaces:**
 - Consumes: Task 2's `sign-apk.sh`, `release-smoke.sh`, `sign-throwaway.sh`; Task 4's environments, variables, labels and ruleset.
 - Produces:
-  - `scripts/verify-signature.sh <apk> <expected-sha256>`: runs `apksigner verify --print-certs`; exits 0 only if the first output line is `Verifies`, there is exactly one signer, and its SHA-256 digest equals the expected value (compared lowercase). An expected value that is empty or not 64 hex characters exits non-zero before `apksigner` runs.
+  - `scripts/verify-signature.sh <apk> <expected-sha256>`: runs `apksigner verify -v --print-certs`; exits 0 only if the first output line is `Verifies`, there is exactly one signer, and its SHA-256 digest equals the expected value (compared lowercase). An expected value that is empty or not 64 hex characters exits non-zero before `apksigner` runs.
   - `scripts/check-release-ref.sh <sha> <tag> <version>`: exits 0 only if the tag exists on `origin` and points at `<sha>`, `<sha>` is an ancestor of `origin/main` (`git merge-base --is-ancestor`), and `version.txt` at `<sha>` equals `<version>`.
   - `scripts/publish-release.sh <tag> <apk> <checksum-file>`: if `gh release view <tag> --json isDraft --jq .isDraft` is `false`, prints `already published` and exits 0; otherwise `gh release upload <tag> <apk> <checksum-file> --clobber`, then `gh release edit <tag> --draft=false`.
   - `PullRequestBody.validate(body: String, labels: Set<String>)` keeps its signature. New rule: a PR with the label `autorelease: pending` is exempt from both the issue-link rule and the Evidence rule.
@@ -593,7 +593,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
   In `$d` run each command and paste its real output:
   - `sha256sum -c SuperSnake-1.0.0.apk.sha256`. Expected: `SuperSnake-1.0.0.apk: OK`.
-  - `"$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs SuperSnake-1.0.0.apk`. Expected: `Verifies`, one signer, and a digest equal to the `RELEASE_CERT_SHA256` variable.
+  - `"$ANDROID_HOME/build-tools/37.0.0/apksigner" verify -v --print-certs SuperSnake-1.0.0.apk`. Expected: `Verifies`, one signer, and a digest equal to the `RELEASE_CERT_SHA256` variable.
   - `gh attestation verify SuperSnake-1.0.0.apk --repo EastwoodNo1/SuperSnake`. Expected: verification succeeded.
   - `gh release verify v1.0.0 --repo EastwoodNo1/SuperSnake`. Expected: exit 0 (the release is immutable).
   - `gh release view v1.0.0 --json assets --jq '[.assets[].name]'`. Expected: exactly the APK and the `.sha256`.

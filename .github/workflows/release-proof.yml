@@ -24,13 +24,19 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TARGET: ${{ github.sha }}
         run: |
-          set -euo pipefail
           ref=refs/tags/v0.0.0-proof
-          gh api --method POST "repos/$GH_REPO/git/refs" -f "ref=$ref" -f "sha=$TARGET"
-          found="$(gh api "repos/$GH_REPO/git/ref/tags/v0.0.0-proof" --jq .object.sha)"
-          if [ "$found" != "$TARGET" ]; then
-            echo "proof tag points at $found, expected $TARGET" >&2
+          status=0
+          gh api --method POST "repos/$GH_REPO/git/refs" -f "ref=$ref" -f "sha=$TARGET" || status=1
+          if [ "$status" -eq 0 ]; then
+            found="$(gh api "repos/$GH_REPO/git/ref/tags/v0.0.0-proof" --jq .object.sha)" || status=1
+            if [ "$found" != "$TARGET" ]; then
+              echo "proof tag points at '$found', expected $TARGET" >&2
+              status=1
+            fi
+            gh api --method DELETE "repos/$GH_REPO/git/refs/tags/v0.0.0-proof" || status=1
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "release proof failed" >&2
             exit 1
           fi
-          gh api --method DELETE "repos/$GH_REPO/git/refs/tags/v0.0.0-proof"
           echo "created, read back and deleted $ref at $TARGET"

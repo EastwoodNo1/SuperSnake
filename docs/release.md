@@ -4,7 +4,7 @@ This is the owner's runbook for the signing key and for every release. Design: [
 
 No secret value belongs in a command line, a shell history, a chat, a PR or a log. Every step below that handles a secret reads it from a prompt, standard input or a file outside every checkout.
 
-Commands were checked against the tools' own help on 2026-11-02: `keytool -help -genkeypair`, `keytool -help -exportcert`, `keytool -help -list`, `gh secret set --help`, `gh variable set --help`, `apksigner verify --help` (from `$ANDROID_HOME/build-tools/37.0.0`), `gh attestation verify --help`, `gh release verify --help`, `gh run rerun --help` and `openssl enc -help`.
+Commands were checked against the tools' own help on 2026-11-02: `keytool -help -genkeypair`, `keytool -help -exportcert`, `keytool -help -list`, `gh secret set --help`, `gh variable set --help`, `apksigner verify --help` (from `$ANDROID_HOME/build-tools/37.0.0`), `gh attestation verify --help`, `gh release verify --help`, `gh run rerun --help` and `openssl enc -help`. The `apksigner verify -v --print-certs` output was read from a throwaway-signed APK on 2026-11-13.
 
 ## Create the key
 
@@ -118,13 +118,13 @@ A draft older than an hour in `gh release list --repo EastwoodNo1/SuperSnake` me
 Replace `<v>` with the version, for example `1.0.0`. Use `apksigner` from the Android SDK build-tools (`$ANDROID_HOME/build-tools/<version>/apksigner`).
 
 ```sh
-apksigner verify --print-certs SuperSnake-<v>.apk
+apksigner verify -v --print-certs SuperSnake-<v>.apk
 sha256sum -c SuperSnake-<v>.apk.sha256
 gh attestation verify SuperSnake-<v>.apk --repo EastwoodNo1/SuperSnake
 gh release verify v<v> --repo EastwoodNo1/SuperSnake
 ```
 
-- `apksigner` must print `Number of signers: 1` and a `certificate SHA-256 digest` equal to `RELEASE_CERT_SHA256`.
+- `apksigner` must print `Verifies` as its first line (only with `-v`; without it nothing is printed on success, and the output has no signer count), then `Number of signers: 1` and a `Signer: certificate SHA-256 digest` equal to `RELEASE_CERT_SHA256`. Java may print `WARNING:` lines before `Verifies`; they come from the JDK, not from the check.
 - `sha256sum -c` must print `SuperSnake-<v>.apk: OK`. Where `sha256sum` is missing, use `shasum -a 256 -c SuperSnake-<v>.apk.sha256`.
 - `gh attestation verify` checks the build provenance attestation against this repository. Add `--predicate-type <type>` if the attestation was made with another predicate than the default `https://slsa.dev/provenance/v1`.
 - `gh release verify` checks the release attestation GitHub makes for an immutable release.

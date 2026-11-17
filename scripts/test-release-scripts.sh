@@ -364,6 +364,206 @@ lastTextsKeepCommasInsideATextTogether() {
   expect_in "$d/stderr.txt" "last dump texts: To exit, swipe down from the top., Got it"
 }
 
+signer_digest() {
+  "$apksigner" verify -v --print-certs "$1" 2>&1 | sed -n 's/^.*Signer: certificate SHA-256 digest: //p' | sed -n 1p
+}
+
+fake_apksigner() {
+  local dir="$1"
+  mkdir -p "$dir"
+  : > "$dir/apksigner.log"
+  printf '#!%s\n' "/usr/bin/env bash" > "$dir/apksigner"
+  cat >> "$dir/apksigner" <<'FAKE'
+echo "$*" >> "$FAKE_DIR/apksigner.log"
+exit 99
+FAKE
+  chmod +x "$dir/apksigner"
+}
+
+signed_with_throwaway() {
+  local d="$1"
+  mkdir -p "$d"
+  make_keystore "$d" pw-verify key
+  KS_FILE="$d/ks.p12" KS_PASS=pw-verify KEY_ALIAS=key KEY_PASS=pw-verify \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/signed.apk" > /dev/null 2>&1 || fail "could not sign with the throwaway key"
+}
+
+fingerprintMatchPasses() {
+  need verify-signature.sh
+  local d="$work/fpMatch"
+  signed_with_throwaway "$d"
+  local digest
+  digest="$(signer_digest "$d/signed.apk")"
+  [ "${#digest}" -eq 64 ] || fail "could not read the digest: $digest"
+  local rc=0
+  "$here/verify-signature.sh" "$d/signed.apk" "$digest" > /dev/null 2>&1 || rc=$?
+  expect_status 0 "$rc" "matching fingerprint"
+  rc=0
+  "$here/verify-signature.sh" "$d/signed.apk" "$(printf '%s' "$digest" | tr 'a-f' 'A-F')" > /dev/null 2>&1 || rc=$?
+  expect_status 0 "$rc" "matching fingerprint in upper case"
+}
+
+fingerprintMismatchFailsClosed() {
+  need verify-signature.sh
+  local d="$work/fpMismatch"
+  signed_with_throwaway "$d"
+  local rc=0
+  "$here/verify-signature.sh" "$d/signed.apk" "$(printf '0%.0s' $(seq 64))" > /dev/null 2>&1 || rc=$?
+  expect_nonzero "$rc" "mismatching fingerprint"
+}
+
+emptyFingerprintFailsClosed() {
+  need verify-signature.sh
+  local d="$work/fpEmpty"
+  signed_with_throwaway "$d"
+  fake_apksigner "$d/fake"
+  local digest value rc
+  digest="$(signer_digest "$d/signed.apk")"
+  local colons
+  colons="$(printf '%s' "$digest" | sed 's/\(..\)/\1:/g; s/:$//')"
+  for value in "" "abc" "$colons" "${digest}0" "${digest%?}g"; do
+    rc=0
+    FAKE_DIR="$d/fake" APKSIGNER="$d/fake/apksigner" \
+      "$here/verify-signature.sh" "$d/signed.apk" "$value" > /dev/null 2>&1 || rc=$?
+    expect_nonzero "$rc" "fingerprint '$value'"
+  done
+  [ ! -s "$d/fake/apksigner.log" ] || fail "apksigner was called for a malformed fingerprint"
+  rc=0
+  FAKE_DIR="$d/fake" APKSIGNER="$d/fake/apksigner" \
+    "$here/verify-signature.sh" "$d/signed.apk" "$digest" > /dev/null 2>&1 || rc=$?
+  expect_nonzero "$rc" "a failing apksigner"
+  [ -s "$d/fake/apksigner.log" ] || fail "the fake apksigner was never called, so the check proves nothing"
+}
+
+unsignedApkFailsVerification() {
+  need verify-signature.sh
+  local d="$work/fpUnsigned"
+  signed_with_throwaway "$d"
+  local digest rc=0
+  digest="$(signer_digest "$d/signed.apk")"
+  "$here/verify-signature.sh" "$unsigned_apk" "$digest" > /dev/null 2>&1 || rc=$?
+  expect_nonzero "$rc" "unsigned apk"
+}
+
+make_release_repo() {
+  local d="$1" version="$2"
+  mkdir -p "$d"
+  git init -q --bare "$d/origin.git"
+  git init -q -b main "$d/repo"
+  git -C "$d/repo" config user.email test@example.invalid
+  git -C "$d/repo" config user.name test
+  git -C "$d/repo" config commit.gpgsign false
+  git -C "$d/repo" config tag.gpgsign false
+  git -C "$d/repo" remote add origin "$d/origin.git"
+  printf '%s\n' "$version" > "$d/repo/version.txt"
+  git -C "$d/repo" add version.txt
+  git -C "$d/repo" commit -q -m release
+  git -C "$d/repo" push -q origin main
+  git -C "$d/repo" rev-parse HEAD
+}
+
+run_ref_check() {
+  local d="$1"
+  shift
+  (cd "$d/repo" && "$here/check-release-ref.sh" "$@") > /dev/null 2>&1
+}
+
+tagOnMainPasses() {
+  need check-release-ref.sh
+  local d="$work/tagMain" sha rc=0
+  sha="$(make_release_repo "$d" 1.0.0)"
+  git -C "$d/repo" tag v1.0.0 "$sha"
+  git -C "$d/repo" push -q origin v1.0.0
+  run_ref_check "$d" "$sha" v1.0.0 1.0.0 || rc=$?
+  expect_status 0 "$rc" "tag on main"
+}
+
+tagOffMainFails() {
+  need check-release-ref.sh
+  local d="$work/tagOff" sha side rc=0
+  sha="$(make_release_repo "$d" 1.0.0)"
+  git -C "$d/repo" checkout -q -b side
+  printf '1.0.0\n' > "$d/repo/other.txt"
+  git -C "$d/repo" add other.txt
+  git -C "$d/repo" commit -q -m side
+  side="$(git -C "$d/repo" rev-parse HEAD)"
+  git -C "$d/repo" tag v1.0.0 "$side"
+  git -C "$d/repo" push -q origin side v1.0.0
+  run_ref_check "$d" "$side" v1.0.0 1.0.0 || rc=$?
+  expect_nonzero "$rc" "tag off main"
+  rc=0
+  run_ref_check "$d" "$sha" v1.0.0 1.0.0 || rc=$?
+  expect_nonzero "$rc" "tag pointing at another commit"
+}
+
+missingTagFails() {
+  need check-release-ref.sh
+  local d="$work/tagMissing" sha rc=0
+  sha="$(make_release_repo "$d" 1.0.0)"
+  git -C "$d/repo" tag v1.0.0 "$sha"
+  run_ref_check "$d" "$sha" v1.0.0 1.0.0 || rc=$?
+  expect_nonzero "$rc" "tag only local"
+}
+
+versionMismatchFails() {
+  need check-release-ref.sh
+  local d="$work/versionMismatch" sha rc=0
+  sha="$(make_release_repo "$d" 1.0.1)"
+  git -C "$d/repo" tag v1.0.0 "$sha"
+  git -C "$d/repo" push -q origin v1.0.0
+  run_ref_check "$d" "$sha" v1.0.0 1.0.0 || rc=$?
+  expect_nonzero "$rc" "version mismatch"
+}
+
+fake_gh() {
+  local dir="$1" is_draft="$2"
+  mkdir -p "$dir/bin"
+  : > "$dir/gh.log"
+  printf '%s' "$is_draft" > "$dir/isdraft"
+  printf '#!%s\n' "/usr/bin/env bash" > "$dir/bin/gh"
+  cat >> "$dir/bin/gh" <<'FAKE'
+echo "$*" >> "$FAKE_DIR/gh.log"
+case "$*" in
+  "release view "*) cat "$FAKE_DIR/isdraft" ;;
+  "release upload "*|"release edit "*) exit 0 ;;
+  *) echo "unexpected gh call: $*" >&2; exit 99 ;;
+esac
+FAKE
+  chmod +x "$dir/bin/gh"
+  printf 'apk' > "$dir/app.apk"
+  printf 'sum' > "$dir/app.apk.sha256"
+}
+
+run_publish() {
+  local dir="$1"
+  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" \
+    "$here/publish-release.sh" v1.0.0 "$dir/app.apk" "$dir/app.apk.sha256" > "$dir/stdout.txt" 2> "$dir/stderr.txt"
+}
+
+publishUploadsThenPublishesDraft() {
+  need publish-release.sh
+  local d="$work/publishDraft" rc=0
+  fake_gh "$d" true
+  run_publish "$d" || rc=$?
+  expect_status 0 "$rc" "publish of a draft"
+  [ "$(wc -l < "$d/gh.log")" -eq 3 ] || fail "expected exactly three gh calls: $(cat "$d/gh.log")"
+  sed -n 1p "$d/gh.log" | grep -qF 'release view v1.0.0 --json isDraft --jq .isDraft' || fail "first call was not the draft check"
+  sed -n 2p "$d/gh.log" | grep -qF "release upload v1.0.0 $d/app.apk $d/app.apk.sha256 --clobber" || fail "second call was not the upload"
+  sed -n 3p "$d/gh.log" | grep -qF 'release edit v1.0.0 --draft=false' || fail "third call was not the publish"
+}
+
+publishSkipsWhenAlreadyPublished() {
+  need publish-release.sh
+  local d="$work/publishDone" rc=0
+  fake_gh "$d" false
+  run_publish "$d" || rc=$?
+  expect_status 0 "$rc" "publish of a published release"
+  expect_in "$d/stdout.txt" "already published"
+  expect_not_in "$d/gh.log" "release upload"
+  expect_not_in "$d/gh.log" "release edit"
+  expect_in "$d/gh.log" "release view"
+}
+
 tests=(
   signedApkVerifies
   wrongAliasFails
@@ -384,6 +584,16 @@ tests=(
   timeoutNamesTheLastDumpTexts
   lastTextsKeepCommasInsideATextTogether
   smokePassesAndKeepsEvidence
+  fingerprintMatchPasses
+  fingerprintMismatchFailsClosed
+  emptyFingerprintFailsClosed
+  unsignedApkFailsVerification
+  tagOnMainPasses
+  tagOffMainFails
+  missingTagFails
+  versionMismatchFails
+  publishUploadsThenPublishesDraft
+  publishSkipsWhenAlreadyPublished
 )
 
 passed=0

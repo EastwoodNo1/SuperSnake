@@ -89,7 +89,7 @@ Same for `aapt2-9.5.1-16666295-linux.jar`, on 2026-11-06: downloaded `https://dl
 
 ## mise pin in CI
 
-The mise version and the SHA-256 of its linux-x64 archive are written in three places: the `checks` and `pr-rules` jobs in `.github/workflows/ci.yml` and the `java-kotlin` job in `.github/workflows/codeql.yml`. Dependabot does not manage them. Update all three together and record the new version and SHA in the table above.
+The mise version and the SHA-256 of its linux-x64 archive are written in nine places: four jobs in `.github/workflows/ci.yml`, the `java-kotlin` job in `.github/workflows/codeql.yml` and the `build`, `smoke`, `sign-publish` and `verify-published` jobs in `.github/workflows/release.yml`. Dependabot does not manage them. Update all nine together and record the new version and SHA in the table above.
 
 ## Known issues
 

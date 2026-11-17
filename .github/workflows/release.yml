@@ -57,8 +57,8 @@ jobs:
         run: scripts/check-release-ref.sh "$SHA" "$TAG" "$VERSION"
       - name: Install mise
         env:
-          MISE_VERSION: v2026.10.19
-          MISE_SHA256: b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086
+          MISE_VERSION: v2026.11.9
+          MISE_SHA256: 23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378
         run: |
           archive="$RUNNER_TEMP/mise.tar.gz"
           curl -fsSL --retry 3 -o "$archive" "https://github.com/jdx/mise/releases/download/${MISE_VERSION}/mise-${MISE_VERSION}-linux-x64.tar.gz"
@@ -107,8 +107,8 @@ jobs:
           persist-credentials: false
       - name: Install mise
         env:
-          MISE_VERSION: v2026.10.19
-          MISE_SHA256: b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086
+          MISE_VERSION: v2026.11.9
+          MISE_SHA256: 23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378
         run: |
           archive="$RUNNER_TEMP/mise.tar.gz"
           curl -fsSL --retry 3 -o "$archive" "https://github.com/jdx/mise/releases/download/${MISE_VERSION}/mise-${MISE_VERSION}-linux-x64.tar.gz"
@@ -181,8 +181,8 @@ jobs:
           persist-credentials: false
       - name: Install mise
         env:
-          MISE_VERSION: v2026.10.19
-          MISE_SHA256: b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086
+          MISE_VERSION: v2026.11.9
+          MISE_SHA256: 23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378
         run: |
           archive="$RUNNER_TEMP/mise.tar.gz"
           curl -fsSL --retry 3 -o "$archive" "https://github.com/jdx/mise/releases/download/${MISE_VERSION}/mise-${MISE_VERSION}-linux-x64.tar.gz"
@@ -265,8 +265,8 @@ jobs:
           persist-credentials: false
       - name: Install mise
         env:
-          MISE_VERSION: v2026.10.19
-          MISE_SHA256: b7ad610a39474b36663a6b1134c17086fa77e0f39b7ecce85c684165eed5f086
+          MISE_VERSION: v2026.11.9
+          MISE_SHA256: 23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378
         run: |
           archive="$RUNNER_TEMP/mise.tar.gz"
           curl -fsSL --retry 3 -o "$archive" "https://github.com/jdx/mise/releases/download/${MISE_VERSION}/mise-${MISE_VERSION}-linux-x64.tar.gz"

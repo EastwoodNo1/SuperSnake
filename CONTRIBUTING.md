@@ -56,7 +56,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Linear history, squash merge only | none | none | Ruleset: linear history, squash only (ADR-0007) |
 | Workflows are safe | pre-push runs zizmor offline | `checks` runs `:checkWorkflows` and zizmor | Fork PR workflows need approval; read-only default token |
 
-Release tags are protected by the `release-tags` ruleset, the owner-approved `release` environment and the release workflow (`.github/workflows/release.yml`), described in [`docs/release.md`](docs/release.md) and ADR-0012. The owner applies and verifies them with `scripts/github/apply-repo-settings.sh [--check] <owner/repo>`, which reads every setting back from `scripts/github/expected-settings.json`. The full table is spec §7.2.
+Release tags are protected by the `release-tags` ruleset, the owner-approved `release` environment and the release workflow (`.github/workflows/release.yml`), described in [`docs/release.md`](docs/release.md) and ADR-0012. The owner applies and verifies them with `scripts/github/apply-repo-settings.sh [--check] <owner/repo>`, which reads every setting back from `scripts/github/expected-settings.json`. That file is project-neutral: the release reviewer user id and the release GitHub App id come from the project-owned `scripts/github/project-settings.json` and are filled in at run time (`--print-expected` prints the merged result without calling GitHub). The full table is spec §7.2.
 
 Root check tasks are invoked with a leading colon, for example `:checkNoComments`, because AGP registers same-named tasks in `:app`.
 

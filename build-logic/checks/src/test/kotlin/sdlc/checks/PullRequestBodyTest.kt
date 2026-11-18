@@ -140,8 +140,16 @@ class PullRequestBodyTest {
     }
 
     @Test
-    fun autoreleaseTaggedDoesNotWaive() {
-        val errors = PullRequestBody.validate("## Release notes", setOf("autorelease: tagged"))
+    fun autoreleaseTaggedWaivesIssueLinkAndEvidence() {
+        assertEquals(
+            emptyList(),
+            PullRequestBody.validate("## Release notes", setOf("autorelease: tagged")),
+        )
+    }
+
+    @Test
+    fun unrelatedAutoreleaseLabelDoesNotWaive() {
+        val errors = PullRequestBody.validate("## Release notes", setOf("autorelease: snapshot"))
         assertError("link an issue", errors)
         assertError("Evidence", errors)
         assertEquals(2, errors.size)

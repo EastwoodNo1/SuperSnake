@@ -15,7 +15,7 @@ fi
 
 apksigner="${APKSIGNER:-${ANDROID_HOME:?ANDROID_HOME is not set}/build-tools/37.0.0/apksigner}"
 
-out="$("$apksigner" verify -v --print-certs "$apk")"
+out="$("$apksigner" -J-enable-native-access=ALL-UNNAMED verify -v --print-certs "$apk")"
 first="$(printf '%s\n' "$out" | sed -n 1p)"
 if [ "$first" != "Verifies" ]; then
   echo "apk does not verify" >&2

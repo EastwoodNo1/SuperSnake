@@ -468,6 +468,20 @@ run_ref_check() {
   (cd "$d/repo" && "$here/check-release-ref.sh" "$@") > /dev/null 2>&1
 }
 
+apksignerRunsWithoutJdkWarnings() {
+  need sign-apk.sh verify-signature.sh
+  local d="$work/quiet"
+  mkdir -p "$d"
+  make_keystore "$d" pw-quiet key
+  KS_FILE="$d/ks.p12" KS_PASS=pw-quiet KEY_ALIAS=key KEY_PASS=pw-quiet \
+    "$here/sign-apk.sh" "$unsigned_apk" "$d/signed.apk" > "$d/sign.out" 2> "$d/sign.err" || fail "could not sign with the throwaway key"
+  expect_not_in "$d/sign.err" "WARNING"
+  local digest
+  digest="$(signer_digest "$d/signed.apk")"
+  "$here/verify-signature.sh" "$d/signed.apk" "$digest" > "$d/verify.out" 2> "$d/verify.err" || fail "verify-signature failed"
+  expect_not_in "$d/verify.err" "WARNING"
+}
+
 tagOnMainPasses() {
   need check-release-ref.sh
   local d="$work/tagMain" sha rc=0
@@ -587,6 +601,7 @@ tests=(
   fingerprintMatchPasses
   fingerprintMismatchFailsClosed
   emptyFingerprintFailsClosed
+  apksignerRunsWithoutJdkWarnings
   unsignedApkFailsVerification
   tagOnMainPasses
   tagOffMainFails

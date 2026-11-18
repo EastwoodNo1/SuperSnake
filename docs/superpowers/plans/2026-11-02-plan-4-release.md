@@ -582,10 +582,10 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 - [x] **Step 1: Remove the proof workflow.** PR `ci: remove the tag proof workflow`, merged through the normal gates. Expected: `gh workflow list` no longer lists `release-proof`.
 - [x] **Step 2: Check the starting state.** Run: `gh api repos/EastwoodNo1/SuperSnake/immutable-releases`, `gh api repos/EastwoodNo1/SuperSnake/rulesets --jq '.[] | [.name,.enforcement] | @tsv'` and `gh release list`. Expected: `{"enabled":true,...}`, `release-tags` and `main-protection` are both `active`, and no release exists.
-- [ ] **Step 3: [owner] Merge the release PR `chore(main): release 1.0.0`** (O7) once its required checks are green and its diff shows `version.txt` at `1.0.0` and a changelog.
-- [ ] **Step 4: Watch the run.** Run: `gh run watch` on the `Release` run. Expected, in order: `release-please` creates the tag and a **draft** (`gh release list` shows `Draft v1.0.0`; `git ls-remote --tags origin v1.0.0` prints the merge commit), `build` and `smoke` pass, `sign-publish` waits for approval.
-- [ ] **Step 5: [owner] Approve the `sign-publish` deployment** (O7) in the run page, after reading the job's commands.
-- [ ] **Step 6: Verify the published release.** In a fresh directory outside any checkout:
+- [x] **Step 3: [owner] Merge the release PR `chore(main): release 1.0.0`** (O7) once its required checks are green and its diff shows `version.txt` at `1.0.0` and a changelog.
+- [x] **Step 4: Watch the run.** Run: `gh run watch` on the `Release` run. Expected, in order: `release-please` creates the tag and a **draft** (`gh release list` shows `Draft v1.0.0`; `git ls-remote --tags origin v1.0.0` prints the merge commit), `build` and `smoke` pass, `sign-publish` waits for approval.
+- [x] **Step 5: [owner] Approve the `sign-publish` deployment** (O7) in the run page, after reading the job's commands.
+- [x] **Step 6: Verify the published release.** In a fresh directory outside any checkout:
 
   ```sh
   d="$(mktemp -d)" && cd "$d" && gh release download v1.0.0 --repo EastwoodNo1/SuperSnake
@@ -599,9 +599,9 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - `gh release view v1.0.0 --json assets --jq '[.assets[].name]'`. Expected: exactly the APK and the `.sha256`.
   - `verify-published` is green in the run.
 - [ ] **Step 7: Install on `phone37` and play.** `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
-- [ ] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
-- [ ] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
-- [ ] **Step 10: If a step failed once the tag existed.** Follow `docs/release.md` "Recovery". Do not re-tag, delete the tag or re-run the whole run; only `gh run rerun <id> --failed`, and only while the draft is unpublished and the `release-please` job itself succeeded. Otherwise `1.0.0` is burned: in the PR that fixes the cause, set `release-as` to `1.0.1` (never leave it at `1.0.0`, or release-please proposes the burned version again), ship `1.0.1` through a normal release PR, and replace `1.0.0` with `1.0.1` in Steps 6 to 9. Say so in `docs/release.md`. Ask the owner before deleting a draft.
+- [x] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
+- [x] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
+- [x] **Step 10: If a step failed once the tag existed.** Used once: the first sign-publish attempt failed closed on the signer fingerprint and only the failed job was re-run; see docs/release.md "The first release, v1.0.0". Follow `docs/release.md` "Recovery". Do not re-tag, delete the tag or re-run the whole run; only `gh run rerun <id> --failed`, and only while the draft is unpublished and the `release-please` job itself succeeded. Otherwise `1.0.0` is burned: in the PR that fixes the cause, set `release-as` to `1.0.1` (never leave it at `1.0.0`, or release-please proposes the burned version again), ship `1.0.1` through a normal release PR, and replace `1.0.0` with `1.0.1` in Steps 6 to 9. Say so in `docs/release.md`. Ask the owner before deleting a draft.
 - [ ] **Step 11: Finish per the per-task workflow** for each PR in this task.
 
 ---

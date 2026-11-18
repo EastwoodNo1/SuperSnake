@@ -133,6 +133,21 @@ gh release verify v<v> --repo EastwoodNo1/SuperSnake
 
 To see it run, install it on a device or emulator with `adb install SuperSnake-<v>.apk` and play a round. A device that has not run the game before shows Android's system "Viewing full screen" confirmation once, on first launch, on API 31. Tap "Got it". The smoke script (`scripts/release-smoke.sh`) taps it on the emulator, so a person doing the same check by hand has to as well.
 
+## The first release, v1.0.0
+
+Run: https://github.com/EastwoodNo1/SuperSnake/actions/runs/44141255496. Release: https://github.com/EastwoodNo1/SuperSnake/releases/tag/v1.0.0. Tag `v1.0.0` is on `b75b0c3` (the merge of release PR #136).
+
+- The first `sign-publish` attempt failed closed at `Verify the signing certificate` with `signer fingerprint does not match the expected value`. Nothing was published and the release stayed a draft. The repository variable `RELEASE_CERT_SHA256` was stale. It was set again from `release.p12` with the command in "Compute the fingerprint", and only the failed job was re-run (`gh run rerun 44141255496 --failed`) and approved. The run then ended `success`.
+- Checks of the downloaded files, run on 2026-11-18 in an empty temporary directory:
+  - `shasum -a 256 -c SuperSnake-1.0.0.apk.sha256` printed `SuperSnake-1.0.0.apk: OK`.
+  - `apksigner verify -v --print-certs` printed `Verifies`, `Number of signers: 1` and `V3.0 Signer: certificate SHA-256 digest: 4625231d4f9c7dd82de89af47116ee3a270b0dd70c1c9307df879da23ecd098a`, equal to `RELEASE_CERT_SHA256`.
+  - `gh attestation verify SuperSnake-1.0.0.apk --repo EastwoodNo1/SuperSnake` exited 0.
+  - `gh release verify v1.0.0 --repo EastwoodNo1/SuperSnake` printed `Release v1.0.0 verified!` and exited 0.
+  - `gh release view v1.0.0 --json assets,isDraft,isImmutable` listed exactly `SuperSnake-1.0.0.apk` and `SuperSnake-1.0.0.apk.sha256`, `isDraft` false, `isImmutable` true.
+  - `aapt2 dump badging` printed `versionCode='1000000' versionName='1.0.0'`.
+- On the `phone37` emulator (API 37) `adb install` printed `Success`, `scripts/release-smoke.sh` printed `smoke passed: game over reached, no FATAL EXCEPTION`, and the cold-started app showed the menu with `Best: 0`. That game scored 0, so this run does not show a non-zero high score surviving a restart.
+- release-please opened a second release PR for `1.0.0` (#143) while `release-as` was still set. It was closed unmerged, and `release-as` was removed from `release-please-config.json`.
+
 ## Recovery
 
 - **A job failed before the release was published.** Re-run only the failed jobs, in place: `gh run rerun <id> --failed --repo EastwoodNo1/SuperSnake`. If the tag exists but its draft has no assets, re-run the failed jobs the same way. GitHub allows re-runs for 30 days after the run.

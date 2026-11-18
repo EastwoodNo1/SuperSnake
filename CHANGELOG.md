@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0](https://github.com/EastwoodNo1/SuperSnake/compare/v1.0.0...v1.0.0) (2026-11-18)
+
+
+### Bug Fixes
+
+* exempt tagged release PRs in pr-rules ([#141](https://github.com/EastwoodNo1/SuperSnake/issues/141)) ([e69bc39](https://github.com/EastwoodNo1/SuperSnake/commit/e69bc391709fa1d40f497c4ec69f75e291a59b66)), closes [#139](https://github.com/EastwoodNo1/SuperSnake/issues/139)
+* silence the apksigner native-access warning ([#142](https://github.com/EastwoodNo1/SuperSnake/issues/142)) ([f668f49](https://github.com/EastwoodNo1/SuperSnake/commit/f668f493fecdd943bdef1aef61d1d7b2e40aa815))
+
 ## 1.0.0 (2026-11-17)
 
 

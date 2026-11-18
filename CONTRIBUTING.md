@@ -38,7 +38,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 |------|-------------------|---------------------|----------------|
 | No direct commits or pushes to `main` | pre-commit and pre-push refuse on `main` | none | Ruleset on `main`: PR required, no bypass list, conversation resolution required |
 | Work happens in a linked worktree | pre-commit refuses commits in the main checkout | none | none |
-| Every PR links an issue | none | `pr-rules`: body contains `Closes #n`, or the PR has the `dependencies` label or the `autorelease: pending` label (the release PR, whose body release-please rewrites) | none |
+| Every PR links an issue | none | `pr-rules`: body contains `Closes #n`, or the PR has the `dependencies` label or the PR has the `autorelease: pending` or `autorelease: tagged` label (the release PR, whose body release-please rewrites, and the same PR after it merges) | none |
 | Production changes come with tests | none | `pr-rules`: a PR that changes `src/main` in `:domain` or `:data` must change `src/test` in that module | none |
 | Conventional Commits | `commit-msg` runs `:checkCommitMessage` | `pr-rules`: `:checkCommitMessages` over all PR commits, and the PR title check | none |
 | No comments in source | pre-commit runs `:checkNoComments` | `checks` runs it as part of `check` | none |
@@ -52,7 +52,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 | Version code follows `version.txt` | none | `checks` runs `:app:assembleRelease`: the build fails for a malformed or over-limit `version.txt` (`versionCode = major*1_000_000 + minor*1_000 + patch`, ADR-0011) | none |
 | The R8 release APK starts and reaches game over | none | `release-smoke` (required) signs the release APK with a throwaway key, installs it on an API 31 emulator, taps Play, waits for game over and fails on any `FATAL EXCEPTION`; `checks` runs the script tests | none |
 | Native libraries are 16 KB aligned | none | `checks` runs `zipalign -c -P 16 -v 4` on the release APK | none |
-| Evidence section present and non-empty | none | `pr-rules`: `:checkPullRequest`; the `autorelease: pending` label (the release PR) is exempt | PR template |
+| Evidence section present and non-empty | none | `pr-rules`: `:checkPullRequest`; the `autorelease: pending` and `autorelease: tagged` labels (the release PR) are exempt | PR template |
 | Linear history, squash merge only | none | none | Ruleset: linear history, squash only (ADR-0007) |
 | Workflows are safe | pre-push runs zizmor offline | `checks` runs `:checkWorkflows` and zizmor | Fork PR workflows need approval; read-only default token |
 

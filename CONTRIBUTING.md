@@ -36,7 +36,7 @@ Every rule in the table below is machine-enforced; the practices after it are ta
 
 | Rule | Local (git hooks) | CI (required check) | GitHub setting |
 |------|-------------------|---------------------|----------------|
-| No direct commits or pushes to `main` | pre-commit and pre-push refuse on `main` | none | Ruleset on `main`: PR required, no bypass list, conversation resolution required |
+| No direct commits or pushes to `main` | pre-commit and pre-push refuse on `main` | none | Ruleset on `main`: PR required, conversation resolution required, bypass only for the admin role in `pull_request` mode (owner decision 2026-11-18; the list lives in `scripts/github/project-settings.json` as `main_bypass_actors`) |
 | Work happens in a linked worktree | pre-commit refuses commits in the main checkout | none | none |
 | Every PR links an issue | none | `pr-rules`: body contains `Closes #n`, or the PR has the `dependencies` label or the PR has the `autorelease: pending` or `autorelease: tagged` label (the release PR, whose body release-please rewrites, and the same PR after it merges) | none |
 | Production changes come with tests | none | `pr-rules`: a PR that changes `src/main` in `:domain` or `:data` must change `src/test` in that module | none |

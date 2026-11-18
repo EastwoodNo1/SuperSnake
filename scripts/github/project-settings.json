@@ -1,1 +1,1 @@
-{"release_reviewer_user_id": 286747515, "release_app_id": 5641111}
+{"release_reviewer_user_id": 286747515, "release_app_id": 5641111, "main_bypass_actors": [{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request"}]}

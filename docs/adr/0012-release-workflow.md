@@ -45,7 +45,7 @@ Read 2026-10-29 and 2026-11-02; the full notes are in the Plan 4 design record.
 ## Consequences
 
 - The reviewer is a click by the same person: self-review is allowed because the repo is solo. The gate stops an accidental or hijacked run from signing, not the owner.
-- The tag ruleset has one bypass actor, so it differs from `main-protection`, whose bypass list is empty.
+- The tag ruleset has one bypass actor, so it differs from `main-protection`, whose bypass list was empty when this ADR was accepted. Amended 2026-11-18 (owner decision): `main-protection` now lists the Repository admin role in `pull_request` mode, so the owner can merge from the PR page while checks run. The list is `main_bypass_actors` in `scripts/github/project-settings.json`.
 - Evaluate mode is unavailable for rulesets on a personal repo, so the ruleset is tested by a real tag-creation attempt and a proof workflow.
 - A failure before the release is published is re-run in place, even though the tag already exists as a draft. Only a failure after the release is published is fixed forward with the next patch version, because that version number is burned. Tags are never re-pointed.
 - `force-tag-creation` creates the tag when the draft is made, before publish, so until publish only the ruleset protects it; release-please ignores an HTTP 422 on the tag, so `check-release-ref.sh` fails the run when the tag is missing.

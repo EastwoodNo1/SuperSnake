@@ -2,22 +2,43 @@
 set -euo pipefail
 
 check=0
-if [ "${1:-}" = "--check" ]; then
-  check=1
-  shift
-fi
+print_expected=0
+case "${1:-}" in
+  --check) check=1; shift ;;
+  --print-expected) print_expected=1; shift ;;
+esac
 
-if [ "$#" -ne 1 ] || [[ "$1" != */* ]]; then
-  echo "usage: $0 [--check] <owner/repo>" >&2
+if [ "$print_expected" -eq 0 ] && { [ "$#" -ne 1 ] || [[ "$1" != */* ]]; }; then
+  echo "usage: $0 [--check] <owner/repo> | $0 --print-expected" >&2
   exit 2
 fi
 
-repo="$1"
 here="$(cd "$(dirname "$0")" && pwd)"
-expected_file="$here/expected-settings.json"
+project_file="${PROJECT_SETTINGS:-$here/project-settings.json}"
+
+command -v jq >/dev/null || { echo "jq is required" >&2; exit 2; }
+
+[ -f "$project_file" ] || { echo "missing project-settings file: $project_file" >&2; exit 2; }
+for key in release_reviewer_user_id release_app_id; do
+  jq -e --arg k "$key" '(.[$k] | type) == "number" and .[$k] > 0 and .[$k] == (.[$k] | floor)' "$project_file" >/dev/null \
+    || { echo "$project_file: $key must be a positive integer" >&2; exit 2; }
+done
+
+expected_file="$(mktemp)"
+trap 'rm -f "$expected_file"' EXIT
+jq --slurpfile p "$project_file" '
+  .environments.release.reviewers |= map(.id = $p[0].release_reviewer_user_id)
+  | .release_tags.bypass_actors |= map(.actor_id = $p[0].release_app_id)
+' "$here/expected-settings.json" > "$expected_file"
+
+if [ "$print_expected" -eq 1 ]; then
+  cat "$expected_file"
+  exit 0
+fi
+
+repo="$1"
 
 command -v gh >/dev/null || { echo "gh is required" >&2; exit 2; }
-command -v jq >/dev/null || { echo "jq is required" >&2; exit 2; }
 
 api() { gh api -H "X-GitHub-Api-Version: 2022-11-28" "$@"; }
 

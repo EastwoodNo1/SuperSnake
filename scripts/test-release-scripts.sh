@@ -91,7 +91,7 @@ esac
 FAKE
   chmod +x "$dir/bin/adb"
   : > "$dir/logcat.txt"
-  printf '<hierarchy><node index="0" text="Snake" bounds="[0,0][10,10]" /></hierarchy>' > "$dir/dump.xml"
+  printf '<hierarchy><node index="0" text="Home" bounds="[0,0][10,10]" /></hierarchy>' > "$dir/dump.xml"
 }
 
 play_dump='<hierarchy><node index="0" text="Play" bounds="[100,200][300,400]" /></hierarchy>'
@@ -99,8 +99,89 @@ over_dump='<hierarchy><node index="0" text="Game over. Score 3" bounds="[0,0][10
 
 run_smoke() {
   local dir="$1"
-  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" OUT_DIR="$dir/out" SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-2}" SMOKE_SETTLE_SECONDS="${SMOKE_SETTLE_SECONDS:-0}" \
+  FAKE_DIR="$dir" PATH="$dir/bin:$PATH" PACKAGE="${PACKAGE_UNDER_TEST-com.example.app}" OUT_DIR="$dir/out" SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-2}" SMOKE_SETTLE_SECONDS="${SMOKE_SETTLE_SECONDS:-0}" \
     "$here/release-smoke.sh" "$unsigned_apk" > "$dir/stdout.txt" 2> "$dir/stderr.txt"
+}
+
+fake_aapt2() {
+  local dir="$1" body="$2"
+  mkdir -p "$dir/bin"
+  printf '#!%s\n%s\n' "/usr/bin/env bash" "$body" > "$dir/bin/aapt2"
+  chmod +x "$dir/bin/aapt2"
+}
+
+smokeDerivesThePackageFromTheApk() {
+  need release-smoke.sh
+  local d="$work/derive"
+  fake_adb "$d"
+  fake_aapt2 "$d" "echo \"package: name='com.example.derived' versionCode='1' versionName='1.0'\""
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  AAPT2="$d/bin/aapt2" PACKAGE_UNDER_TEST='' SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke with a derived package"
+  expect_in "$d/calls.log" "uninstall com.example.derived"
+  expect_in "$d/calls.log" "shell am start -W -n com.example.derived/.MainActivity"
+}
+
+smokeFailsWhenThePackageCannotBeRead() {
+  need release-smoke.sh
+  local d="$work/underive"
+  fake_adb "$d"
+  fake_aapt2 "$d" "exit 1"
+  local rc=0
+  AAPT2="$d/bin/aapt2" PACKAGE_UNDER_TEST='' run_smoke "$d" || rc=$?
+  expect_nonzero "$rc" "smoke with an unreadable package"
+  expect_in "$d/stderr.txt" "cannot read the package name"
+  [ ! -s "$d/calls.log" ] || fail "adb was called before the package was known"
+}
+
+smokeKeepsAnExplicitPackage() {
+  need release-smoke.sh
+  local d="$work/explicit"
+  fake_adb "$d"
+  fake_aapt2 "$d" "echo should-not-run >&2; exit 1"
+  printf '%s' "$play_dump" > "$d/dump.xml"
+  printf '%s' "$over_dump" > "$d/dump-after.xml"
+  local rc=0
+  AAPT2="$d/bin/aapt2" SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
+  expect_status 0 "$rc" "smoke with an explicit package"
+  expect_in "$d/calls.log" "uninstall com.example.app"
+}
+
+settings_script="$here/github/apply-repo-settings.sh"
+settings_template="$here/github/expected-settings.json"
+
+settingsTemplateCarriesNoProjectIds() {
+  jq -e '.environments.release.reviewers[0].id == 0 and .release_tags.bypass_actors[0].actor_id == 0' "$settings_template" > /dev/null || fail "template ids are not the 0 marker"
+}
+
+settingsMergeFillsTheProjectIds() {
+  local d="$work/merge"
+  mkdir -p "$d"
+  printf '{"release_reviewer_user_id": 11, "release_app_id": 22}' > "$d/project.json"
+  PROJECT_SETTINGS="$d/project.json" "$settings_script" --print-expected > "$d/merged.json" 2> "$d/stderr.txt" || fail "print-expected failed: $(cat "$d/stderr.txt")"
+  [ "$(jq '.environments.release.reviewers[0].id' "$d/merged.json")" = "11" ] || fail "reviewer id not filled"
+  [ "$(jq '.release_tags.bypass_actors[0].actor_id' "$d/merged.json")" = "22" ] || fail "app id not filled"
+  [ "$(jq -S 'del(.environments.release.reviewers[0].id, .release_tags.bypass_actors[0].actor_id)' "$d/merged.json")" = "$(jq -S 'del(.environments.release.reviewers[0].id, .release_tags.bypass_actors[0].actor_id)' "$settings_template")" ] || fail "merge changed other keys"
+}
+
+settingsMergeRejectsBadProjectValues() {
+  local d="$work/badmerge" rc=0
+  mkdir -p "$d"
+  printf '{"release_reviewer_user_id": 11}' > "$d/missing.json"
+  PROJECT_SETTINGS="$d/missing.json" "$settings_script" --print-expected > /dev/null 2> "$d/missing.err" || rc=$?
+  expect_nonzero "$rc" "missing app id"
+  expect_in "$d/missing.err" "release_app_id"
+  printf '{"release_reviewer_user_id": 0, "release_app_id": 22}' > "$d/zero.json"
+  rc=0
+  PROJECT_SETTINGS="$d/zero.json" "$settings_script" --print-expected > /dev/null 2> "$d/zero.err" || rc=$?
+  expect_nonzero "$rc" "zero reviewer id"
+  expect_in "$d/zero.err" "release_reviewer_user_id"
+  rc=0
+  PROJECT_SETTINGS="$d/absent.json" "$settings_script" --print-expected > /dev/null 2> "$d/absent.err" || rc=$?
+  expect_nonzero "$rc" "absent project file"
+  expect_in "$d/absent.err" "project-settings"
 }
 
 signedApkVerifies() {
@@ -284,7 +365,7 @@ resumesAfterAnInterruption() {
   local d="$work/interrupted"
   fake_adb "$d"
   printf '%s' "$play_dump" > "$d/dump.xml"
-  printf '<hierarchy><node index="0" text="Paused" package="io.github.eastwoodno1.supersnake" bounds="[0,0][10,10]" /><node index="1" text="Resume" package="io.github.eastwoodno1.supersnake" bounds="[474,1082][608,1135]" /></hierarchy>' > "$d/dump-1.xml"
+  printf '<hierarchy><node index="0" text="Paused" package="com.example.app" bounds="[0,0][10,10]" /><node index="1" text="Resume" package="com.example.app" bounds="[474,1082][608,1135]" /></hierarchy>' > "$d/dump-1.xml"
   printf '%s' "$over_dump" > "$d/dump-after.xml"
   local rc=0
   SMOKE_TIMEOUT_SECONDS=10 run_smoke "$d" || rc=$?
@@ -609,6 +690,12 @@ tests=(
   versionMismatchFails
   publishUploadsThenPublishesDraft
   publishSkipsWhenAlreadyPublished
+  smokeDerivesThePackageFromTheApk
+  smokeFailsWhenThePackageCannotBeRead
+  smokeKeepsAnExplicitPackage
+  settingsTemplateCarriesNoProjectIds
+  settingsMergeFillsTheProjectIds
+  settingsMergeRejectsBadProjectValues
 )
 
 passed=0

@@ -2,7 +2,12 @@
 set -euo pipefail
 
 apk="${1:?usage: release-smoke.sh <apk>}"
-package="${PACKAGE:-io.github.eastwoodno1.supersnake}"
+package="${PACKAGE:-}"
+if [ -z "$package" ]; then
+  aapt2="${AAPT2:-${ANDROID_HOME:?ANDROID_HOME is not set}/build-tools/37.0.0/aapt2}"
+  package="$("$aapt2" dump badging "$apk" 2>/dev/null | sed -n "s/^package: name='\([^']*\)'.*/\1/p" | head -n 1)" || package=""
+  [ -n "$package" ] || { echo "smoke failed: cannot read the package name from $apk" >&2; exit 1; }
+fi
 timeout_seconds="${SMOKE_TIMEOUT_SECONDS:-120}"
 settle_seconds="${SMOKE_SETTLE_SECONDS:-2}"
 replay_after="${SMOKE_REPLAY_DUMPS:-5}"

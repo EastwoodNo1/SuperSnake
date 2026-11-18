@@ -23,12 +23,12 @@ rm -f "$out_apk"
 partial="$out_apk.partial"
 trap 'rm -f "$partial" "$partial.idsig"' EXIT
 
-"$apksigner" sign \
+"$apksigner" -J-enable-native-access=ALL-UNNAMED sign \
   --ks "$KS_FILE" \
   --ks-key-alias "$KEY_ALIAS" \
   --ks-pass env:KS_PASS \
   --key-pass env:KEY_PASS \
   --out "$partial" \
   "$in_apk"
-"$apksigner" verify -v "$partial"
+"$apksigner" -J-enable-native-access=ALL-UNNAMED verify -v "$partial"
 mv "$partial" "$out_apk"

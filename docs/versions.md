@@ -105,6 +105,12 @@ When a Kotlin or Kover bump changes these versions, add the portal checksum for 
 
 The mise version and the SHA-256 of its linux-x64 archive are written in nine places: four jobs in `.github/workflows/ci.yml`, the `java-kotlin` job in `.github/workflows/codeql.yml` and the `build`, `smoke`, `sign-publish` and `verify-published` jobs in `.github/workflows/release.yml`. Dependabot does not manage them. Update all nine together and record the new version and SHA in the table above.
 
+## Dependabot Kotlin cap
+
+`.github/dependabot.yml` ignores `org.jetbrains.kotlin*` versions above 2.4.20 in the gradle ecosystem, because CodeQL supports Kotlin only up to 2.4.20 (ADR-0006) and Dependabot PR #41 (2.4.21) cannot merge. Syntax verified on 2026-11-19 against https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference (`dependency-name` takes `*` wildcards, `versions` takes version ranges for ignore) and https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/controlling-dependencies-updated (the `versions: [ ">=1.0.0" ]` example). `update-types` cannot express a cap: it only filters by major, minor or patch level.
+
+Remove the ignore, and raise the Kotlin pin together with it, when https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/ lists a Kotlin version above 2.4.20. Until then Gradle's embedded Kotlin 2.4.21 is unaffected, because it is not a project dependency.
+
 ## Known issues
 
 - With AGP 9.5.0 on Gradle 9.8.2, a cold configuration still emits one Gradle deprecation, five times: `The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11.` AGP 9.5.0 no longer emits it. The frames are in `kotlinx.kover.gradle.plugin` (`ConfigurationsKt.asBucket`, `asTransitiveDependencies`, `asProducer`, `PrepareKoverKt.prepare`), found on 2026-10-28 with `./gradlew help -Dorg.gradle.deprecation.trace=true --warning-mode=all --no-configuration-cache`. `scripts/gradle-strict.sh` allowlists exactly this message and fails on any other deprecation. Remove the allowlist when a stable Kover no longer emits it.

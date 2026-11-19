@@ -28,4 +28,18 @@ object GameBack {
             GameStatus.COUNTDOWN, GameStatus.RUNNING -> BackAction.PAUSE
             GameStatus.PAUSED, GameStatus.LOST, GameStatus.WON -> BackAction.LEAVE
         }
+
+    fun handle(
+        status: GameStatus,
+        pause: () -> Unit,
+        leave: () -> Unit,
+    ) {
+        val action = action(status)
+        pause()
+        if (action == BackAction.LEAVE) leave()
+    }
+}
+
+object Countdown {
+    fun numbers(countdown: Int?): List<Int> = listOfNotNull(countdown)
 }

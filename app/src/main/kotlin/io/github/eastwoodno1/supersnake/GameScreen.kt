@@ -50,7 +50,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import io.github.eastwoodno1.supersnake.domain.BackAction
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameKey
@@ -79,7 +78,7 @@ fun GameScreen(
         manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNowAllowingStateLoss() }
         onLeave()
     }
-    BackHandler { if (viewModel.back() == BackAction.LEAVE) leave() }
+    BackHandler { viewModel.back(leave) }
     val overlay by viewModel.overlay.collectAsStateWithLifecycle()
     val spoken by viewModel.spoken.collectAsStateWithLifecycle()
     val fresh = remember(spoken) { viewModel.undelivered(spoken) }

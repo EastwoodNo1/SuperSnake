@@ -32,4 +32,28 @@ class OverlayTest {
         assertEquals(BackAction.LEAVE, GameBack.action(GameStatus.LOST))
         assertEquals(BackAction.LEAVE, GameBack.action(GameStatus.WON))
     }
+
+    @Test
+    fun handleBackPausesAndStaysWhilePlaying() {
+        listOf(GameStatus.COUNTDOWN, GameStatus.RUNNING).forEach {
+            val calls = mutableListOf<String>()
+            GameBack.handle(it, { calls += "pause" }, { calls += "leave" })
+            assertEquals(listOf("pause"), calls, it.name)
+        }
+    }
+
+    @Test
+    fun handleBackPausesThenLeavesWhenStopped() {
+        listOf(GameStatus.PAUSED, GameStatus.LOST, GameStatus.WON).forEach {
+            val calls = mutableListOf<String>()
+            GameBack.handle(it, { calls += "pause" }, { calls += "leave" })
+            assertEquals(listOf("pause", "leave"), calls, it.name)
+        }
+    }
+
+    @Test
+    fun countdownShowsOnlyAPresentNumber() {
+        assertEquals(listOf(3), Countdown.numbers(3))
+        assertEquals(emptyList(), Countdown.numbers(null))
+    }
 }

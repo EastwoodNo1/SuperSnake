@@ -13,7 +13,7 @@
 | Android SDK cmdline-tools | 23.0 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/tools | 2026-10-26 |
 | actions/checkout | v7.0.1, commit `3d3c42e5aac5ba805825da76410c181273ba90b1` (lightweight tag, no dereference needed) | 2026-07-20 | https://api.github.com/repos/actions/checkout/releases/latest and git/ref/tags/v7.0.1 | 2026-11-13 |
 | gradle/actions (setup-gradle) | v6.4.1, commit `8da46b539cd8fe6ab27ca75128919a18d757604c` (annotated tag `7296c772...` dereferenced) | 2026-10-28 | https://api.github.com/repos/gradle/actions/releases/latest and git/tags | 2026-11-13 |
-| github/codeql-action (init, analyze) | v4.39.1, commit `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` (annotated tag `8498dc4c...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-10-21 | https://api.github.com/repos/github/codeql-action/releases | 2026-10-26 |
+| github/codeql-action (init, analyze) | v4.39.3, commit `33d7b85da1a04171e211befe2c739303b9a4c066` (annotated tag `f3bbb056...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-11-04 | https://api.github.com/repos/github/codeql-action/releases and git/ref/tags/v4.39.3 | 2026-11-19 |
 | mise in CI | v2026.11.9, linux-x64 archive SHA-256 `23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378` (matches the release SHASUMS256.txt; `gh attestation verify --repo jdx/mise` passed) | 2026-11-17 | https://github.com/jdx/mise/releases/tag/v2026.11.9 | 2026-11-17 |
 | ReactiveCircus/android-emulator-runner | v2.38.0, commit `a421e43855164a8197daf9d8d40fe71c6996bb0d` (annotated tag `c9c93e6b...` dereferenced). Still the newest stable, so the plan's pin stands. Section 6 evidence: 1,311 stars, last push 2026-08-26, last release 2026-07-05, 99 open issues and PRs, 0 issues opened and 0 closed in the 30 days to 2026-10-28. The repository is quiet; the owner kept it anyway, as with release-please-action | 2026-07-05 | https://api.github.com/repos/ReactiveCircus/android-emulator-runner/releases/latest, git/ref/tags/v2.38.0, git/tags/c9c93e6b... and search/issues | 2026-11-13 |
 | actions/upload-artifact | v7.0.2, commit `cf430e030ddbb5b0abf93d22962f4752f3646cd9` (lightweight tag, no dereference needed) | 2026-10-07 | https://api.github.com/repos/actions/upload-artifact/releases/latest and git/ref/tags/v7.0.2 | 2026-11-13 |
@@ -86,6 +86,20 @@ Dependabot bumps Gradle dependencies but cannot regenerate `gradle/verification-
 How `aapt2-9.5.0-16666295-linux.jar` was derived, on 2026-10-28: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.0-16666295/aapt2-9.5.0-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f`, SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
 
 Same for `aapt2-9.5.1-16666295-linux.jar`, on 2026-11-06: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.1-16666295/aapt2-9.5.1-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f` (byte-identical to the 9.5.0 jar), SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
+
+## Plugin marker POMs have two trusted checksums
+
+Gradle resolves a plugin marker such as `org.jetbrains.kotlin.jvm.gradle.plugin` from Maven Central first and from the Gradle plugin portal only when Central does not answer. Central serves the real marker POM. The portal synthesizes its own POM with the same coordinates and the same single dependency, so its bytes differ. Each of the three markers below therefore has a second checksum in `gradle/verification-metadata.xml` as `<also-trust>`, so a lookup that falls back to the portal still verifies. Verification stays on and nothing was removed.
+
+Measured on 2026-11-19, 25 downloads of each portal URL were byte-identical, Central's SHA-256 equals the original entry:
+
+| Marker POM | Central (original entry) | Plugin portal (`also-trust`) |
+| --- | --- | --- |
+| `org.jetbrains.kotlin.jvm.gradle.plugin-2.4.20.pom` | `f3b27910045c1e1e21cb48d68a7e177ea1a4a3dda467e546c15c30b9c098187c` | `97ffd2004e0be1df8f80f28f451b9f6aaaed08b6ff37e6979df825cbc314a4dd` |
+| `org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.4.20.pom` | `9ed1b04a99d38243a15a42b37d4dc4ba84ca77f35d77c081a7c2208d439e1220` | `ad4bc062bf802e7b570ecf30467bb70a480d779502cf6be0700204c7c89e9d97` |
+| `org.jetbrains.kotlinx.kover.gradle.plugin-0.9.11.pom` | `2ac3170ec954ebca93275a18470cc2de4f8342933fe6fbbb521121ed142b0ca8` | `f9b90b9486e255ff29eb11f5839a5a24ab95b7b475fef9c91c70681c196e6659` |
+
+When a Kotlin or Kover bump changes these versions, add the portal checksum for the new marker the same way: download `https://plugins.gradle.org/m2/<group path>/<artifact>/<version>/<artifact>-<version>.pom`, check that it names the same coordinates and the same dependency as Central's POM, and keep both checksums.
 
 ## mise pin in CI
 

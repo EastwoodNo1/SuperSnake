@@ -22,7 +22,7 @@ SuperSnake is a classic Snake game for Android phones and tablets. It exists for
 
 The project is run **solo** **[owner]**. Nothing in the process may assume a second human reviewer.
 
-Both repos are **public, under the owner's personal GitHub account** **[owner]**. This keeps rulesets with no bypass, secret scanning with push protection, CodeQL and Actions minutes free.
+Both repos are **public, under the owner's personal GitHub account** **[owner]**. This keeps rulesets (with only the admin pull-request bypass of section 7.2), secret scanning with push protection, CodeQL and Actions minutes free.
 
 ### Success looks like
 
@@ -276,7 +276,7 @@ Clean architecture with dependencies pointing inward. Four Gradle modules **[cal
 
 | Rule | Local (git hooks) | CI (required check) | GitHub setting |
 |------|-------------------|--------------------|----------------|
-| No direct commits or pushes to `main` | pre-commit and pre-push refuse on `main` | — | Ruleset on `main`: PR required, no bypass list (not even the admin), conversation resolution required |
+| No direct commits or pushes to `main` | pre-commit and pre-push refuse on `main` | — | Ruleset on `main`: PR required, conversation resolution required. Bypass list: only the Repository admin role, in `pull_request` mode, so the owner can merge from the PR page while required checks run (owner decision 2026-11-18; it replaces "no bypass list, not even the admin"). Agents, the CLI and direct pushes cannot bypass |
 | Work happens in a linked worktree | pre-commit refuses commits made in the main checkout (where `git rev-parse --git-dir` equals `--git-common-dir`). The main checkout stays on `main` and is only used for syncing | — | — |
 | Every PR links an issue | — | PR body must contain `Closes #n`, or the PR carries the `dependencies` label (Dependabot) or the `autorelease: pending` label (the release PR, whose body release-please rewrites on every push to `main`; owner decision 2026-11-02) or the `autorelease: tagged` label (the same PR after it merges, when release-please swaps the label and the labeled/unlabeled events start `pr-rules` again on the closed PR; owner decision 2026-11-18, extending the 2026-11-02 one) | — |
 | Production changes come with tests | — | A PR that changes `src/main` in `:domain` or `:data` must also change `src/test` in that module | — |

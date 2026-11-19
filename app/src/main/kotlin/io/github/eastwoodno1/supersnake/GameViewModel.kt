@@ -69,6 +69,7 @@ class GameViewModel(
     val best: StateFlow<Int> = graph.highScores.best.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), 0)
 
     suspend fun newGame() {
+        session.leave()
         val current = graph.settings.settings.first()
         val scale = Settings.Global.getFloat(graph.context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         reduceMotion = Motion.reduced(scale)
@@ -104,6 +105,11 @@ class GameViewModel(
         val action = GameBack.action(state.value.state.status)
         pause()
         return action
+    }
+
+    fun leave() {
+        val leaving = session
+        graph.scope.launch { leaving.leave() }
     }
 
     fun key(code: Int): Boolean = KEY_BINDINGS.press(code, ::input)

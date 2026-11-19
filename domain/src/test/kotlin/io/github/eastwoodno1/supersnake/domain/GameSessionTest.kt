@@ -328,6 +328,8 @@ class GameSessionTest {
         var updates = 0
             private set
 
+        val current get() = delegate.current
+
         override val entries = delegate.entries
 
         override suspend fun update(transform: (List<HighScore>) -> List<HighScore>) {
@@ -399,16 +401,96 @@ class GameSessionTest {
             session.skipCountdown()
             val saving =
                 async(start = CoroutineStart.UNDISPATCHED) {
-                    while (true) {
+                    while (session.frame.state.status == GameStatus.RUNNING) {
                         clock.now += 250
                         session.advance()
                     }
                 }
             saving.cancel()
+            gate.complete(Unit)
+            saving.join()
             val ended = session.frame
             assertEquals(GameStatus.LOST, ended.state.status)
             clock.now += 250
             assertEquals(ended.state, session.advance().state)
             assertEquals(1, repository.updates)
+        }
+
+    @Test
+    fun c22SaveIsNotDroppedWhenTheCallerIsCancelled() =
+        runTest {
+            val gate = CompletableDeferred<Unit>()
+            val repository = GatedRepository(gate)
+            val session = sessionOver(repository)
+            session.skipCountdown()
+            val saving =
+                async(start = CoroutineStart.UNDISPATCHED) {
+                    while (session.frame.state.status == GameStatus.RUNNING) {
+                        clock.now += 250
+                        session.advance()
+                    }
+                }
+            saving.cancel()
+            gate.complete(Unit)
+            saving.join()
+            assertEquals(1, repository.current.size)
+            assertEquals(1, repository.current.first().score)
+        }
+
+    private fun scoringSession(repository: HighScoreRepository = this.repository) =
+        GameSession(state(), clock, FixedRandom(0), RecordHighScore(repository, clock))
+
+    private suspend fun GameSession.scoreOnce(): GameSession {
+        clock.now = 250
+        advance()
+        assertEquals(1, frame.state.score)
+        return this
+    }
+
+    @Test
+    fun leavingAPausedGameWithAScoreRecordsItOnce() =
+        runTest {
+            val session = scoringSession().scoreOnce()
+            session.pause()
+            session.leave()
+            session.leave()
+            assertEquals(listOf(1), repository.current.map { it.score })
+        }
+
+    @Test
+    fun leavingARunningGameWithAScoreRecordsIt() =
+        runTest {
+            val session = scoringSession().scoreOnce()
+            session.leave()
+            assertEquals(listOf(1), repository.current.map { it.score })
+        }
+
+    @Test
+    fun leavingAGameWithScoreZeroStoresNothing() =
+        runTest {
+            val counting = GatedRepository()
+            val session = GameSession(Difficulty.LEVEL_1, clock, FixedRandom(0), RecordHighScore(counting, clock))
+            session.leave()
+            assertEquals(0, counting.updates)
+        }
+
+    @Test
+    fun leavingAnEndedGameDoesNotRecordAgain() =
+        runTest {
+            val counting = GatedRepository()
+            val session = sessionOver(counting)
+            session.skipCountdown()
+            session.runUntilLost()
+            session.leave()
+            assertEquals(1, counting.updates)
+        }
+
+    @Test
+    fun leavingAfterAFailedSaveStaysQuiet() =
+        runTest {
+            val failing = GatedRepository(failure = IOException("disk"))
+            val session = scoringSession(failing).scoreOnce()
+            session.leave()
+            assertEquals(1, failing.updates)
         }
 }

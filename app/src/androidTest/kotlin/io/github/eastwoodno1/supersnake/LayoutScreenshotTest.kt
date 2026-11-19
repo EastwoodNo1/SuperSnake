@@ -15,11 +15,14 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.printToString
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -154,14 +157,18 @@ class LayoutScreenshotTest {
         shoot("high-scores")
         driver.back()
         driver.awaitText("Play")
-        awaitPlay()
+        val model = awaitPlay()
         driver.awaitUntil(
             message = { "the Go overlay stayed on screen" },
         ) { composeRule.onAllNodes(visible("Go")).fetchSemanticsNodes().isEmpty() }
         shoot("game")
         assertInsideSafeArea("game", barsVisible = false)
         composeRule.onNodeWithContentDescription("Pause").performClick()
-        driver.awaitText("Resume")
+        driver.awaitUntil(
+            message = {
+                "no Resume after Pause: ${model.frame.value.state.status} ${model.overlay.value} ${composeRule.onRoot().printToString()}"
+            },
+        ) { composeRule.onAllNodesWithText("Resume").fetchSemanticsNodes().isNotEmpty() }
         assertDpadBesideOrBelowBoard()
         assertInsideSafeArea("pause", barsVisible = false)
         shoot("pause")

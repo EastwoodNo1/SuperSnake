@@ -36,6 +36,7 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -75,6 +76,7 @@ fun GameScreen(
 ) {
     val manager = (checkNotNull(LocalActivity.current) as FragmentActivity).supportFragmentManager
     val leave = {
+        viewModel.leave()
         manager.fragments.filterIsInstance<BoardFragment>().forEach { manager.beginTransaction().detach(it).commitNowAllowingStateLoss() }
         onLeave()
     }
@@ -92,7 +94,8 @@ fun GameScreen(
     val thresholdPx = with(density) { 24.dp.toPx() }
     val scope = rememberCoroutineScope()
     val view = LocalView.current
-    val beeps = remember { BeepPlayer() }
+    val context = LocalContext.current
+    val beeps = remember { BeepPlayer((context.applicationContext as SuperSnakeApp).graph.soundBank) }
     val focus = remember { FocusRequester() }
     val window = checkNotNull(LocalActivity.current).window
     val bars = remember(window, view) { WindowInsetsControllerCompat(window, view) }

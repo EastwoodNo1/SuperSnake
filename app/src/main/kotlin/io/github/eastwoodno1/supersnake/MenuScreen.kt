@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.eastwoodno1.supersnake.domain.NeonPalette
 
@@ -44,6 +45,11 @@ fun MenuScreen(
     modifier: Modifier = Modifier,
 ) {
     val best by viewModel.best.collectAsStateWithLifecycle()
+    val reducedMotion by viewModel.reducedMotion.collectAsStateWithLifecycle()
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refreshMotion()
+        onPauseOrDispose {}
+    }
     Column(
         modifier
             .fillMaxSize()
@@ -52,7 +58,7 @@ fun MenuScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (viewModel.reducedMotion) {
+        if (reducedMotion) {
             Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(ICON_SIZE).testTag("menu_icon_static"))
         } else {
             val image = AnimatedImageVector.animatedVectorResource(R.drawable.ic_snake_animated)

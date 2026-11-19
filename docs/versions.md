@@ -8,12 +8,12 @@
 | gh | 2.103.2 (via `aqua:cli/cli`; the latest stable, bumped from 2.103.0) | 2026-10-23 | https://github.com/cli/cli/releases/tag/v2.103.2 (and `gh api repos/cli/cli/releases/latest`) | 2026-10-26 |
 | zizmor | 1.31.1 (via `aqua:zizmorcore/zizmor`; still the latest stable on 2026-10-26) | 2026-10-15 | https://github.com/zizmorcore/zizmor/releases/tag/v1.31.1 | 2026-10-26 |
 | gh-stack extension | v0.2.1 (`gh extension install github/gh-stack --pin v0.2.1`) | 2026-10-09 | https://github.com/github/gh-stack/releases/tag/v0.2.1 | 2026-10-26 |
-| Android SDK platform | android-37.0, revision 2 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/platforms | 2026-10-26 |
+| Android SDK platform | android-37.2, revision 2 (read from `source.properties`; required because Compose 1.13.0 needs compileSdk 37.1 or later; 37.2 is the newest stable platform in https://dl.google.com/android/repository/repository2-3.xml, Last-Modified 2026-11-19; `targetSdk` stays 37) | n/a | https://developer.android.com/tools/releases/platforms | 2026-11-19 |
 | Android SDK build-tools | 37.0.0 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/build-tools | 2026-10-26 |
 | Android SDK cmdline-tools | 23.0 (read from `source.properties`) | n/a | https://developer.android.com/tools/releases/tools | 2026-10-26 |
 | actions/checkout | v7.0.1, commit `3d3c42e5aac5ba805825da76410c181273ba90b1` (lightweight tag, no dereference needed) | 2026-07-20 | https://api.github.com/repos/actions/checkout/releases/latest and git/ref/tags/v7.0.1 | 2026-11-13 |
 | gradle/actions (setup-gradle) | v6.4.1, commit `8da46b539cd8fe6ab27ca75128919a18d757604c` (annotated tag `7296c772...` dereferenced) | 2026-10-28 | https://api.github.com/repos/gradle/actions/releases/latest and git/tags | 2026-11-13 |
-| github/codeql-action (init, analyze) | v4.39.1, commit `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` (annotated tag `8498dc4c...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-10-21 | https://api.github.com/repos/github/codeql-action/releases | 2026-10-26 |
+| github/codeql-action (init, analyze) | v4.39.3, commit `33d7b85da1a04171e211befe2c739303b9a4c066` (annotated tag `f3bbb056...` dereferenced; `releases/latest` returns the `codeql-bundle` tag, so the v4.x release list was used) | 2026-11-04 | https://api.github.com/repos/github/codeql-action/releases and git/ref/tags/v4.39.3 | 2026-11-19 |
 | mise in CI | v2026.11.9, linux-x64 archive SHA-256 `23ba592fcbc61f057e2b82c1eafd085832712ba0c759b714ca16cd06babca378` (matches the release SHASUMS256.txt; `gh attestation verify --repo jdx/mise` passed) | 2026-11-17 | https://github.com/jdx/mise/releases/tag/v2026.11.9 | 2026-11-17 |
 | ReactiveCircus/android-emulator-runner | v2.38.0, commit `a421e43855164a8197daf9d8d40fe71c6996bb0d` (annotated tag `c9c93e6b...` dereferenced). Still the newest stable, so the plan's pin stands. Section 6 evidence: 1,311 stars, last push 2026-08-26, last release 2026-07-05, 99 open issues and PRs, 0 issues opened and 0 closed in the 30 days to 2026-10-28. The repository is quiet; the owner kept it anyway, as with release-please-action | 2026-07-05 | https://api.github.com/repos/ReactiveCircus/android-emulator-runner/releases/latest, git/ref/tags/v2.38.0, git/tags/c9c93e6b... and search/issues | 2026-11-13 |
 | actions/upload-artifact | v7.0.2, commit `cf430e030ddbb5b0abf93d22962f4752f3646cd9` (lightweight tag, no dereference needed) | 2026-10-07 | https://api.github.com/repos/actions/upload-artifact/releases/latest and git/ref/tags/v7.0.2 | 2026-11-13 |
@@ -21,9 +21,9 @@
 | actions/create-github-app-token | v3.3.0, commit `64ab729a6294000f5aa4a4bc0b73d1f32bc45510`. First-party GitHub action (MIT, 905 stars) | 2026-10-12 | https://api.github.com/repos/actions/create-github-app-token/releases/latest and git/ref/tags/v3.3.0 | 2026-11-13 |
 | actions/attest | v4.2.2, commit `1e69f48acb82d1966a394da916b4c1698aa569d6`. Replaces `actions/attest-build-provenance` v4.2.2, which is a wrapper whose README says new implementations should use `actions/attest`. Needs `id-token: write`, `attestations: write` and `artifact-metadata: write` | 2026-08-04 | https://api.github.com/repos/actions/attest/releases/latest and git/ref/tags/v4.2.2 | 2026-11-13 |
 | actions/download-artifact | v8.0.2, commit `9000827ccba6bdab643e8b6fd33ac0654aef8333` | 2026-10-07 | https://api.github.com/repos/actions/download-artifact/releases/latest and git/ref/tags/v8.0.2 | 2026-11-13 |
-| AGP | 9.5.1 (bumped from 9.5.0 because lint `AndroidGradlePluginVersion` failed the strict gate once 9.5.1 was out; the 9.5.0 and 32.5.0 companion entries are removed from `gradle/verification-metadata.xml`) | 2026-11-05 (`last-modified` of `gradle-9.5.1.pom`) | https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | 2026-11-06 |
+| AGP | 9.5.1 (bumped from 9.5.0 because lint `AndroidGradlePluginVersion` failed the strict gate once 9.5.1 was out; the 9.5.0 and 32.5.0 companion entries are removed from `gradle/verification-metadata.xml`) | 2026-11-05 (`last-modified: Thu, 05 Nov 2026 15:52:36 GMT` of `gradle-9.5.1.pom`; the release notes list 9.5.1 without a date) | https://dl.google.com/android/maven2/com/android/tools/build/gradle/9.5.1/gradle-9.5.1.pom (response header), https://dl.google.com/android/maven2/com/android/tools/build/gradle/maven-metadata.xml (lists 9.5.1) and https://developer.android.com/build/releases/agp-9-5-0-release-notes | 2026-11-19 |
 | Kotlin | 2.4.20 (2.4.21 deliberately not used: capped by CodeQL support) | 2026-09-07 | https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml | 2026-10-23 |
-| Compose BOM | 2026.09.00 | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-10-23 |
+| Compose BOM | 2026.11.01 (newest stable, the `release` and `latest` of maven-metadata.xml on 2026-11-19; maps compose 1.13.0 and material3 1.5.0; adds androidx material3-ripple 1.5.0 and graphics-shapes 1.0.1 to the runtime classpath, no non-androidx dependency; mapping page https://developer.android.com/develop/ui/compose/bom/bom-mapping) | 2026-11-19 | https://dl.google.com/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | 2026-11-19 |
 | activity-compose | 1.13.0 | 2026-03-11 | https://dl.google.com/android/maven2/androidx/activity/activity-compose/maven-metadata.xml | 2026-10-23 |
 | core-ktx | 1.19.1 | 2026-09-23 | https://dl.google.com/android/maven2/androidx/core/core-ktx/maven-metadata.xml | 2026-10-23 |
 | Kover | 0.9.11 | 2026-09-29 | https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/maven-metadata.xml | 2026-10-26 |
@@ -36,14 +36,14 @@
 | datastore-core | 1.3.0 (newest stable; 1.3.0-alpha01 to alpha11 and rc01 skipped). Its `-jvm` module lists only androidx.annotation:annotation 1.9.1, kotlin-stdlib and kotlinx-coroutines-core. `datastore-preferences` is not used (ADR-0008) | 2026-10-21 | https://dl.google.com/android/maven2/androidx/datastore/datastore-core/maven-metadata.xml | 2026-10-28 |
 | libGDX gdx, gdx-backend-android, gdx-platform (natives-arm64-v8a, natives-armeabi-v7a, natives-x86_64) | 1.14.2 (newest stable; its direct runtime dependency is gdx-jnigen-loader 2.5.2) | 2026-06-05 | https://repo1.maven.org/maven2/com/badlogicgames/gdx/gdx/maven-metadata.xml (also gdx-backend-android and gdx-platform) | 2026-10-28 |
 | fragment-compose | 1.9.1 (newest stable; 1.9.0-alpha and rc skipped) | 2026-09-23 | https://dl.google.com/android/maven2/androidx/fragment/fragment-compose/maven-metadata.xml | 2026-10-28 |
-| lifecycle-viewmodel-compose, lifecycle-runtime-compose | 2.11.0 (newest stable; 2.12.0-alpha skipped) | 2026-06-17 | https://dl.google.com/android/maven2/androidx/lifecycle/lifecycle-viewmodel-compose/maven-metadata.xml | 2026-10-28 |
+| lifecycle-viewmodel-compose, lifecycle-runtime-compose | 2.11.1 (newest stable; 2.12.0-alpha skipped; same dependency graph as 2.11.0) | 2026-11-19 | https://dl.google.com/android/maven2/androidx/lifecycle/lifecycle-viewmodel-compose/maven-metadata.xml | 2026-11-19 |
 | androidx.test runner | 1.7.0 (newest stable; 1.8.0-alpha skipped) | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/runner/maven-metadata.xml | 2026-10-28 |
 | androidx.test.ext junit | 1.3.0 (newest stable; 1.4.0-alpha skipped) | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/ext/junit/maven-metadata.xml | 2026-10-28 |
 | junit (JUnit 4, androidTest only) | 4.13.2 (newest stable) | 2021-02-13 | https://repo1.maven.org/maven2/junit/junit/maven-metadata.xml | 2026-10-28 |
-| compose ui-test-junit4, ui-test-manifest | 1.12.1 (managed by the Compose BOM 2026.09.00) | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/ui/ui-test-junit4/maven-metadata.xml | 2026-10-28 |
+| compose ui-test-junit4, ui-test-manifest | 1.13.0 (managed by the Compose BOM 2026.11.01) | 2026-11-19 | https://dl.google.com/android/maven2/androidx/compose/ui/ui-test-junit4/maven-metadata.xml | 2026-11-19 |
 | espresso-core (androidTest-only constraint) | 3.7.0 (newest stable; 3.8.0-alpha skipped). `ui-test-junit4` 1.12.1 brings 3.5.0 in transitively, and 3.5.0 crashes on API 37 because `InputManager.getInstance` is missing. Owner decision: keep the constraint; no Espresso API is used | 2025-07-30 | https://dl.google.com/android/maven2/androidx/test/espresso/espresso-core/maven-metadata.xml | 2026-10-28 |
 | core-splashscreen | 1.2.0 (newest stable; 1.2.0-alpha01 to rc01 skipped). Its POM lists appcompat-resources 1.7.0, annotation 1.8.1 and kotlin-stdlib; nothing on the never-add list | 2025-11-05 | https://dl.google.com/android/maven2/androidx/core/core-splashscreen/maven-metadata.xml | 2026-10-29 |
-| compose animation-graphics | 1.12.1 (managed by the Compose BOM 2026.09.00; 1.13.0 is alpha and beta only). Its module lists compose animation, runtime, ui, foundation-layout, core-ktx and kotlin-stdlib; nothing on the never-add list | 2026-09-09 | https://dl.google.com/android/maven2/androidx/compose/animation/animation-graphics/maven-metadata.xml | 2026-10-29 |
+| compose animation-graphics | 1.13.0 (managed by the Compose BOM 2026.11.01). Its module lists compose animation, runtime, ui, foundation-layout, core-ktx and kotlin-stdlib; nothing on the never-add list | 2026-11-19 | https://dl.google.com/android/maven2/androidx/compose/animation/animation-graphics/maven-metadata.xml | 2026-11-19 |
 
 Release dates for Maven artifacts are the Last-Modified header of the published POM.
 
@@ -69,7 +69,7 @@ Release dates for Maven artifacts are the Last-Modified header of the published 
 ## CI
 
 - `actions/setup-java` is not used: the JDK comes from mise. mise itself is installed from the release archive with a pinned SHA-256, then `mise install --locked`.
-- Android SDK in CI: the runner's preinstalled SDK plus `sdkmanager` for exactly `platforms;android-37.0` and `build-tools;37.0.0`.
+- Android SDK in CI: the runner's preinstalled SDK plus `sdkmanager` for exactly `platforms;android-37.2` and `build-tools;37.0.0`.
 - `release-smoke` (2026-11-02) adds no action: it reuses the pinned `android-emulator-runner`, `checkout`, `setup-gradle` and `upload-artifact` of `ui-tests`. It signs with `apksigner` from `build-tools;37.0.0` and a throwaway 2048-bit key made by `keytool` from the mise JDK. Its script replaces the manual release-build run of Plan 3 Task 9. Sources: the Android docs for `apksigner` and `uiautomator`, read 2026-10-29 for Plan 4 research.
 - `gradle/verification-metadata.xml` covers the root build and the included build `build-logic/checks` when it is run through the root (`:checks:check`). Running `-p build-logic/checks` on its own is not covered, so CI uses the `:checks:` form.
 
@@ -86,6 +86,20 @@ Dependabot bumps Gradle dependencies but cannot regenerate `gradle/verification-
 How `aapt2-9.5.0-16666295-linux.jar` was derived, on 2026-10-28: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.0-16666295/aapt2-9.5.0-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f`, SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
 
 Same for `aapt2-9.5.1-16666295-linux.jar`, on 2026-11-06: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.1-16666295/aapt2-9.5.1-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f` (byte-identical to the 9.5.0 jar), SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
+
+## Plugin marker POMs have two trusted checksums
+
+Gradle resolves a plugin marker such as `org.jetbrains.kotlin.jvm.gradle.plugin` from Maven Central first and from the Gradle plugin portal only when Central does not answer. Central serves the real marker POM. The portal synthesizes its own POM with the same coordinates and the same single dependency, so its bytes differ. Each of the three markers below therefore has a second checksum in `gradle/verification-metadata.xml` as `<also-trust>`, so a lookup that falls back to the portal still verifies. Verification stays on and nothing was removed.
+
+Measured on 2026-11-19, 25 downloads of each portal URL were byte-identical, Central's SHA-256 equals the original entry:
+
+| Marker POM | Central (original entry) | Plugin portal (`also-trust`) |
+| --- | --- | --- |
+| `org.jetbrains.kotlin.jvm.gradle.plugin-2.4.20.pom` | `f3b27910045c1e1e21cb48d68a7e177ea1a4a3dda467e546c15c30b9c098187c` | `97ffd2004e0be1df8f80f28f451b9f6aaaed08b6ff37e6979df825cbc314a4dd` |
+| `org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.4.20.pom` | `9ed1b04a99d38243a15a42b37d4dc4ba84ca77f35d77c081a7c2208d439e1220` | `ad4bc062bf802e7b570ecf30467bb70a480d779502cf6be0700204c7c89e9d97` |
+| `org.jetbrains.kotlinx.kover.gradle.plugin-0.9.11.pom` | `2ac3170ec954ebca93275a18470cc2de4f8342933fe6fbbb521121ed142b0ca8` | `f9b90b9486e255ff29eb11f5839a5a24ab95b7b475fef9c91c70681c196e6659` |
+
+When a Kotlin or Kover bump changes these versions, add the portal checksum for the new marker the same way: download `https://plugins.gradle.org/m2/<group path>/<artifact>/<version>/<artifact>-<version>.pom`, check that it names the same coordinates and the same dependency as Central's POM, and keep both checksums.
 
 ## mise pin in CI
 

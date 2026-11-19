@@ -617,8 +617,8 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - its own issue, branch, PR, tag `v0.4.0` and GitHub release with notes
 - This repo: `.claude/settings.json` (`ref` to `v0.4.0`), this plan's "State at handoff", `README.md`, `CLAUDE.md`
 
-- [ ] **Step 1: Plugin PR.** Update the templates and skill text, then run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake`. Expected: `0 drift`. Merge through the plugin repo's own checks, tag `v0.4.0` from its `main`, and publish a GitHub release with notes (the plan approves this).
-- [ ] **Step 2: Adopt the new plugin version.** Set `ref` in `.claude/settings.json` to `v0.4.0`, then run:
+- [x] **Step 1: Plugin PR.** Update the templates and skill text, then run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake`. Expected: `0 drift`. Merge through the plugin repo's own checks, tag `v0.4.0` from its `main`, and publish a GitHub release with notes (the plan approves this).
+- [x] **Step 2: Adopt the new plugin version.** Set `ref` in `.claude/settings.json` to `v0.4.0`, then run:
 
   ```sh
   claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.4.0 --scope project

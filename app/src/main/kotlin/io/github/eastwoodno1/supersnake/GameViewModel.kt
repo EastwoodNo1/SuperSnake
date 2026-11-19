@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import io.github.eastwoodno1.supersnake.board.SceneHolder
-import io.github.eastwoodno1.supersnake.domain.BackAction
 import io.github.eastwoodno1.supersnake.domain.BoardScene
 import io.github.eastwoodno1.supersnake.domain.Burst
 import io.github.eastwoodno1.supersnake.domain.Difficulty
@@ -101,11 +100,7 @@ class GameViewModel(
 
     fun pause() = consume(session.pause())
 
-    fun back(): BackAction {
-        val action = GameBack.action(state.value.state.status)
-        pause()
-        return action
-    }
+    fun back(leave: () -> Unit) = GameBack.handle(state.value.state.status, ::pause, leave)
 
     fun leave() {
         live = false

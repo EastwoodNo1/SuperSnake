@@ -118,7 +118,7 @@ class FontScaleTest {
     @Test
     fun fontScale200SettingsNothingClips() {
         val model = SettingsViewModel(UiTest.graph())
-        show { SettingsScreen(model) }
+        show { SettingsScreen(model, {}) }
     }
 
     @Test
@@ -128,7 +128,7 @@ class FontScaleTest {
             UiTest.graph().recordHighScore(30, Difficulty.LEVEL_2)
         }
         val model = HighScoresViewModel(UiTest.graph())
-        show(buttons = false) { HighScoresScreen(model) }
+        show { HighScoresScreen(model, {}) }
     }
 
     @Test

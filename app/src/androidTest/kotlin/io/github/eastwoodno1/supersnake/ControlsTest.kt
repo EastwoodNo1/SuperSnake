@@ -20,6 +20,7 @@ import io.github.eastwoodno1.supersnake.domain.NeonPalette
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -96,6 +97,7 @@ class ControlsTest {
         driver.back()
         awaitMenu()
         assertBoardGone()
+        assertFalse(model.live)
     }
 
     @Test
@@ -104,7 +106,7 @@ class ControlsTest {
         driver.awaitStatus(model, GameStatus.RUNNING)
         driver.back()
         driver.awaitText("Main menu")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         awaitMenu()
         assertBoardGone()
     }
@@ -114,7 +116,7 @@ class ControlsTest {
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
         val model = driver.play()
         driver.awaitOverlay(model, Overlay.GAME_OVER)
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         awaitMenu()
         assertBoardGone()
     }

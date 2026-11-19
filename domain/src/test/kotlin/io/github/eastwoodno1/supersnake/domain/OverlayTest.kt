@@ -4,12 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class OverlayTest {
-    private fun frame(status: GameStatus): GameFrame {
-        val clock = FakeClock(now = 0)
-        val session = GameSession(Difficulty.LEVEL_1, clock, FixedRandom(0), RecordHighScore(FakeHighScoreRepository(), clock))
-        val state = session.frame.state
-        return session.frame.copy(state = state.copy(status = status))
-    }
+    private fun frame(status: GameStatus) = sceneFrame(status = status)
 
     @Test
     fun overlayForEachStatus() {

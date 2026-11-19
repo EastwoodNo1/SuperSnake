@@ -65,6 +65,24 @@ class NavigationTest {
     }
 
     @Test
+    fun backButtonOnSettingsReturnsToMenu() {
+        composeRule.onNodeWithText("Settings").performClick()
+        awaitText("Sound")
+        composeRule.onNodeWithText("Back").performClick()
+        awaitText("Play")
+        assertTrue(composeRule.onAllNodesWithText("Sound").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
+    fun backButtonOnHighScoresReturnsToMenu() {
+        composeRule.onNodeWithText("High scores").performClick()
+        awaitText("No scores yet")
+        composeRule.onNodeWithText("Back").performClick()
+        awaitText("Play")
+        assertTrue(composeRule.onAllNodesWithText("No scores yet").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
     fun everyControlHasALabel() {
         awaitText("Play")
         assertEveryClickableIsLabelled()

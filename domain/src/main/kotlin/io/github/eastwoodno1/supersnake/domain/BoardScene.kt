@@ -64,10 +64,3 @@ class ReducedMotion(
         state.value = Motion.reduced(animatorDurationScale())
     }
 }
-
-object GameLife {
-    fun live(
-        status: GameStatus,
-        inGame: Boolean,
-    ): Boolean = inGame && status != GameStatus.LOST && status != GameStatus.WON
-}

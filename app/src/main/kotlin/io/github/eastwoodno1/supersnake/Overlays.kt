@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.eastwoodno1.supersnake.domain.Countdown
 import io.github.eastwoodno1.supersnake.domain.NeonPalette
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import io.github.eastwoodno1.supersnake.domain.Phrase
@@ -62,7 +63,9 @@ fun Overlays(
             Overlay.NONE -> {}
 
             Overlay.COUNTDOWN -> {
-                listOfNotNull(countdown).forEach { Big(stringResource(R.string.phrase_countdown, it), Modifier.align(Alignment.Center)) }
+                Countdown.numbers(countdown).forEach {
+                    Big(stringResource(R.string.phrase_countdown, it), Modifier.align(Alignment.Center))
+                }
             }
 
             Overlay.PAUSED -> {

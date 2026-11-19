@@ -87,6 +87,20 @@ How `aapt2-9.5.0-16666295-linux.jar` was derived, on 2026-10-28: downloaded `htt
 
 Same for `aapt2-9.5.1-16666295-linux.jar`, on 2026-11-06: downloaded `https://dl.google.com/android/maven2/com/android/tools/build/aapt2/9.5.1-16666295/aapt2-9.5.1-16666295-linux.jar`, SHA-256 `fa1014cb1431622d292ef55ba870e75882ea19987bec541698b912f446a2d08f` (byte-identical to the 9.5.0 jar), SHA-1 `85f5b91e2900e470aeb0c4d19786bd82146c2f0a`, which equals the content of the published `...-linux.jar.sha1`.
 
+## Plugin marker POMs have two trusted checksums
+
+Gradle resolves a plugin marker such as `org.jetbrains.kotlin.jvm.gradle.plugin` from Maven Central first and from the Gradle plugin portal only when Central does not answer. Central serves the real marker POM. The portal synthesizes its own POM with the same coordinates and the same single dependency, so its bytes differ. Each of the three markers below therefore has a second checksum in `gradle/verification-metadata.xml` as `<also-trust>`, so a lookup that falls back to the portal still verifies. Verification stays on and nothing was removed.
+
+Measured on 2026-11-19, 25 downloads of each portal URL were byte-identical, Central's SHA-256 equals the original entry:
+
+| Marker POM | Central (original entry) | Plugin portal (`also-trust`) |
+| --- | --- | --- |
+| `org.jetbrains.kotlin.jvm.gradle.plugin-2.4.20.pom` | `f3b27910045c1e1e21cb48d68a7e177ea1a4a3dda467e546c15c30b9c098187c` | `97ffd2004e0be1df8f80f28f451b9f6aaaed08b6ff37e6979df825cbc314a4dd` |
+| `org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.4.20.pom` | `9ed1b04a99d38243a15a42b37d4dc4ba84ca77f35d77c081a7c2208d439e1220` | `ad4bc062bf802e7b570ecf30467bb70a480d779502cf6be0700204c7c89e9d97` |
+| `org.jetbrains.kotlinx.kover.gradle.plugin-0.9.11.pom` | `2ac3170ec954ebca93275a18470cc2de4f8342933fe6fbbb521121ed142b0ca8` | `f9b90b9486e255ff29eb11f5839a5a24ab95b7b475fef9c91c70681c196e6659` |
+
+When a Kotlin or Kover bump changes these versions, add the portal checksum for the new marker the same way: download `https://plugins.gradle.org/m2/<group path>/<artifact>/<version>/<artifact>-<version>.pom`, check that it names the same coordinates and the same dependency as Central's POM, and keep both checksums.
+
 ## mise pin in CI
 
 The mise version and the SHA-256 of its linux-x64 archive are written in nine places: four jobs in `.github/workflows/ci.yml`, the `java-kotlin` job in `.github/workflows/codeql.yml` and the `build`, `smoke`, `sign-publish` and `verify-published` jobs in `.github/workflows/release.yml`. Dependabot does not manage them. Update all nine together and record the new version and SHA in the table above.

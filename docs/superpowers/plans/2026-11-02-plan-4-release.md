@@ -62,7 +62,7 @@ Together with the spec documents, this plan is self-contained. A new session nee
 - **`release-smoke` is required in the files, not yet on GitHub.** `expected-settings.json`, `apply-repo-settings.sh`, `CONTRIBUTING.md` and `CLAUDE.md` name six required checks, but the live `main-protection` ruleset still has five (`gh api repos/EastwoodNo1/SuperSnake/rulesets/25873911`, 2026-11-04), because the owner has not run the settings script since Task 2. The owner runs it in Task 4 Step 5 at the latest; running it earlier is harmless.
 - **PR #106** (full screen) is merged. `main` was at `f73ce6d` when the review started.
 - **Dependabot PR #41** (Kotlin 2.4.20 to 2.4.21) is open. CodeQL lists "Kotlin 1.8.0 to 2.4.20" (re-read 2026-10-29), so it stays open (ADR-0006). Releases build on 2.4.20.
-- **Issue #82** (API 37 `ui-tests` legs required again) is open. `ui-tests (phone-37)` and `ui-tests (tablet-37)` stay informational.
+- **Issue #82** (API 37 `ui-tests` legs required again) is closed by making `ui-tests (phone-37)` and `ui-tests (tablet-37)` required checks.
 - **Plugin:** `v0.3.0`, pinned in `.claude/settings.json`.
 - **Repo state on 2026-11-04** (`gh api`): no environments (`total_count` 0), one ruleset (`main-protection`), immutable releases off (`{"enabled":false,...}`), no `autorelease` labels, no tags, no `CHANGELOG.md`. `version.txt` holds `0.0.0` and `docs/release.md` exists (Tasks 1 and 3).
 - **ADLC capture is on.** Every PR runs the fold-in in the per-task workflow.
@@ -260,7 +260,7 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
 
 **Process**
 - Every task gets its own GitHub issue, worktree and branch, a squash-merged PR whose title is a Conventional header of at most 64 characters, and a PR body with `Closes #<issue>` and a filled `## Evidence`.
-- **Required checks on `main`:** `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)` and `release-smoke`: six required checks. `ui-tests (phone-37)` and `ui-tests (tablet-37)` are informational until #82.
+- **Required checks on `main`:** `checks`, `pr-rules`, `analyze (java-kotlin)`, `analyze (actions)`, `ui-tests (phone-31)`, `ui-tests (phone-37)`, `ui-tests (tablet-37)` and `release-smoke`: eight required checks.
 
 ## Per-task workflow
 

@@ -36,6 +36,8 @@ object UiTest {
 
     fun animationsOn() = setScale("1")
 
+    fun animationsOff() = setScale("0")
+
     private fun setScale(value: String) {
         shell("settings put global animator_duration_scale $value")
     }

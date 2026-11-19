@@ -163,14 +163,14 @@ class LayoutScreenshotTest {
         assertDpadBesideOrBelowBoard()
         assertInsideSafeArea("pause", barsVisible = false)
         shoot("pause")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         driver.awaitText("Play")
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
         val over = driver.play()
         driver.awaitOverlay(over, Overlay.GAME_OVER)
         assertInsideSafeArea("game over", barsVisible = false)
         shoot("game-over")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         driver.awaitText("Play")
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.ASSIST) }
     }

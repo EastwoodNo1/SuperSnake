@@ -5,6 +5,10 @@ enum class Screen { MENU, GAME, HIGH_SCORES, SETTINGS }
 data class BackStack(
     val screens: List<Screen> = listOf(Screen.MENU),
 ) {
+    init {
+        require(screens.isNotEmpty())
+    }
+
     val top: Screen
         get() = screens.last()
 

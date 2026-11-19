@@ -103,8 +103,8 @@ class FontScaleTest {
             val button = composeRule.onAllNodes(clickable)[index]
             if (scrolls) button.performScrollTo()
             button.assertIsDisplayed()
+            Targets.assertNodeAtLeast48dp(button.fetchSemanticsNode(), density, "font scale 2")
         }
-        Targets.assertAtLeast48dp(composeRule, density, "font scale 2")
     }
 
     private fun actions() = OverlayActions({}, {}, {}, {})

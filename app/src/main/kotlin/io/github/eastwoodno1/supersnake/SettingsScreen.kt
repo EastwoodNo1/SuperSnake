@@ -38,6 +38,7 @@ import io.github.eastwoodno1.supersnake.domain.NeonPalette
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -49,6 +50,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(stringResource(R.string.settings), Modifier.semantics { heading() }, color = Color(NeonPalette.SNAKE))
+        NeonButton(stringResource(R.string.back), onBack)
         Text(stringResource(R.string.difficulty), color = Color(NeonPalette.TEXT))
         FlowRow(
             Modifier.selectableGroup(),

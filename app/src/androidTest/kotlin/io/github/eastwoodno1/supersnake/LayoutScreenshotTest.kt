@@ -162,7 +162,6 @@ class LayoutScreenshotTest {
             message = { "the Go overlay stayed on screen" },
         ) { composeRule.onAllNodes(visible("Go")).fetchSemanticsNodes().isEmpty() }
         shoot("game")
-        assertInsideSafeArea("game", barsVisible = false)
         composeRule.onNodeWithContentDescription("Pause").performClick()
         driver.awaitUntil(
             message = {
@@ -170,7 +169,7 @@ class LayoutScreenshotTest {
             },
         ) { composeRule.onAllNodesWithText("Resume").fetchSemanticsNodes().isNotEmpty() }
         assertDpadBesideOrBelowBoard()
-        assertInsideSafeArea("pause", barsVisible = false)
+        assertInsideSafeArea("game and pause", barsVisible = false)
         shoot("pause")
         driver.mainMenu()
         driver.awaitText("Play")

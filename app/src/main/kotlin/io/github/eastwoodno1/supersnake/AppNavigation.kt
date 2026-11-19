@@ -62,11 +62,11 @@ fun SuperSnakeApp(graph: AppGraph) {
                 }
 
                 Screen.HIGH_SCORES -> {
-                    HighScoresScreen(viewModel { HighScoresViewModel(graph) })
+                    HighScoresScreen(viewModel { HighScoresViewModel(graph) }, onBack = { stack = stack.pop() })
                 }
 
                 Screen.SETTINGS -> {
-                    SettingsScreen(viewModel { SettingsViewModel(graph) })
+                    SettingsScreen(viewModel { SettingsViewModel(graph) }, onBack = { stack = stack.pop() })
                 }
             }
         }

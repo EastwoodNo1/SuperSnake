@@ -10,6 +10,7 @@ import io.github.eastwoodno1.supersnake.domain.KotlinRandomSource
 import io.github.eastwoodno1.supersnake.domain.RandomSource
 import io.github.eastwoodno1.supersnake.domain.RecordHighScore
 import io.github.eastwoodno1.supersnake.domain.SettingsActions
+import io.github.eastwoodno1.supersnake.domain.SoundBank
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 import kotlin.random.Random
@@ -29,5 +30,6 @@ class AppGraph(
 
     val settings: SettingsActions = SettingsActions(settingsRepository)
     val highScores: HighScores = HighScores(highScoreRepository)
+    val soundBank: SoundBank = SoundBank()
     val recordHighScore: RecordHighScore = RecordHighScore(highScoreRepository, clock)
 }

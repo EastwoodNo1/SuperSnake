@@ -17,7 +17,7 @@ import kotlin.random.Random
 
 class AppGraph(
     context: Context,
-    scope: CoroutineScope,
+    val scope: CoroutineScope,
 ) {
     val context: Context = context.applicationContext
     val clock: Clock = AndroidClock()

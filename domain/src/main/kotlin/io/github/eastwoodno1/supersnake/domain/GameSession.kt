@@ -1,5 +1,7 @@
 package io.github.eastwoodno1.supersnake.domain
 
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 data class GameFrame(
@@ -27,6 +29,7 @@ class GameSession internal constructor(
 
     private var countdownStartMillis = clock.nowMillis()
     private var announcedNumber = COUNTDOWN_FROM
+    private var recorded = false
     private var timer = TickTimer(initial.difficulty.tickMillis, clock.nowMillis())
 
     var frame: GameFrame =
@@ -54,6 +57,16 @@ class GameSession internal constructor(
     fun pause(): GameFrame {
         frame = paused()
         return frame
+    }
+
+    suspend fun leave() {
+        val score = frame.state.score
+        if (recorded || score <= 0) return
+        recorded = true
+        try {
+            withContext(NonCancellable) { recordHighScore(score, frame.state.difficulty) }
+        } catch (_: IOException) {
+        }
     }
 
     suspend fun advance(): GameFrame {
@@ -123,9 +136,10 @@ class GameSession internal constructor(
 
     private suspend fun saved(ended: GameFrame): GameFrame {
         val state = ended.state
+        recorded = true
         val score =
             try {
-                recordHighScore(state.score, state.difficulty)
+                withContext(NonCancellable) { recordHighScore(state.score, state.difficulty) }
             } catch (_: IOException) {
                 ScoreResult(null, false)
             }

@@ -55,4 +55,18 @@ class BoardSceneTest {
         assertEquals(1f, scene.orbBrightness)
         assertEquals(emptyList(), scene.particles)
     }
+
+    @Test
+    fun anEmptySnakeDoesNotThrow() {
+        val frame =
+            sceneFrame(
+                snake = emptyList(),
+                previousSnake = emptyList(),
+                status = GameStatus.LOST,
+                events = listOf(GameEvent.ORB_EATEN),
+            )
+        val scene = BoardScene.of(frame, Burst.next(null, frame, 0), 0, false)
+        assertEquals(emptyList(), scene.snake)
+        assertNull(scene.crash)
+    }
 }

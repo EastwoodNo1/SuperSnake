@@ -4,22 +4,28 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import io.github.eastwoodno1.supersnake.domain.Sound
+import io.github.eastwoodno1.supersnake.domain.SoundBank
 import io.github.eastwoodno1.supersnake.domain.Synth
 
-class BeepPlayer {
-    private val tracks: Map<Sound, AudioTrack> = Sound.entries.associateWith(::build)
+class BeepPlayer(
+    private val bank: SoundBank,
+) {
+    private val tracks = mutableMapOf<Sound, AudioTrack>()
 
     fun play(sound: Sound) {
-        val track = tracks.getValue(sound)
+        val track = tracks.getOrPut(sound) { build(sound) }
         track.stop()
         track.setPlaybackHeadPosition(0)
         track.play()
     }
 
-    fun release() = tracks.values.forEach(AudioTrack::release)
+    fun release() {
+        tracks.values.forEach(AudioTrack::release)
+        tracks.clear()
+    }
 
     private fun build(sound: Sound): AudioTrack {
-        val pcm = Synth.pcm(sound)
+        val pcm = bank.pcm(sound)
         val track =
             AudioTrack
                 .Builder()

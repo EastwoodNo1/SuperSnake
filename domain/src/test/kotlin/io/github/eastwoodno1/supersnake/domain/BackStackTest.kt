@@ -2,6 +2,7 @@ package io.github.eastwoodno1.supersnake.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -63,5 +64,10 @@ class BackStackTest {
     @Test
     fun restoreOfNothingIsMenu() {
         assertEquals(listOf(Screen.MENU), BackStack.restore(emptyList(), gameLive = true).screens)
+    }
+
+    @Test
+    fun anEmptyStackCannotBeBuilt() {
+        assertFailsWith<IllegalArgumentException> { BackStack(emptyList()) }
     }
 }

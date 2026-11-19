@@ -82,7 +82,7 @@ class AccessibilityTest {
         composeRule.onNodeWithContentDescription("Pause").performClick()
         driver.awaitText("Resume")
         assertTargets("pause overlay")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         driver.awaitText("Play")
         runBlocking { UiTest.graph().settings.setDifficulty(Difficulty.LEVEL_9) }
         val over = driver.play()

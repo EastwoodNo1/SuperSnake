@@ -1,5 +1,8 @@
 package io.github.eastwoodno1.supersnake.domain
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
 data class Burst(
     val cell: Cell,
     val startMillis: Long,
@@ -48,4 +51,23 @@ data class BoardScene(
 
 object Motion {
     fun reduced(animatorDurationScale: Float): Boolean = animatorDurationScale == 0f
+}
+
+class ReducedMotion(
+    private val animatorDurationScale: () -> Float,
+) {
+    private val state = MutableStateFlow(Motion.reduced(animatorDurationScale()))
+
+    val reduced: StateFlow<Boolean> = state
+
+    fun refresh() {
+        state.value = Motion.reduced(animatorDurationScale())
+    }
+}
+
+object GameLife {
+    fun live(
+        status: GameStatus,
+        inGame: Boolean,
+    ): Boolean = inGame && status != GameStatus.LOST && status != GameStatus.WON
 }

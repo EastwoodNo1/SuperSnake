@@ -15,6 +15,7 @@ import io.github.eastwoodno1.supersnake.domain.Feedback
 import io.github.eastwoodno1.supersnake.domain.GameBack
 import io.github.eastwoodno1.supersnake.domain.GameFrame
 import io.github.eastwoodno1.supersnake.domain.GameInput
+import io.github.eastwoodno1.supersnake.domain.GameLife
 import io.github.eastwoodno1.supersnake.domain.GameSession
 import io.github.eastwoodno1.supersnake.domain.HoldableClock
 import io.github.eastwoodno1.supersnake.domain.Motion
@@ -46,8 +47,8 @@ class GameViewModel(
     val scene = SceneHolder().also { it.onFrame = { frameTicks.tryEmit(Unit) } }
 
     private var session = GameSession(Difficulty.LEVEL_1, sessionClock, graph.random, graph.recordHighScore)
-    var live = false
-        private set
+    private var inGame = false
+    val live: Boolean get() = GameLife.live(state.value.state.status, inGame)
 
     private var burst: Burst? = null
     private var pendingFeedback: Job = Job()
@@ -74,7 +75,7 @@ class GameViewModel(
         val scale = Settings.Global.getFloat(graph.context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         reduceMotion = Motion.reduced(scale)
         burst = null
-        live = true
+        inGame = true
         sessionClock.hold()
         generationState.update { it + 1 }
         session = GameSession(current.difficulty, sessionClock, graph.random, graph.recordHighScore)
@@ -108,6 +109,7 @@ class GameViewModel(
     }
 
     fun leave() {
+        inGame = false
         val leaving = session
         graph.scope.launch { leaving.leave() }
     }

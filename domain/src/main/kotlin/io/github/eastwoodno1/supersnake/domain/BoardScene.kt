@@ -1,5 +1,8 @@
 package io.github.eastwoodno1.supersnake.domain
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
 data class Burst(
     val cell: Cell,
     val startMillis: Long,
@@ -9,7 +12,10 @@ data class Burst(
             previous: Burst?,
             frame: GameFrame,
             nowMillis: Long,
-        ): Burst? = if (GameEvent.ORB_EATEN in frame.events) Burst(frame.state.snake.first(), nowMillis) else previous
+        ): Burst? {
+            val head = frame.state.snake.firstOrNull()
+            return if (head != null && GameEvent.ORB_EATEN in frame.events) Burst(head, nowMillis) else previous
+        }
     }
 }
 
@@ -35,7 +41,7 @@ data class BoardScene(
                 orb = state.orb?.let(::point),
                 orbBrightness = Pulse.brightness(nowMillis, reduceMotion),
                 particles = if (burst == null) emptyList() else Particles.burst(burst.cell, burst.startMillis, nowMillis, reduceMotion),
-                crash = if (state.status == GameStatus.LOST) point(state.snake.first()) else null,
+                crash = if (state.status == GameStatus.LOST) state.snake.firstOrNull()?.let(::point) else null,
             )
         }
 
@@ -45,4 +51,16 @@ data class BoardScene(
 
 object Motion {
     fun reduced(animatorDurationScale: Float): Boolean = animatorDurationScale == 0f
+}
+
+class ReducedMotion(
+    private val animatorDurationScale: () -> Float,
+) {
+    private val state = MutableStateFlow(Motion.reduced(animatorDurationScale()))
+
+    val reduced: StateFlow<Boolean> = state
+
+    fun refresh() {
+        state.value = Motion.reduced(animatorDurationScale())
+    }
 }

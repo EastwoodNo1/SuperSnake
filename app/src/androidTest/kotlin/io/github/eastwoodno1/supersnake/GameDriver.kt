@@ -65,7 +65,15 @@ class GameDriver(
         overlay: Overlay,
     ) = awaitUntil { model.overlay.value == overlay }
 
-    fun back() = rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
+    fun back() {
+        UiTest.animationsOff()
+        rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
+    }
+
+    fun mainMenu() {
+        UiTest.animationsOff()
+        rule.onNodeWithText("Main menu").performClick()
+    }
 
     fun awaitPixel(
         cell: () -> Cell,

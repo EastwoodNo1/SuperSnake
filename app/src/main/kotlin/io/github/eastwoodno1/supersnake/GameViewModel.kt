@@ -108,6 +108,7 @@ class GameViewModel(
     }
 
     fun leave() {
+        live = false
         val leaving = session
         graph.scope.launch { leaving.leave() }
     }

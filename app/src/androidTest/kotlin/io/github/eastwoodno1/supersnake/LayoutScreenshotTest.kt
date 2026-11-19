@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.Difficulty
-import io.github.eastwoodno1.supersnake.domain.GameInput
 import io.github.eastwoodno1.supersnake.domain.GameStatus
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.runBlocking
@@ -155,10 +154,13 @@ class LayoutScreenshotTest {
         shoot("high-scores")
         driver.back()
         driver.awaitText("Play")
-        val model = awaitPlay()
+        awaitPlay()
+        driver.awaitUntil(
+            message = { "the Go overlay stayed on screen" },
+        ) { composeRule.onAllNodes(visible("Go")).fetchSemanticsNodes().isEmpty() }
         shoot("game")
         assertInsideSafeArea("game", barsVisible = false)
-        composeRule.runOnUiThread { model.input(GameInput.TogglePause) }
+        composeRule.onNodeWithContentDescription("Pause").performClick()
         driver.awaitText("Resume")
         assertDpadBesideOrBelowBoard()
         assertInsideSafeArea("pause", barsVisible = false)

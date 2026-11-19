@@ -53,11 +53,12 @@ class GameScreenTest {
     private fun awaitUntil(
         timeoutMillis: Long = 10_000,
         pumping: Boolean = true,
+        message: () -> String = { "timed out" },
         condition: () -> Boolean,
     ) {
         val deadline = SystemClock.elapsedRealtime() + timeoutMillis
         while (!condition()) {
-            assertTrue("timed out", SystemClock.elapsedRealtime() < deadline)
+            assertTrue(message(), SystemClock.elapsedRealtime() < deadline)
             if (pumping) pump(10) else Thread.sleep(10)
         }
     }
@@ -81,7 +82,7 @@ class GameScreenTest {
         expected: Int,
     ): Int {
         var pixel = 0
-        awaitUntil(SETTLE_MILLIS) {
+        awaitUntil(SETTLE_MILLIS, message = { "pixel at ${cell()} is #%08X, expected #%08X within $TOLERANCE".format(pixel, expected) }) {
             val shot = BoardPixels.capture(composeRule.activity)
             pixel = shot.at(cell())
             closeTo(pixel, expected)

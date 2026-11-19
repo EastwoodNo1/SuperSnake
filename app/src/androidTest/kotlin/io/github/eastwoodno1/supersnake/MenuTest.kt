@@ -70,12 +70,14 @@ class MenuTest {
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithTag("board").fetchSemanticsNodes().isNotEmpty() }
         leaveGame()
         composeRule.waitUntil(GAME_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText("Play").fetchSemanticsNodes().isNotEmpty() }
-        Thread.sleep(SETTLE_MILLIS)
+        composeRule.waitUntil(GAME_TIMEOUT_MILLIS) {
+            composeRule.activity.supportFragmentManager.fragments
+                .none { it is BoardFragment }
+        }
         composeRule.onNodeWithText("Play").assertIsDisplayed()
     }
 
     private companion object {
-        const val SETTLE_MILLIS = 6_000L
         const val FAST_TAP_GAP_MILLIS = 30L
         const val GAME_TIMEOUT_MILLIS = 60_000L
     }

@@ -44,12 +44,12 @@ class AccessibilityTest {
         value: String,
         block: () -> Unit,
     ) {
-        val previous = shell("settings get global animator_duration_scale").trim()
-        shell("settings put global animator_duration_scale $value")
+        val previous = UiTest.animatorScale()
+        UiTest.setAnimatorScale(value)
         try {
             block()
         } finally {
-            shell("settings put global animator_duration_scale $previous")
+            UiTest.restoreAnimatorScale(previous)
         }
     }
 

@@ -44,7 +44,7 @@ jobs:
         run: |
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
-          "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
+          "$sdkmanager" "platforms;android-37.2" "build-tools;37.0.0"
       - name: zizmor
         env:
           GH_TOKEN: ${{ github.token }}
@@ -60,6 +60,8 @@ jobs:
         run: '"$ANDROID_HOME/build-tools/37.0.0/zipalign" -c -P 16 -v 4 app/build/outputs/apk/release/app-release-unsigned.apk'
       - name: Release script tests
         run: mise exec -- scripts/test-release-scripts.sh app/build/outputs/apk/release/app-release-unsigned.apk
+      - name: UI test guard tests
+        run: scripts/test-ui-test-guard.sh
       - name: Check build-logic
         run: mise exec -- scripts/gradle-strict.sh :checks:check :checks:koverVerify
 
@@ -111,7 +113,7 @@ jobs:
         run: |
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
-          "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
+          "$sdkmanager" "platforms;android-37.2" "build-tools;37.0.0"
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -146,7 +148,6 @@ jobs:
           path: |
             app/build/outputs/androidTest-results/
             app/build/outputs/connected_android_test_additional_output/
-          if-no-files-found: warn
 
   release-smoke:
     runs-on: ubuntu-24.04
@@ -179,7 +180,7 @@ jobs:
         run: |
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
-          "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
+          "$sdkmanager" "platforms;android-37.2" "build-tools;37.0.0"
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -211,7 +212,6 @@ jobs:
         with:
           name: release-smoke
           path: build/release-smoke/
-          if-no-files-found: warn
 
   pr-rules:
     if: github.event_name == 'pull_request'
@@ -247,7 +247,7 @@ jobs:
         run: |
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           "$sdkmanager" --licenses < <(yes) > /dev/null
-          "$sdkmanager" "platforms;android-37.0" "build-tools;37.0.0"
+          "$sdkmanager" "platforms;android-37.2" "build-tools;37.0.0"
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-provider: basic

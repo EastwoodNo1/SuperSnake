@@ -103,6 +103,7 @@ class GameViewModel(
     fun back(leave: () -> Unit) = GameBack.handle(state.value.state.status, ::pause, leave)
 
     fun leave() {
+        live = false
         val leaving = session
         graph.scope.launch { leaving.leave() }
     }

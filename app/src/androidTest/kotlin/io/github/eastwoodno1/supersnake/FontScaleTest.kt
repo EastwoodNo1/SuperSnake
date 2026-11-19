@@ -103,8 +103,8 @@ class FontScaleTest {
             val button = composeRule.onAllNodes(clickable)[index]
             if (scrolls) button.performScrollTo()
             button.assertIsDisplayed()
+            Targets.assertNodeAtLeast48dp(button.fetchSemanticsNode(), density, "font scale 2")
         }
-        Targets.assertAtLeast48dp(composeRule, density, "font scale 2")
     }
 
     private fun actions() = OverlayActions({}, {}, {}, {})
@@ -118,7 +118,7 @@ class FontScaleTest {
     @Test
     fun fontScale200SettingsNothingClips() {
         val model = SettingsViewModel(UiTest.graph())
-        show { SettingsScreen(model) }
+        show { SettingsScreen(model, {}) }
     }
 
     @Test
@@ -128,7 +128,7 @@ class FontScaleTest {
             UiTest.graph().recordHighScore(30, Difficulty.LEVEL_2)
         }
         val model = HighScoresViewModel(UiTest.graph())
-        show(buttons = false) { HighScoresScreen(model) }
+        show { HighScoresScreen(model, {}) }
     }
 
     @Test

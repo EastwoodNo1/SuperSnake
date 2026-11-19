@@ -33,7 +33,12 @@ plugins {
 
 android {
     namespace = "io.github.eastwoodno1.supersnake"
-    compileSdk = 37
+    compileSdk {
+        version =
+            release(37) {
+                minorApiLevel = 2
+            }
+    }
 
     defaultConfig {
         applicationId = "io.github.eastwoodno1.supersnake"

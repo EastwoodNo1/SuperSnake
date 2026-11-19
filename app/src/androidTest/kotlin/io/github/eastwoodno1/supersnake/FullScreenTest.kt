@@ -77,7 +77,7 @@ class FullScreenTest {
         assertBars(false, "game")
         driver.back()
         driver.awaitText("Resume")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         driver.awaitText("Play")
         assertBars(true, "menu after leaving")
     }
@@ -100,7 +100,7 @@ class FullScreenTest {
         val model = driver.play()
         driver.awaitOverlay(model, Overlay.GAME_OVER)
         assertBars(false, "game over")
-        composeRule.onNodeWithText("Main menu").performClick()
+        driver.mainMenu()
         driver.awaitText("Play")
         assertBars(true, "menu after game over")
     }

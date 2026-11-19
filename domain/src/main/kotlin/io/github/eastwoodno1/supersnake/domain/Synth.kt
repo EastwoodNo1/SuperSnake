@@ -11,19 +11,29 @@ object Synth {
     ): ShortArray {
         if (sampleRate <= 0) return ShortArray(0)
         val ramp = maxOf(1, RAMP_MILLIS * sampleRate / 1000)
-        return sound.notes.flatMap { note -> note(note, sampleRate, ramp) }.toShortArray()
+        val notes = sound.notes
+        val lengths = IntArray(notes.size) { notes[it].durationMillis * sampleRate / 1000 }
+        val pcm = ShortArray(lengths.sum())
+        var offset = 0
+        notes.forEachIndexed { index, note ->
+            fill(pcm, offset, lengths[index], note, sampleRate, ramp)
+            offset += lengths[index]
+        }
+        return pcm
     }
 
-    private fun note(
+    private fun fill(
+        pcm: ShortArray,
+        offset: Int,
+        length: Int,
         note: Note,
         sampleRate: Int,
         ramp: Int,
-    ): List<Short> {
-        val length = note.durationMillis * sampleRate / 1000
-        return List(length) { i ->
+    ) {
+        for (i in 0 until length) {
             val level = minOf(i, length - 1 - i, ramp)
             val sign = if ((2L * i * note.frequencyHz / sampleRate) % 2 == 0L) 1 else -1
-            (sign * AMPLITUDE * level / ramp).toShort()
+            pcm[offset + i] = (sign * AMPLITUDE * level / ramp).toShort()
         }
     }
 }

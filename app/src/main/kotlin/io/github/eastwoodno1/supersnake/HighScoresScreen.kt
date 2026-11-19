@@ -26,6 +26,7 @@ import java.time.format.FormatStyle
 @Composable
 fun HighScoresScreen(
     viewModel: HighScoresViewModel,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scores by viewModel.scores.collectAsStateWithLifecycle()
@@ -39,6 +40,7 @@ fun HighScoresScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(stringResource(R.string.high_scores), Modifier.semantics { heading() }, color = Color(NeonPalette.SNAKE))
+        NeonButton(stringResource(R.string.back), onBack)
         if (scores.isEmpty()) {
             Text(stringResource(R.string.no_scores), color = text)
         }

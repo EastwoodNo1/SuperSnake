@@ -98,3 +98,16 @@ IDs REQ-015 to REQ-017 are documentation identifiers allocated now (Reconstructe
 | REQ-004 (latest stable versions) | Latest stable, verified on the day | Dependabot ignore for Kotlin (#162); Gradle 9.9.2 (#179); compileSdk 37.2 and Compose BOM (#175) | DEC-075, DEC-076, DEC-080 | the PRs | Lint gate, strict build | Met; the lint gate proved to be a gate for each stable release |
 
 Gap: requirement-to-test links for REQ-015 rest on PR bodies, not on a test report.
+
+## Update (eighth fold-in, 2026-11-20)
+
+| ID | Requirement | Acceptance (from the evidence) | Design | Implementation | Test | Validation | Outcome |
+|---|---|---|---|---|---|---|---|
+| REQ-008 (CI UI tests) | Three emulators required and trustworthy | A hang fails alone and fast; the suite passes on all three legs | DEC-087 to DEC-090 | #185, #186, #189, #194, #195 | 66 tests locally (R); 4 of 20 hung before #195, 30 of 30 passed after (O, PR body) | #181 closed at 11:51 UTC (O); #196 had one phone-31 failure, rerun passed (DEC-091) | Met with one open uncertainty (GAP-038) |
+| REQ-004 (latest stable versions) | A new stable release must not leave branches red | AGP 9.5.2 bumped on the day | DEC-076, DEC-080 pattern | #192 | Lint gate and strict `check` | Merged 16:18 UTC (O) | Met |
+| REQ-005 (minimal dependencies) | Evidence for each new dependency | Owner asked before; checksums cross-checked | DEC-089 | #194 | n/a | Owner approval (R) | Met: one test-only addition |
+| REQ-018 | Rotating the device must never freeze the board | Fix in the app, with statistical before and after evidence | DEC-090 | #195 | Local loop 20 runs and 30 runs (O, PR body) | Full suite 66 tests (R) | Met on emulators; real-device check Unknown (GAP-039) |
+| REQ-011 (release) | Signed, attested, immutable APK | `verify-published` and local verification of 1.0.2 | DEC-085 pattern | #196; v1.0.2 | Release run 44804016463 (R) | immutable release, `shasum` OK, attestation, `versionCode` 1000002, signer fingerprint (R); release listed as Latest (O) | Met |
+| REQ-017 | Plugin adoptable by another project | v0.4.2 tag and adoption | DEC-093 | plugin PR #19; #188 | `verify-templates` 0 drift (R) | #188 merged (O) | Met; local plugin install still blocked (GAP-035) |
+
+Gap: REQ-018 evidence is from an emulator; no real-device run is recorded.

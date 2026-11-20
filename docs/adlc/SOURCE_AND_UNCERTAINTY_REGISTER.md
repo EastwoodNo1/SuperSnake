@@ -148,3 +148,24 @@ Sources added: SRC-016 staged note of session 154bc22a (digest-based; no PR or C
 | GAP-036 | The executor note names #136 as another session's work; git shows #136 as the 1.0.0 release PR. Git is taken as correct. PR #143 (closed unmerged) was not re-read | CYCLE-015 | Low | SRC-020, SRC-021 | Open |
 
 Privacy: the key, the GitHub App identifiers and local paths are deliberately not recorded.
+
+## Update (eighth fold-in, 2026-11-20)
+
+| Source ID | Source | Availability | Covers | Reliability | Limitations |
+|---|---|---|---|---|---|
+| SRC-026 | Staged note of session f877dcd1 (`sessions/2026-11-20-finishing-session-1-0-2.md`) | Available | 2026-11-20, #184 to #196 | Reconstructed from a digest; PR numbers, titles and merge times confirmed in git and `gh` | Command output not re-verified; partly truncated; captured before the session ended |
+| SRC-027 | `git log`, `gh pr view` and `gh issue view` for #181, #183 to #197 on 2026-11-20 | Available | States and merge times | High | #187, #191, #193 and #197 are issues, not PRs (the PR lookup fails by design) |
+| SRC-028 | Release list and plugin tag v0.4.2 (`gh`) | Available | v1.0.2 Latest (19:54 UTC); v0.4.2 at commit `04ca3ae` | High | Attestation, shasum and `versionCode` come from the session note |
+| SRC-029 | Body of PR #195 | Available | The 20 runs (4 failed) and the chance estimate | High | The 30 passing runs are quoted from the PR body, not re-run |
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-037 | The #186 DataStore race was never reproduced locally (0 of 25); the fix follows the `StoresTest` pattern | CYCLE-020 | Low | SRC-026 | Open |
+| GAP-038 | Root cause of the #196 phone-31 `LayoutScreenshotTest` failure (app never idle after rotating on the menu) is Unknown. The failed `checks` and `release-smoke` entries in the #196 check rollup are explained (Observed): they come from CI run 44804068027 at 19:38 UTC on `b9f9f0e`, a release-please re-push of its branch after #196 had merged at 19:38:21 UTC. Both failed resolving the Kotlin Gradle plugin (`Could not parse POM https://plugins.gradle.org/...kotlin-gradle-plugin-2.4.20.pom`), see GAP-043 | CYCLE-024 | Moderate | SRC-026, SRC-027 | Open |
+| GAP-043 | `main` CI was red after the session's last merges, which the session did not check at the time (it checked each PR's CI only). Runs 44772006023 (`4c62c80`, #192) and 44774492909 (`0fb0056`, #194) failed in `checks` resolving `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20`; 44784171262 (`28df360`, #195) failed in `ui-tests (tablet-37)` configuring `:checks`; 44804016440 (`3ce133a`, release 1.0.2) was cancelled about 30 s in. Cause (Observed in `gh cache list`): #192 changed the Gradle cache key; a failing `checks` run saved an incomplete 129 MiB entry (10857033823) that the basic cache provider never overwrites, so runs restore it and fetch the Kotlin plugin from the network. The same pattern was cleared by hand earlier on 2026-11-20 (Plan 5 Task 1 Step 2). The release artifact itself was built, smoke-tested, signed and verified by the Release run 44804016463 | CYCLE-024 | High | SRC-026 | Open |
+| GAP-039 | The #195 fix has not been tested on a real device | CYCLE-023 | Moderate | SRC-026 | Open |
+| GAP-040 | The owner's local `phone37` emulator lost the installed app after a headless boot (snapshot missing); the cause is Unknown and may be this session's boot | CYCLE-024 | Low | SRC-026 | Open |
+| GAP-041 | Work after the capture is not recorded because the session id is in `captured` (plugin issue #13, which is CLOSED in the plugin repo as of 2026-11-20, O; whether the fix is released is Unknown) | CYCLE-024 | Moderate | SRC-026, SRC-028 | Open |
+| GAP-042 | The playtest of 1.0.2 is reported as "works well", not as command output; the eight-item plugin handover is not committed anywhere, so it cannot be inspected | CYCLE-024 | Low | SRC-026 | Open |
+
+Updates to earlier gaps: GAP-033 (#181 root cause) is resolved in part: four separate causes were found and fixed (DEC-087, DEC-088), and #181 is CLOSED (O). GAP-032 (key rotation) remains unanswered in this session.

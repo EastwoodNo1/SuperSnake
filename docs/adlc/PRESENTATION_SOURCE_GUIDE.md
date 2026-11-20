@@ -293,3 +293,35 @@ Stale model claims (model-selection session); KTX reversed on data; plan with no
 - Validation: documented through PRs and runs; evidence blocks of PR bodies were not re-run (GAP-031).
 - Open and Prospective, not to be claimed as done: the owner's run of the settings script (applies #166), the local plugin install alignment, the owner's play of 1.0.1, Play publishing, and #181.
 - Known weaknesses: the middle of the finish-up rests on digests and PR bodies; #152's crash is Unknown; capture missed work after 2026-11-09.
+
+## Update: release 1.0.2 outcome (eighth fold-in, 2026-11-20)
+
+Status: still no presentation created. Observed facts come from git and `gh` on 2026-11-20; the rest is Reconstructed from `sessions/2026-11-20-finishing-session-1-0-2.md`.
+
+### Outcome (supersedes "Project in numbers" for the latest release)
+
+- Release 1.0.2 is the Latest release (published 2026-11-20 19:54 UTC, Observed). It followed 1.0.1 by about 10 hours. It contains the rotation fix #195 (a deadlock found through native thread dumps).
+- Merged after the previous fold-in: #185, #186, #188, #189, #192, #194, #195, #196 (eight PRs, Observed). Closed issues: #181, #183, #187, #190, #191, #193.
+- Verification of 1.0.2 (Reconstructed): immutable release, checksum OK, attestation verified, `versionCode` 1000002, signer matches the repository's certificate variable. The owner approved `sign-publish`; the owner played it and reported it works well.
+
+### Headline candidates (add to the table above)
+
+| Headline | Key message | Example | Evidence |
+|---|---|---|---|
+| "One issue, four causes" | Closing a flaky-CI issue too early twice led to a real deadlock | #181: orb timing, DataStore reopen, score between passes, then the GL/BLAST rotation deadlock | DEC-087, DEC-090, PROMPT-041 |
+| "Four of twenty, then thirty of thirty" | Intermittent bugs need a statistical RED and GREEN | The #195 PR body (16 passed, 4 failed of 20; then 30 clean runs, chance about 0.0012) | DEC-090 |
+| "Bound the hang, then remove it" | Per-test process isolation limits damage; the root cause removes it | #194 then #195 | DEC-089, DEC-090 |
+| "Autonomy still asks" | Full autonomy stopped at a new test dependency and at release approval | The owner chose the Test Orchestrator; the owner approved `sign-publish` | DEC-089, DEC-085 |
+| "The process documents its own gap" (updated) | The capture gap appeared a second time when the owner asked to fold in mid-session | plugin issue #13 | DEC-083, DEC-092 |
+
+### Failures worth showing (additions)
+
+Premature close of #181 (twice); auto-merge past pending legs; a hang on tablet-37 (65 of 66 tests logged); one unexplained phone-31 flake on the release PR (GAP-038); the owner's emulator losing the installed app (GAP-040).
+
+### Suggested visual
+
+A table of #181's four causes against their fixing PRs (#185, #186, #189, #195), and a two-row bar of hang rate before and after #195 (4 of 20 versus 0 of 30).
+
+### Readiness check (supersedes the earlier check)
+
+- Documented to release 1.0.2. Open: the real-device check of #195 (GAP-039), the unexplained flake (GAP-038), the owner items already listed (settings script, plugin install alignment, Play publishing). Work after the capture of this session is not recorded (GAP-041).

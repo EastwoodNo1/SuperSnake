@@ -72,6 +72,9 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    }
 }
 
 kotlin {
@@ -116,6 +119,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.junit4)
+    androidTestUtil(libs.androidx.test.orchestrator)
     constraints {
         androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     }

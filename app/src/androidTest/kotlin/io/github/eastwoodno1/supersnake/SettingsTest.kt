@@ -1,6 +1,5 @@
 package io.github.eastwoodno1.supersnake
 
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isOff
@@ -36,7 +35,9 @@ class SettingsTest {
     fun controlSchemeCanBeChosen() {
         composeRule.onNodeWithText("Settings").performClick()
         composeRule.onNodeWithText("D-pad").performClick()
-        composeRule.onNodeWithText("D-pad").assertIsSelected()
+        composeRule.waitUntil(TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText("D-pad") and isSelected()).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     private fun awaitDifficulty5AndSoundOff() {

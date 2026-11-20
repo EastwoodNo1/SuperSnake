@@ -78,10 +78,15 @@ class GameDriver(
     fun awaitPixel(
         cell: () -> Cell,
         expected: Int,
-    ) = awaitUntil(SETTLE_MILLIS) {
-        val pixel = BoardPixels.capture(rule.activity).at(cell())
-        listOf(16, 8, 0).all { shift -> abs(((pixel shr shift) and 0xFF) - ((expected shr shift) and 0xFF)) <= TOLERANCE }
+    ) {
+        var pixel = 0
+        awaitUntil(SETTLE_MILLIS, { "pixel at ${cell()} is ${hex(pixel)}, expected ${hex(expected)} within $TOLERANCE" }) {
+            pixel = BoardPixels.capture(rule.activity).at(cell())
+            listOf(16, 8, 0).all { shift -> abs(((pixel shr shift) and 0xFF) - ((expected shr shift) and 0xFF)) <= TOLERANCE }
+        }
     }
+
+    private fun hex(color: Int) = "#%08X".format(color)
 
     companion object {
         const val TIMEOUT_MILLIS = 20_000L

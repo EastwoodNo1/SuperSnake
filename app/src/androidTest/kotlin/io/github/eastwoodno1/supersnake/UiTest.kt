@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
+import org.junit.rules.Timeout
 
 object UiTest {
     fun graph(): AppGraph = (InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as SuperSnakeApp).graph
@@ -16,13 +17,16 @@ object UiTest {
         reducedMotion: Boolean = true,
     ): RuleChain =
         RuleChain
-            .outerRule(
+            .outerRule(Timeout.seconds(TEST_TIMEOUT_SECONDS))
+            .around(
                 object : ExternalResource() {
-                    private var previousScale = "1"
+                    private var previousScale: String? = null
+                    private var previousConfirmations: String? = null
 
                     override fun before() {
-                        previousScale = shell("settings get global animator_duration_scale").trim()
-                        shell("settings put secure immersive_mode_confirmations confirmed")
+                        previousScale = setting("global", SCALE)
+                        previousConfirmations = setting("secure", CONFIRMATIONS)
+                        shell("settings put secure $CONFIRMATIONS confirmed")
                         setScale(if (reducedMotion) "0" else "1")
                         runBlocking {
                             graph().settingsRepository.update { Settings() }
@@ -30,17 +34,67 @@ object UiTest {
                         }
                     }
 
-                    override fun after() = setScale(previousScale)
+                    override fun after() {
+                        restore("global", SCALE, previousScale)
+                        restore("secure", CONFIRMATIONS, previousConfirmations)
+                    }
                 },
             ).around(activityRule)
+
+    fun systemSetting(
+        namespace: String,
+        key: String,
+        value: String,
+    ): TestRule =
+        object : ExternalResource() {
+            private var previous: String? = null
+
+            override fun before() {
+                previous = setting(namespace, key)
+                put(namespace, key, value)
+            }
+
+            override fun after() = restore(namespace, key, previous)
+        }
 
     fun animationsOn() = setScale("1")
 
     fun animationsOff() = setScale("0")
 
-    private fun setScale(value: String) {
-        shell("settings put global animator_duration_scale $value")
+    fun animatorScale(): String? = setting("global", SCALE)
+
+    fun setAnimatorScale(value: String) = setScale(value)
+
+    fun restoreAnimatorScale(previous: String?) = restore("global", SCALE, previous)
+
+    fun setting(
+        namespace: String,
+        key: String,
+    ): String? = shell("settings get $namespace $key").trim().takeUnless { it.isEmpty() || it == "null" }
+
+    fun restore(
+        namespace: String,
+        key: String,
+        previous: String?,
+    ) {
+        shell(if (previous == null) "settings delete $namespace $key" else "settings put $namespace $key $previous")
     }
+
+    fun put(
+        namespace: String,
+        key: String,
+        value: String,
+    ) {
+        shell("settings put $namespace $key $value")
+    }
+
+    private fun setScale(value: String) {
+        put("global", SCALE, value)
+    }
+
+    private const val TEST_TIMEOUT_SECONDS = 120L
+    private const val SCALE = "animator_duration_scale"
+    private const val CONFIRMATIONS = "immersive_mode_confirmations"
 
     private fun shell(command: String): String {
         val descriptor = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)

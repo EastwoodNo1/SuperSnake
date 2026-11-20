@@ -56,6 +56,15 @@ Together with the spec documents, this plan is self-contained. A new session nee
 - Run `git pull --ff-only` in the main checkout first; `origin/main` is the record.
 - **Start from the first task that is not done.** Never skip a task.
 
+### State at close (2026-11-20)
+
+- **Plan 4 is complete** except Task 6 Step 7 (play to game over with a non-zero score, then cold start), which moved to the owner batch on 1.0.1: Plan 5 Task 8.
+- **Release:** v1.0.0 is published ([release](https://github.com/EastwoodNo1/SuperSnake/releases/tag/v1.0.0)), through PRs #135, #136, #138 and #145. The release-please PR #146 for 1.0.1 is open (Plan 5 Task 7).
+- **`main`** was at `d42c460` when this PR was rebased.
+- **Dependabot #41 and #82 are closed** (`gh issue view` prints `CLOSED` for both; #162 holds Kotlin at the CodeQL cap, #166 requires the API 37 legs in the settings files).
+- **Plugin:** `v0.4.1`, pinned in `.claude/settings.json`.
+- **Next action:** Play publishing, later. Finish the project through Plan 5.
+
 ### State at handoff (2026-11-04)
 
 - **Tasks 1 to 3 are done:** #110, #112, #114. The plan was then reviewed independently (2026-11-04, issue #115) and corrected; **the next task is Task 4.**
@@ -598,11 +607,11 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - `gh release verify v1.0.0 --repo EastwoodNo1/SuperSnake`. Expected: exit 0 (the release is immutable).
   - `gh release view v1.0.0 --json assets --jq '[.assets[].name]'`. Expected: exactly the APK and the `.sha256`.
   - `verify-published` is green in the run.
-- [ ] **Step 7: Install on `phone37` and play.** `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
+- [ ] **Step 7: Install on `phone37` and play.** Moved to the owner batch: Plan 5 Task 8 plays it on 1.0.1 (the 1.0.0 attempt found bugs #151 to #153). Stays unticked until then. `adb uninstall io.github.eastwoodno1.supersnake` (an earlier debug build has another key), `adb install SuperSnake-1.0.0.apk`, play to game over, then `adb shell am force-stop io.github.eastwoodno1.supersnake`, start it again and check that the high score shows. Expected: `Success`, a game-over screenshot and a high-score screenshot after the cold start, `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`, `aapt2 dump badging` prints `versionCode='1000000' versionName='1.0.0'`.
 - [x] **Step 8: Remove `release-as`.** PR `ci: stop forcing release 1.0.0`. Expected afterwards: the next `release-please` run opens no PR, or one that proposes the version the commits imply. If a PR proposing `1.0.0` again appeared between the release and this merge, close it unmerged.
 - [x] **Step 9: Record the evidence** in `docs/release.md` (the run link, the outputs above) and link the release from `README.md`.
 - [x] **Step 10: If a step failed once the tag existed.** Used once: the first sign-publish attempt failed closed on the signer fingerprint and only the failed job was re-run; see docs/release.md "The first release, v1.0.0". Follow `docs/release.md` "Recovery". Do not re-tag, delete the tag or re-run the whole run; only `gh run rerun <id> --failed`, and only while the draft is unpublished and the `release-please` job itself succeeded. Otherwise `1.0.0` is burned: in the PR that fixes the cause, set `release-as` to `1.0.1` (never leave it at `1.0.0`, or release-please proposes the burned version again), ship `1.0.1` through a normal release PR, and replace `1.0.0` with `1.0.1` in Steps 6 to 9. Say so in `docs/release.md`. Ask the owner before deleting a draft.
-- [ ] **Step 11: Finish per the per-task workflow** for each PR in this task.
+- [x] **Step 11: Finish per the per-task workflow** for each PR in this task. Ticked in the Plan 4 close-out PR.
 
 ---
 
@@ -617,8 +626,8 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   - its own issue, branch, PR, tag `v0.4.0` and GitHub release with notes
 - This repo: `.claude/settings.json` (`ref` to `v0.4.0`), this plan's "State at handoff", `README.md`, `CLAUDE.md`
 
-- [ ] **Step 1: Plugin PR.** Update the templates and skill text, then run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake`. Expected: `0 drift`. Merge through the plugin repo's own checks, tag `v0.4.0` from its `main`, and publish a GitHub release with notes (the plan approves this).
-- [ ] **Step 2: Adopt the new plugin version.** Set `ref` in `.claude/settings.json` to `v0.4.0`, then run:
+- [x] **Step 1: Plugin PR.** Update the templates and skill text, then run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake`. Expected: `0 drift`. Merge through the plugin repo's own checks, tag `v0.4.0` from its `main`, and publish a GitHub release with notes (the plan approves this).
+- [x] **Step 2: Adopt the new plugin version.** Set `ref` in `.claude/settings.json` to `v0.4.0`, then run:
 
   ```sh
   claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.4.0 --scope project
@@ -627,7 +636,9 @@ Copied from the specs, Plan 3 and the decisions above. Every task's requirements
   ```
 
   Expected: `Version: 0.4.0`, `Status: ✔ enabled`.
-- [ ] **Step 3: Prove the whole release on `main`'s head.** Run the strict gate and `:checks:check :checks:koverVerify`. Expected: `BUILD SUCCESSFUL`. Run `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake` through the owner. Expected: `all settings match`. Link the green required checks and the `Release` run of Task 6.
-- [ ] **Step 4: Check rule coverage.** For each new rule (version formula, release tags, immutable releases, signed APK fingerprint, smoke test) name the test or the run that proves it, with `grep -rn` output. Put the table in the PR body.
-- [ ] **Step 5: Update the handoff text.** Mark Plan 4 complete with PR numbers, the release link, `main` head, Dependabot #41 and #82 state, and the next action ("Play publishing, later"). Update `README.md` ("Plan 4 (release) is complete") and point `CLAUDE.md` "Start of every session" at this plan.
-- [ ] **Step 6: Finish per the per-task workflow**
+
+  Superseded 2026-11-20 by plugin v0.4.1 (Plan 5 Task 2, android-sdlc-skills issue #16, PR #17, tag commit `87aba64599579da645ee02f6ddd593c9e971ebc4`), which the close-out PR adopts. `claude plugin marketplace add ...#v0.4.1` failed because the user settings hold an `extraKnownMarketplaces` entry for this marketplace ("its source doesn't match its extraKnownMarketplaces entry in user or managed settings"); user settings were not edited, so `claude plugin list` still shows the older installed copies until the owner aligns that entry.
+- [x] **Step 3: Prove the whole release on `main`'s head.** Done on the rebased head (`origin/main` d42c460): `scripts/gradle-strict.sh check :checkNoComments :checkWorkflows :checkReleaseManifest :checkBackupRules` printed `BUILD SUCCESSFUL in 20s`, and `scripts/gradle-strict.sh :checks:check :checks:koverVerify` printed `BUILD SUCCESSFUL in 3s`. The settings script is in the owner batch (Plan 5 Task 8), not run here. Original text: run the strict gate and `:checks:check :checks:koverVerify`. Expected: `BUILD SUCCESSFUL`. Run `scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake` through the owner. Expected: `all settings match`. Link the green required checks and the `Release` run of Task 6.
+- [x] **Step 4: Check rule coverage.** The table with the `grep -rn` output is in the close-out PR body. For each new rule (version formula, release tags, immutable releases, signed APK fingerprint, smoke test) name the test or the run that proves it, with `grep -rn` output. Put the table in the PR body.
+- [x] **Step 5: Update the handoff text.** See "State at close" under Start here. Mark Plan 4 complete with PR numbers, the release link, `main` head, Dependabot #41 and #82 state, and the next action ("Play publishing, later"). Update `README.md` ("Plan 4 (release) is complete") and point `CLAUDE.md` "Start of every session" at this plan.
+- [x] **Step 6: Finish per the per-task workflow**

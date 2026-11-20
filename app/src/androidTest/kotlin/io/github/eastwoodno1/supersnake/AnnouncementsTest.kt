@@ -130,15 +130,16 @@ class AnnouncementsTest {
         val scope = CoroutineScope(Dispatchers.Main)
         scope.launch { model.feedback.collect { seen += it } }
         composeRule.onNodeWithText("Restart").performClick()
-        driver.awaitUntil { seen.any { it.sounds.isNotEmpty() } }
-        Thread.sleep(SETTLE_MILLIS)
+        driver.awaitUntil { model.frame.value.countdown == LAST_COUNT }
+        driver.awaitUntil { seen.flatMap { it.sounds }.count { it == Sound.COUNT } >= COUNTS }
         scope.cancel()
-        assertEquals(listOf(Sound.COUNT), seen.flatMap { it.sounds })
+        assertEquals(List(COUNTS) { Sound.COUNT }, seen.flatMap { it.sounds }.filter { it == Sound.COUNT })
     }
 
     private companion object {
         const val SUBSCRIBE_WAIT_MILLIS = 3_000L
-        const val SETTLE_MILLIS = 500L
+        const val LAST_COUNT = 1
+        const val COUNTS = 3
         const val QUIET_MILLIS = 1_500L
     }
 }

@@ -49,7 +49,7 @@ This file is self-contained. A new session needs nothing from the conversation t
 ### State at close (2026-11-20, `main` at `71ff17a`)
 
 - Tasks 1 to 7 are done. 1.0.1 is released and verified (Task 7), and the final ADLC fold-in merged with Task 6 (#183).
-- Open for the owner, Task 8: run the settings script (applies #166), align the user-settings marketplace entry so plugin 0.4.1 installs locally, and play the published 1.0.1 APK (Plan 4 Task 6 Step 7). A small `docs: close Plan 5` PR records the outputs and ticks the last boxes.
+- Open for the owner, Task 8: run the settings script (applies #166), align the user-settings marketplace entry so plugin 0.4.2 installs locally, and play the published 1.0.1 APK (Plan 4 Task 6 Step 7). A small `docs: close Plan 5` PR records the outputs and ticks the last boxes.
 - Kept open: #181 (emulator flakiness; lead: `codeql.yml` has no Gradle cache).
 - Next action: Play publishing.
 

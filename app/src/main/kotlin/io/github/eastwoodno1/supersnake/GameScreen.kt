@@ -23,6 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -106,15 +107,20 @@ fun GameScreen(
     val systemBars = WindowInsets.systemBars
     val layoutDirection = LocalLayoutDirection.current
     val generation by viewModel.boardGeneration.collectAsStateWithLifecycle()
-    LaunchedEffect(viewModel, generation, systemBars, density, layoutDirection) {
+    val barsSettled by produceState(false, systemBars, density, layoutDirection) {
         withTimeoutOrNull(BARS_SETTLE_MILLIS) {
             snapshotFlow {
                 systemBars.getTop(density) + systemBars.getBottom(density) +
                     systemBars.getLeft(density, layoutDirection) + systemBars.getRight(density, layoutDirection)
             }.first { it == 0 }
         }
-        viewModel.awaitBoardFrame()
-        viewModel.boardReady()
+        value = true
+    }
+    LaunchedEffect(viewModel, generation, barsSettled) {
+        if (barsSettled) {
+            viewModel.awaitBoardFrame()
+            viewModel.boardReady()
+        }
     }
     DisposableEffect(view, bars) {
         val listener =
@@ -166,7 +172,7 @@ fun GameScreen(
             }
             val board: @Composable (Modifier, Boolean) -> Unit = { boardModifier, withHud ->
                 Box(boardModifier) {
-                    AndroidFragment<BoardFragment>(Modifier.fillMaxSize())
+                    if (barsSettled) AndroidFragment<BoardFragment>(Modifier.fillMaxSize())
                     Box(
                         Modifier
                             .fillMaxSize()

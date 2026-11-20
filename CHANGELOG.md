@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.1](https://github.com/EastwoodNo1/SuperSnake/compare/v1.0.0...v1.0.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* add a Back button to High scores and Settings ([#156](https://github.com/EastwoodNo1/SuperSnake/issues/156)) ([dcb617e](https://github.com/EastwoodNo1/SuperSnake/commit/dcb617e4adde1568e803da901324e1c7bd62b773))
+* exempt tagged release PRs in pr-rules ([#141](https://github.com/EastwoodNo1/SuperSnake/issues/141)) ([e69bc39](https://github.com/EastwoodNo1/SuperSnake/commit/e69bc391709fa1d40f497c4ec69f75e291a59b66)), closes [#139](https://github.com/EastwoodNo1/SuperSnake/issues/139)
+* follow animation scale and reset the live flag ([#164](https://github.com/EastwoodNo1/SuperSnake/issues/164)) ([af7c211](https://github.com/EastwoodNo1/SuperSnake/commit/af7c2111057931f3dff715d6c7fd8b948923371e))
+* keep audio and score-store failures from crashing ([#167](https://github.com/EastwoodNo1/SuperSnake/issues/167)) ([29b7b11](https://github.com/EastwoodNo1/SuperSnake/commit/29b7b11d32ad3ff56d736b862d76a6d088fc8e4d))
+* keep audio and score-store failures from crashing the app ([29b7b11](https://github.com/EastwoodNo1/SuperSnake/commit/29b7b11d32ad3ff56d736b862d76a6d088fc8e4d)), closes [#152](https://github.com/EastwoodNo1/SuperSnake/issues/152)
+* record quit games and keep the end-of-game save alive ([8c660b2](https://github.com/EastwoodNo1/SuperSnake/commit/8c660b2e323dace551c6461d9bc3c86a25677f00))
+* record quit games and keep the game-over save alive ([#163](https://github.com/EastwoodNo1/SuperSnake/issues/163)) ([8c660b2](https://github.com/EastwoodNo1/SuperSnake/commit/8c660b2e323dace551c6461d9bc3c86a25677f00))
+* silence the apksigner native-access warning ([#142](https://github.com/EastwoodNo1/SuperSnake/issues/142)) ([f668f49](https://github.com/EastwoodNo1/SuperSnake/commit/f668f493fecdd943bdef1aef61d1d7b2e40aa815))
+
+
+### Performance
+
+* build the beep PCM once per process ([#159](https://github.com/EastwoodNo1/SuperSnake/issues/159)) ([7b9ef17](https://github.com/EastwoodNo1/SuperSnake/commit/7b9ef176d2a83488bbd75645fcbeacec45ae7a48))
+
 ## 1.0.0 (2026-11-17)
 
 

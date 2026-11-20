@@ -160,7 +160,7 @@ It only updates branches. Auto-merge merges each PR when its checks are green. R
   - Confirm both have auto-merge: `gh pr view <n> --json autoMergeRequest`. If not, run `gh pr merge <n> --squash --auto`.
   - Run the merge queue helper, and rerun flaky emulator jobs as above.
   - Expected: `gh pr view 176 --json state -q .state` and the same for 173 both print `MERGED`, and `gh issue view 170 --json state` and the same for 97 both print `CLOSED`.
-- [ ] **Step 2: Replace the stale Gradle cache entry.** #176's PR body explains why: the basic cache provider never overwrites an exact key hit, and the existing 129 MiB entry lacks the UTP dependencies.
+- [x] **Step 2: Replace the stale Gradle cache entry.** Done 2026-11-20: stale entries 10828776947 and 10807844476 were deleted and the CI run on `main` rerun; `gh cache list` now shows a 648.14 MiB entry (id 10830599340) and neither stale id. #176's PR body explains why: the basic cache provider never overwrites an exact key hit, and the existing 129 MiB entry lacks the UTP dependencies.
   - Run `gh cache list`, and delete the entry #176 names, or any entry under 200 MiB with the current key, with `gh cache delete <id>`.
   - Then re-run the newest `CI` run on `main`: `gh run list --workflow CI --branch main --limit 1`, then `gh run rerun <id>`.
   - Expected: after it finishes, `gh cache list` shows a new entry of roughly 600 MiB or more.
@@ -172,15 +172,15 @@ It only updates branches. Auto-merge merges each PR when its checks are green. R
 
 Start only after Task 1, because the templates must equal the final `main`.
 
-- [ ] **Step 1: Measure drift.** Make a clean SuperSnake checkout: `git -C /Users/r03418/AndroidStudioProjects/SuperSnake worktree add --detach ../SuperSnake-plugin-src origin/main`. In a plugin worktree, run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake-plugin-src`.
+- [x] **Step 1: Measure drift.** Measured by the plugin PR; see Step 3. Make a clean SuperSnake checkout: `git -C /Users/r03418/AndroidStudioProjects/SuperSnake worktree add --detach ../SuperSnake-plugin-src origin/main`. In a plugin worktree, run `scripts/verify-templates.sh /Users/r03418/AndroidStudioProjects/SuperSnake-plugin-src`.
   - The script is a byte-for-byte `cmp` of every tracked file under `skills/git-hooks/templates` and `skills/android-ci/templates` against the same path in SuperSnake. There is no neutralising step.
   - Expected: a list of drifted files. Changes since v0.4.0 (tag `a9e3e86`) include `ci.yml`, `codeql.yml`, `release.yml`, `dependabot.yml`, `bootstrap.sh`, `check-ui-test-results.sh`, the backup-rules check in `build-logic/checks`, `scripts/github/*`, `verification-metadata.xml`-related docs, and the new `scripts/test-ui-test-guard.sh`.
-- [ ] **Step 2: Sync.**
+- [x] **Step 2: Sync.**
   - Copy every drifted file verbatim from the clean checkout, and add new template files.
   - Update the skill text that describes changed behaviour: the required API 37 legs, the ui-test guard, the backup rules, the Kotlin Dependabot cap, `cache-read-only` on non-`checks` jobs, compileSdk 37.2, and the plugin-portal `also-trust` checksums.
   - Bump `.claude-plugin/plugin.json` to `0.4.1`.
   - Expected: `scripts/verify-templates.sh ../SuperSnake-plugin-src` prints `0 drift`, and the plugin's local checks (shellcheck, `zizmor .github/`, `claude plugin validate .`) pass.
-- [ ] **Step 3: PR, merge, tag, release.**
+- [x] **Step 3: PR, merge, tag, release.** Done: issue android-sdlc-skills#16, PR #17 merged, annotated tag `v0.4.1` dereferences to commit `87aba64599579da645ee02f6ddd593c9e971ebc4`, release https://github.com/EastwoodNo1/android-sdlc-skills/releases/tag/v0.4.1; 0 drift against SuperSnake `111ff96`.
   - Open the plugin PR and wait for `verify` to pass.
   - Squash-merge it.
   - Tag `v0.4.1` on the merge commit (when pinning a tag, dereference annotated tags to the commit).
@@ -192,7 +192,7 @@ Start only after Task 1, because the templates must equal the final `main`.
 
 **Branch:** none
 
-- [ ] **Step 1: File the issue.** Title: `test: tame emulator flakiness in the ui-tests legs`. Include:
+- [x] **Step 1: File the issue.** Filed as #181. Title: `test: tame emulator flakiness in the ui-tests legs`. Include:
   - main run `44600765067`: tablet-37 failed `AccessibilityTest.keyboardReachesEveryMenuItem` and `FullScreenTest.barsAreHiddenAgainWhenWindowFocusReturnsWithThemShown`
   - main run `44598412152`: phone-31, phone-37 and checks failed
   - #173: `awaitText("No scores yet")` hit its 20 s timeout on tablet-37
@@ -205,28 +205,28 @@ Start only after Task 1, because the templates must equal the final `main`.
 
 **Branch:** `docs/plan-5-finish` · **PR title:** `docs: add Plan 5 to finish the project` · **Closes** #177
 
-- [ ] **Step 1:** This file, plus the `CLAUDE.md` "Start of every session" pointer to it, merged to `main`. Expected: `git show origin/main:docs/superpowers/plans/2026-11-20-plan-5-finish.md` prints this file. The PR that merges it ticks this step, and the Tasks 1 to 3 steps already done by then.
+- [x] **Step 1:** This file, plus the `CLAUDE.md` "Start of every session" pointer to it, merged to `main`. Expected: `git show origin/main:docs/superpowers/plans/2026-11-20-plan-5-finish.md` prints this file. The PR that merges it ticks this step, and the Tasks 1 to 3 steps already done by then.
 
 ### Task 5: Close Plan 4
 
 **Branch:** `docs/close-plan-4` (worktree `../SuperSnake-close-plan-4`, commit `1c5ea94`) · **PR title:** `docs: mark Plan 4 complete and hand off to Play` · **Closes** #154
 
-- [ ] **Step 1: Rebase and adopt v0.4.1.**
+- [x] **Step 1: Rebase and adopt v0.4.1.** Rebased on `origin/main` d42c460 and pinned `v0.4.1` in `.claude/settings.json`, `CLAUDE.md` and `README.md`. `claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.4.1 --scope project` failed with "its source doesn't match its extraKnownMarketplaces entry in user or managed settings"; user settings were not edited. `claude plugin install` answered "already installed (scope: project) — the marketplace now offers 0.4.1 (installed: 0.4.0)", and `claude plugin list` still shows 0.3.0 (user, project) and 0.4.0 (project), so the `Version: 0.4.1` expectation is not met until the owner aligns the user-settings entry.
   - Rebase on `origin/main`.
   - Change `ref` in `.claude/settings.json`, the install commands and the expected version in `CLAUDE.md` and `README.md` from `v0.4.0` to `v0.4.1`.
   - Run `claude plugin marketplace add EastwoodNo1/android-sdlc-skills#v0.4.1 --scope project`, `claude plugin install android-sdlc@android-sdlc-skills --scope project` and `claude plugin list`. Expected: `Version: 0.4.1`, `Status: ✔ enabled`.
   - The `add` may fail because the user settings have an unpinned `extraKnownMarketplaces` entry for this marketplace. Never edit user settings. Record the failure and the `plugin list` output instead.
-- [ ] **Step 2: Plan 4 Task 7 Step 3.** On `main`'s head, run:
+- [x] **Step 2: Plan 4 Task 7 Step 3.** Ran `scripts/gradle-strict.sh check :checkNoComments :checkWorkflows :checkReleaseManifest :checkBackupRules` (`BUILD SUCCESSFUL in 20s`) and `scripts/gradle-strict.sh :checks:check :checks:koverVerify` (`BUILD SUCCESSFUL in 3s`) on the rebased head; `:app:assembleRelease` was not run here (release-smoke covers it in CI). The settings script is in the owner batch (Task 8). On `main`'s head, run:
   - the strict gate: `scripts/gradle-strict.sh check :checkNoComments :checkWorkflows :checkReleaseManifest :checkBackupRules :app:assembleRelease`
   - `:checks:check :checks:koverVerify`
 
   Expected: `BUILD SUCCESSFUL` for both. Link the green required checks of `main`'s last CI run. The settings script run happens in Task 8.
-- [ ] **Step 3: Plan 4 Task 7 Step 4.** Put the rule-coverage table in the PR body, with `grep -rn` output showing the test or run that proves each rule:
+- [x] **Step 3: Plan 4 Task 7 Step 4.** Table in the PR body. Put the rule-coverage table in the PR body, with `grep -rn` output showing the test or run that proves each rule:
   - version formula: `VersionCodeTest`
   - release tags and immutable releases: `expected-settings.json`
   - signed APK fingerprint: `verify-signature.sh`, against `RELEASE_CERT_SHA256` in `release.yml`
   - smoke test: the `release-smoke` job and `test-release-scripts.sh`
-- [ ] **Step 4: Plan 4 Task 7 Step 5.** Update the handoff text.
+- [x] **Step 4: Plan 4 Task 7 Step 5.** Update the handoff text.
   - In the Plan 4 file, mark Plan 4 complete, with PR numbers, the v1.0.0 release link, `main`'s head, and that #41 and #82 are closed.
   - Note that Plan 4 Task 6 Step 7 moves to this plan's Task 8, played on 1.0.1. Its 1.0.0 attempt found bugs #151 to #153.
   - Set the next action to "Play publishing, later".

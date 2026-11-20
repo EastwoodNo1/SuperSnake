@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/EastwoodNo1/SuperSnake/compare/v1.0.1...v1.0.2) (2026-11-20)
+
+
+### Bug Fixes
+
+* create the board only after the system bars settle ([#195](https://github.com/EastwoodNo1/SuperSnake/issues/195)) ([28df360](https://github.com/EastwoodNo1/SuperSnake/commit/28df3605e9b6cbc010f378a7a0b989fb6c243a99))
+
 ## [1.0.1](https://github.com/EastwoodNo1/SuperSnake/compare/v1.0.0...v1.0.1) (2026-11-20)
 
 

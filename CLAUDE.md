@@ -4,7 +4,7 @@ Full detail is in [`CONTRIBUTING.md`](CONTRIBUTING.md). This file is the short f
 
 ## Start of every session
 
-1. Read the **Start here** section of the active plan: `docs/superpowers/plans/2026-11-02-plan-4-release.md`. Plan 3 is complete. Once a newer plan file exists, read that one instead.
+1. Read the **Start here** section of the active plan: `docs/superpowers/plans/2026-11-20-plan-5-finish.md`. Plan 5 finishes Plan 4 and the project. Once a newer plan file exists, read that one instead.
 2. Find where work stands, following that section's "Progress lives in git" rules:
    - `git log --oneline`
    - `git worktree list`

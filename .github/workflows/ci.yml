@@ -52,8 +52,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-provider: basic
+          cache-read-only: ${{ github.job != 'checks' }}
       - name: Check, release build and manifest
         run: mise exec -- scripts/gradle-strict.sh check :checkNoComments :checkWorkflows :checkReleaseManifest :checkBackupRules :app:assembleRelease
+      - name: Warm the instrumented-test dependencies
+        run: mise exec -- ./gradlew :app:assembleDebugAndroidTest :app:connectedDebugAndroidTest --dry-run
       - name: R8 mapping exists
         run: test -s app/build/outputs/mapping/release/mapping.txt
       - name: 16 KB page alignment
@@ -122,6 +125,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-provider: basic
+          cache-read-only: ${{ github.job != 'checks' }}
       - name: Instrumented tests
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
@@ -189,6 +193,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-provider: basic
+          cache-read-only: ${{ github.job != 'checks' }}
       - name: Build release APK
         run: mise exec -- ./gradlew :app:assembleRelease
       - name: Sign with a throwaway key
@@ -251,6 +256,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-provider: basic
+          cache-read-only: ${{ github.job != 'checks' }}
       - name: Collect pull request inputs
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}

@@ -141,6 +141,7 @@ class LayoutScreenshotTest {
         if (barsVisible) "status and navigation bars visible" else "status and navigation bars hidden"
 
     private fun pass() {
+        runBlocking { UiTest.graph().highScoreRepository.update { emptyList() } }
         shoot("menu")
         assertInsideSafeArea("menu", barsVisible = true)
         composeRule.onNodeWithText("Settings").performScrollTo().performClick()

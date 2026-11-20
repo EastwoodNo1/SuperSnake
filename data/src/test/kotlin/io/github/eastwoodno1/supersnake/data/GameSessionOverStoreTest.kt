@@ -10,7 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -45,8 +47,8 @@ class GameSessionOverStoreTest {
         return DataStoreHighScoreRepository(Stores.highScores(File(dir, Stores.HIGH_SCORES_FILE), scope))
     }
 
-    private fun coldStart(): DataStoreHighScoreRepository {
-        scopes.forEach { it.cancel() }
+    private suspend fun coldStart(): DataStoreHighScoreRepository {
+        scopes.forEach { it.coroutineContext.job.cancelAndJoin() }
         scopes.clear()
         return open()
     }

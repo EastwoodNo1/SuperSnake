@@ -62,6 +62,6 @@ Signed, attested APKs are published on [GitHub Releases](https://github.com/East
 
 ## Status
 
-Plan 1 (foundation) is complete. Plan 2 (game engine) is complete. Plan 3 (app) is complete. Plan 4 (release) is complete. Plan 5 finishes the project. The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 5 file's **Start here** section has the state.
+The project is complete. Plans 1 to 5 (foundation, game engine, app, release, finish) are done, and 1.0.1 is the current release. The next step is publishing on Google Play. The owner's playtest of the published 1.0.1 APK is the one open check (Plan 4 Task 6 Step 7, Plan 5 Task 8). The plan files are in [`docs/superpowers/plans/`](docs/superpowers/plans/); the Plan 5 file's **Start here** section has the state. The lifecycle record is in [`docs/adlc/`](docs/adlc/ADLC_PROCESS.md).
 
 ![A game of SuperSnake in portrait: the neon snake and orb on the board, with the score, level and pause button above it](docs/images/gameplay.png)

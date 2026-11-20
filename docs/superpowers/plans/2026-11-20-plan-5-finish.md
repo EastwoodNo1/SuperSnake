@@ -46,6 +46,13 @@ This file is self-contained. A new session needs nothing from the conversation t
 - **Never redo merged work.** Check with `gh pr list --state merged --limit 40`.
 - Run `git pull --ff-only` in the main checkout first.
 
+### State at close (2026-11-20, `main` at `71ff17a`)
+
+- Tasks 1 to 7 are done. 1.0.1 is released and verified (Task 7), and the final ADLC fold-in merged with Task 6 (#183).
+- Open for the owner, Task 8: run the settings script (applies #166), align the user-settings marketplace entry so plugin 0.4.1 installs locally, and play the published 1.0.1 APK (Plan 4 Task 6 Step 7). A small `docs: close Plan 5` PR records the outputs and ticks the last boxes.
+- Kept open: #181 (emulator flakiness; lead: `codeql.yml` has no Gradle cache).
+- Next action: Play publishing.
+
 ### State at handoff (2026-11-20, `main` at `8ab8f09`)
 
 The owner gave the agents full autonomy to finish on 2026-11-19, with minimal interaction. Agents merge PRs themselves: squash plus auto-merge works for the agent account. The only owner steps are the ones marked **[owner]**, and Task 8 sends them as one batch.
@@ -156,7 +163,7 @@ It only updates branches. Auto-merge merges each PR when its checks are green. R
   - run `scripts/gradle-strict.sh --rerun-tasks -Dorg.gradle.deprecation.trace=true check :app:lintDebug`
 
   Expected: the PR is `MERGED`, and `:app:lintDebug` on `main` passes.
-- [ ] **Step 1: Merge #176, then #173.**
+- [x] **Step 1: Merge #176, then #173.** Done 2026-11-20: #176 merged as `111ff96`, #173 as `024056d`; `gh issue view` prints `CLOSED` for #97 (#170 was closed by #176).
   - Confirm both have auto-merge: `gh pr view <n> --json autoMergeRequest`. If not, run `gh pr merge <n> --squash --auto`.
   - Run the merge queue helper, and rerun flaky emulator jobs as above.
   - Expected: `gh pr view 176 --json state -q .state` and the same for 173 both print `MERGED`, and `gh issue view 170 --json state` and the same for 97 both print `CLOSED`.
@@ -164,7 +171,7 @@ It only updates branches. Auto-merge merges each PR when its checks are green. R
   - Run `gh cache list`, and delete the entry #176 names, or any entry under 200 MiB with the current key, with `gh cache delete <id>`.
   - Then re-run the newest `CI` run on `main`: `gh run list --workflow CI --branch main --limit 1`, then `gh run rerun <id>`.
   - Expected: after it finishes, `gh cache list` shows a new entry of roughly 600 MiB or more.
-- [ ] **Step 3: Remove merged worktrees.** For each worktree other than `main` whose PR is merged, check that `git -C <dir> status --porcelain` prints nothing, then run `git worktree remove <dir>` and `git branch -D <branch>`. Expected: `git worktree list` shows `main` and the `close-plan-4` and `plan-5` worktrees, if their tasks are still open.
+- [x] **Step 3: Remove merged worktrees.** Done 2026-11-20: `git worktree list` showed only `main` (`71ff17a`) before this task's worktree was added. For each worktree other than `main` whose PR is merged, check that `git -C <dir> status --porcelain` prints nothing, then run `git worktree remove <dir>` and `git branch -D <branch>`. Expected: `git worktree list` shows `main` and the `close-plan-4` and `plan-5` worktrees, if their tasks are still open.
 
 ### Task 2: Plugin `v0.4.1`
 
@@ -231,7 +238,7 @@ Start only after Task 1, because the templates must equal the final `main`.
   - Note that Plan 4 Task 6 Step 7 moves to this plan's Task 8, played on 1.0.1. Its 1.0.0 attempt found bugs #151 to #153.
   - Set the next action to "Play publishing, later".
   - In `README.md`, say "Plan 4 (release) is complete", and that Plan 5 finishes the project.
-- [ ] **Step 5: Finish per the per-task workflow.**
+- [x] **Step 5: Finish per the per-task workflow.** Done: #182 merged as `7a71845`, closing #154.
   - Push, open the PR and run the merge queue helper.
   - Plan 4 Task 7 Steps 3–6 and Plan 4 Task 6 Step 11 are ticked in this PR.
   - Plan 4 Task 6 Step 7 is ticked by Task 8's follow-up.
@@ -244,12 +251,12 @@ The state folder is `<state>` = `$(git rev-parse --path-format=absolute --git-co
 
 Capture misses long or resumed sessions: a session id already in `<state>/captured` is never captured again (EastwoodNo1/android-sdlc-skills#13). Nothing after 2026-11-09 was captured, except a re-capture of session `3e97d016` (#82).
 
-- [ ] **Step 1: Re-capture the long sessions.**
+- [x] **Step 1: Re-capture the long sessions.** Done 2026-11-20: the orchestrator's SessionEnd hook wrote `staged/2026-10-28-35559d8c.md`. The executor's transcript was last written on 2026-11-19 21:00:42 when its pane was resumed, so its line was removed while the pane stayed open; `backfill.sh` (plugin 0.4.1) printed `captured 154bc22a-... -> staged/2026-11-06-154bc22a.md` and `captured 1, skipped 11`.
   - The finish-up orchestrator session `35559d8c-dea6-4515-a650-94781a5140a4` removed its own id from `<state>/captured` before ending (2026-11-20), so its SessionEnd hook captures it all.
   - For the Plan 4 executor session `154bc22a-c328-4f67-b352-4ccb8535fd77`, once it has ended, delete its line from `<state>/captured`. Do the same for any later session that ended while listed but has work after its capture.
   - Then run `bash ~/.claude/plugins/cache/android-sdlc-skills/android-sdlc/<version>/skills/adlc-docs/scripts/backfill.sh --harness claude`.
   - Expected: `<state>/staged/` holds a note for each of those sessions. Logs are in `<state>/log/`.
-- [ ] **Step 2: Fold in.**
+- [x] **Step 2: Fold in.** Done in this task's PR (closes #183).
   - In the worktree, run `android-sdlc:adlc-documenter` with a prompt starting `MODE: fold-in`, then `STAGED: <state>/staged` and `REPO: <worktree path>`.
   - Ask it to:
     - deduplicate `2026-11-06-3e97d016.md`, which is already partly folded as `docs/adlc/sessions/2026-11-06-issue-82-api37-fix.md`
@@ -262,8 +269,8 @@ Capture misses long or resumed sessions: a session id already in `<state>/captur
     - the CI flake investigations (#168, #170)
     - the two machine restarts and the lost local state
     - the capture gap itself
-- [ ] **Step 3: Privacy gate.** Run `bash <adlc-docs>/scripts/scan.sh docs/adlc "<state>"` until it exits 0, and `grep -rn "PRIVATE KEY\|MII" docs/adlc`. Expected: the scan exits 0 and the grep prints nothing.
-- [ ] **Step 4: Commit, PR, lessons, clean-up.**
+- [x] **Step 3: Privacy gate.** Done in this task's PR; outputs in its Evidence. Run `bash <adlc-docs>/scripts/scan.sh docs/adlc "<state>"` until it exits 0, and `grep -rn "PRIVATE KEY\|MII" docs/adlc`. Expected: the scan exits 0 and the grep prints nothing.
+- [x] **Step 4: Commit, PR, lessons, clean-up.** The PR that merges this tick is the PR; staged notes are deleted after it merges.
   - Commit `docs(adlc): fold in session notes`, then open the PR and merge it.
   - Save the documenter's lessons as memories, checking for duplicates first.
   - Delete the folded notes from `<state>/staged/` only after the merge.
@@ -272,16 +279,16 @@ Capture misses long or resumed sessions: a session id already in `<state>/captur
 
 **Branch:** `release-please--branches--main` (PR #146)
 
-- [ ] **Step 1: Check the release PR.** release-please refreshes #146 after each merge. Run `gh pr view 146 --json title,body`. Expected:
+- [x] **Step 1: Check the release PR.** Done: #146 `chore(main): release 1.0.1`. release-please refreshes #146 after each merge. Run `gh pr view 146 --json title,body`. Expected:
   - the title is `chore(main): release 1.0.1`
   - the changelog lists the fixes from #163, #156 and #167, and the other changes
   - `version.txt` reads `1.0.1` in the diff
-- [ ] **Step 2: Merge.**
+- [x] **Step 2: Merge.** Done 2026-11-20: #146 merged as `71ff17a`; Release run `44709700143`.
   - Wait for green checks; `pr-rules` exempts tagged release PRs.
   - Squash-merge #146.
   - Expected: a `Release` workflow run starts on `main`: `gh run list --workflow Release --limit 1`.
-- [ ] **Step 3: [owner] Approve `sign-publish`.** The run waits on the `release` environment. The owner approves it in the GitHub UI (Task 8).
-- [ ] **Step 4: Verify the release**, as Plan 4 Task 6 did for 1.0.0. Expected:
+- [x] **Step 3: [owner] Approve `sign-publish`.** The owner approved it; run `44709700143` job `sign-publish: success`. The run waits on the `release` environment. The owner approves it in the GitHub UI (Task 8).
+- [x] **Step 4: Verify the release**, as Plan 4 Task 6 did for 1.0.0. Verified 2026-11-20: run `44709700143` is `success` with `verify-published: success`; `gh release view v1.0.1` prints draft=false, immutable=true and both assets; `shasum -a 256 -c` prints `SuperSnake-1.0.1.apk: OK`; `gh attestation verify` exits 0 with predicate `https://slsa.dev/provenance/v1`; `aapt2 dump badging` prints `versionCode='1000001' versionName='1.0.1'`. Expected:
   - `gh release view v1.0.1` shows `SuperSnake-1.0.1.apk` and its `.sha256`, and the release is immutable
   - `gh attestation verify SuperSnake-1.0.1.apk --repo EastwoodNo1/SuperSnake` passes
   - the `verify-published` job is green
@@ -291,7 +298,7 @@ Capture misses long or resumed sessions: a session id already in `<state>/captur
 
 **Branch:** the last checkbox ticks go in a small PR, `docs: close Plan 5`, closing #177's follow-up issue, or in Task 6's PR if it is still open.
 
-- [ ] **Step 1: Send the owner one message** with these three items, with exact commands:
+- [ ] **Step 1: Send the owner one message** (item 2 is done: see Task 7 Step 3; items 1 and 3 go to the owner at the end of the session that merged Task 6) with these three items, with exact commands:
   1. **[owner]** Settings:
      - `! cd ~/AndroidStudioProjects/SuperSnake && scripts/github/apply-repo-settings.sh EastwoodNo1/SuperSnake`
      - then the same command with `--check`. Expected: `all settings match`. This applies #166, the required API 37 legs.
@@ -303,8 +310,8 @@ Capture misses long or resumed sessions: a session id already in `<state>/captur
      - Play to game over with at least one orb eaten, run `adb shell am force-stop io.github.eastwoodno1.supersnake`, and start the app again.
 
      Expected: the high score shows after the cold start; `adb logcat -d | grep -c 'FATAL EXCEPTION'` prints `0`; High scores and Settings each have a working Back button.
-- [ ] **Step 2: Record the owner's outputs** in the closing PR's Evidence. Tick Plan 4 Task 6 Step 7 and this task.
-- [ ] **Step 3: Final state.** Expected:
+- [ ] **Step 2: Record the owner's outputs** (waiting on the owner; a small `docs: close Plan 5` PR does this) in the closing PR's Evidence. Tick Plan 4 Task 6 Step 7 and this task.
+- [ ] **Step 3: Final state.** (The README line is done in Task 6's PR; the rest is checked after it merges.) Expected:
   - `gh pr list` is empty
   - `gh issue list` shows only issues the owner chose to keep, such as Task 3's
   - `git worktree list` shows only `main`

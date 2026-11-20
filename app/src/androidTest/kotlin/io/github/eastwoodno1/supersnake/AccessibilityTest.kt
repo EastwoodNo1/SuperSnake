@@ -19,11 +19,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.eastwoodno1.supersnake.domain.Cell
 import io.github.eastwoodno1.supersnake.domain.ControlScheme
 import io.github.eastwoodno1.supersnake.domain.Difficulty
+import io.github.eastwoodno1.supersnake.domain.GameInput
 import io.github.eastwoodno1.supersnake.domain.GameStatus
 import io.github.eastwoodno1.supersnake.domain.NeonPalette
 import io.github.eastwoodno1.supersnake.domain.Overlay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -154,10 +156,15 @@ class AccessibilityTest {
     }
 
     private fun orbAreas(
+        model: GameViewModel,
         orb: Cell,
         samples: Int,
     ): List<Int> =
         List(samples) { index ->
+            composeRule.runOnUiThread {
+                model.pause()
+                model.input(GameInput.TogglePause)
+            }
             pump(SHOT_GAP_MILLIS + GAP_STEP_MILLIS * index)
             var area = 0
             driver.awaitUntil(GameDriver.SETTLE_MILLIS) {
@@ -165,6 +172,7 @@ class AccessibilityTest {
                     .onSuccess { area = it }
                     .isSuccess
             }
+            assertNotNull("sample $index taken after the countdown", model.frame.value.countdown)
             area
         }
 
@@ -179,7 +187,7 @@ class AccessibilityTest {
         withScale("0") {
             val model = startCountdown()
             val orb = checkNotNull(model.frame.value.state.orb)
-            val areas = orbAreas(orb, SAMPLES)
+            val areas = orbAreas(model, orb, SAMPLES)
             assertTrue("orb not drawn: $areas", areas.all { it > 0 })
             assertEquals("orb area changed with animations removed: $areas", 1, areas.toSet().size)
         }
@@ -190,7 +198,7 @@ class AccessibilityTest {
         withScale("1") {
             val model = startCountdown()
             val orb = checkNotNull(model.frame.value.state.orb)
-            val areas = orbAreas(orb, SAMPLES)
+            val areas = orbAreas(model, orb, SAMPLES)
             assertTrue("orb not drawn: $areas", areas.all { it > 0 })
             assertTrue("orb area never changed with animations on: $areas", areas.toSet().size > 1)
         }

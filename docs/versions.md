@@ -2,7 +2,7 @@
 
 | Item | Version | Release date | Source | Verified on |
 |------|---------|--------------|--------|-------------|
-| Gradle | 9.9.1 (distribution SHA-256 `d8a18a7a841dd5df825d35a685fad6f2d7f12ac0c280e57b67c27b4a520ba228`, wrapper jar SHA-256 `621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8`, both from services.gradle.org). Embeds Kotlin 2.4.21 for the Gradle runtime only; project code still compiles with Kotlin 2.4.20 (ADR-0006) | 2026-11-10 | https://services.gradle.org/versions/current | 2026-11-13 |
+| Gradle | 9.9.2 (distribution SHA-256 `971fcd7150ca4ba04852c0b2ca0d2d0ab9468e14b03473eab19528809914c76b`, wrapper jar SHA-256 `621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8`, both from services.gradle.org). Embeds Kotlin 2.4.21 for the Gradle runtime only; project code still compiles with Kotlin 2.4.20 (ADR-0006) | 2026-11-19 | https://services.gradle.org/versions/current | 2026-11-20 |
 | JDK toolchain | Temurin 25.0.5+8 (toolchain 25), installed via mise | 2026-10-22 | https://github.com/adoptium/temurin25-binaries/releases/tag/jdk-25.0.5%2B8 | 2026-10-23 |
 | mise | 2026.10.18 | 2026-10-23 | https://github.com/jdx/mise/releases/tag/v2026.10.18 | 2026-10-23 |
 | gh | 2.103.2 (via `aqua:cli/cli`; the latest stable, bumped from 2.103.0) | 2026-10-23 | https://github.com/cli/cli/releases/tag/v2.103.2 (and `gh api repos/cli/cli/releases/latest`) | 2026-10-26 |
@@ -104,6 +104,12 @@ When a Kotlin or Kover bump changes these versions, add the portal checksum for 
 ## mise pin in CI
 
 The mise version and the SHA-256 of its linux-x64 archive are written in nine places: four jobs in `.github/workflows/ci.yml`, the `java-kotlin` job in `.github/workflows/codeql.yml` and the `build`, `smoke`, `sign-publish` and `verify-published` jobs in `.github/workflows/release.yml`. Dependabot does not manage them. Update all nine together and record the new version and SHA in the table above.
+
+## Dependabot Kotlin cap
+
+`.github/dependabot.yml` ignores `org.jetbrains.kotlin*` versions above 2.4.20 in the gradle ecosystem, because CodeQL supports Kotlin only up to 2.4.20 (ADR-0006) and Dependabot PR #41 (2.4.21) cannot merge. Syntax verified on 2026-11-19 against https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference (`dependency-name` takes `*` wildcards, `versions` takes version ranges for ignore) and https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/controlling-dependencies-updated (the `versions: [ ">=1.0.0" ]` example). `update-types` cannot express a cap: it only filters by major, minor or patch level.
+
+Remove the ignore, and raise the Kotlin pin together with it, when https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/ lists a Kotlin version above 2.4.20. Until then Gradle's embedded Kotlin 2.4.21 is unaffected, because it is not a project dependency.
 
 ## Known issues
 

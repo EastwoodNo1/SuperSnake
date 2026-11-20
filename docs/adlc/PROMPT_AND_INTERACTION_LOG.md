@@ -481,3 +481,51 @@ Reconstructed prompt intent - not verbatim: after the smoke timed out on #116 an
 ## PROMPT-031 - Fix the second release-smoke timeout (issue #126)
 
 Reconstructed prompt intent - not verbatim (coordinator report, SRC-018): after #119, runs 42210528377 and 42216049940 still timed out. Initial (resume after interruption) -> Output (still timed out) -> Problem (the SIM dialog swallowed the single Play tap; the last dump was the main menu) -> Refinement (tap Play again when the menu persists for five dumps, at most three taps; two tests) -> Result (RED 2 failed, GREEN 19 passed, as reported; CI Pending).
+
+## Final fold-in (2026-11-20): prompts of the executor and orchestrator sessions
+
+Sessions: S-EXEC = `154bc22a` (Plan 4 executor), S-ORCH = `35559d8c` (orchestrator). PROMPT-025 to PROMPT-027 already cover the Plan 4 review and the "PR 116 isn't green" correction.
+
+## PROMPT-032 - Execute Plan 4
+
+- **Lifecycle phase:** Implementation. **Related cycle:** CYCLE-015. **Evidence status:** Observed (S-EXEC note, verbatim in part).
+- Verbatim prompt: "Execute docs/superpowers/plans/2026-11-02-plan-4-release.md with superpowers:subagent-driven-development, starting at the first task that is not done. Follow the plan's "Start here" and "Progress lives in git" sections; don't rely on earlier sessions."
+- Also stated: a parallel session owns issue #82 and must not be touched; Task 4 steps 1 and 2 belong to the owner.
+- Output: the agent started at Task 4, stopped at the owner steps. Result: the plan's resume design worked with no conversation context.
+
+## PROMPT-033 - Decouple the skills from the project
+
+- **Lifecycle phase:** Design. **Related cycle:** CYCLE-016. **Evidence status:** Observed (S-EXEC note).
+- Verbatim prompt: "we need the sdlc skills to actually be decoupled from supersnake" (said while interrupting a question the agent was asking).
+- Initial -> Output (a plugin subagent copied project-specific release files into templates) -> Problem (templates must be exact copies, so project values break the byte-exact check) -> Refinement (neutral files, a job-level `NAME` from the repository, the package read from the APK, values in `scripts/github/project-settings.json`) -> Result (#148; `--print-expected` mode; admin bypass as a project setting in #150).
+
+## PROMPT-034 - Fix warnings, do not disable them
+
+- **Evidence status:** Observed (S-EXEC note).
+- Verbatim prompt: "make sure we dont get these warnings and fix them, not just disable them".
+- Initial (silence the apksigner JDK native-access warning) -> Problem (suppression hides it) -> Refinement (pass `-J-enable-native-access=ALL-UNNAMED`, and add a test that stderr has no `WARNING`) -> Result (#142).
+
+## PROMPT-035 - Create secrets without exposing them
+
+Reconstructed prompt intent - not verbatim: the owner asked the agent to put secrets and variables into the protected environments with `gh secret`, the agent never reading the key. Initial -> Output (blocked by 404, the environments did not exist) -> Refinement (the settings script creates the environments first; `--check` as the read-only validation) -> Result (MISMATCH lines to `all settings match`; the key was set from a pipe).
+
+## PROMPT-036 - Why did the release fail?
+
+Reconstructed prompt intent - not verbatim: the owner asked twice to find out why a release run failed. First run: the signer fingerprint variable was wrong (65 characters pasted). Second: the `autorelease: tagged` label was not exempt in `pr-rules`. Fixes: variable set from the pipe; #141 with a negative test for an unrelated label.
+
+## PROMPT-037 - Play the game
+
+Reconstructed prompt intent - not verbatim: the owner played 1.0.0 and reported a lost score, a crash on High scores and no way back. The bugs became issues #151, #152 and #153. The agent could not reproduce them; it added deterministic tests, a monkey run and a code review (#163, #167, #156).
+
+## PROMPT-038 - Finish everything autonomously
+
+- **Lifecycle phase:** Project direction. **Related cycle:** CYCLE-017. **Evidence status:** Observed (S-ORCH note).
+- Verbatim prompt: "i want to finish up the whole project, solving all bugs and issues ... can you recommend an agentic and autonomous approach which is based on best practice for ADLC"
+- Output: a recommended pipeline of per-issue subagents. Follow-up verbatim: "you have full autonomy, i want to interact as little as possible and just finish up, you can initiate and coordinate as many subagent as needed to finish up asap".
+- Result: 15 merged fixes in two days, each PR stating its decision; the owner kept release approval, the settings script and the final play check (DEC-070).
+
+## PROMPT-039 - Does capture really save?
+
+Reconstructed prompt intent - not verbatim: the owner asked whether the capture hook really saves notes. The agent found that a resumed session's id is already in `captured`, so later work is never captured, and filed android-sdlc-skills#13. At the end, the id was removed and the sessions were re-captured (DEC-083). Initial (hook assumed to capture) -> Problem (nothing after 2026-11-09) -> Refinement (re-capture) -> Result (this fold-in, with gaps GAP-027 and GAP-031).
+
+Patterns: **Say the decision in the PR and let the owner veto it.** **Fix the cause, never the symptom** (PROMPT-034). **Keep secrets out of the transcript** (PROMPT-035).

@@ -19,10 +19,10 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 
 - Historical reconstruction: **Complete for the accessible evidence (first fold-in, 2026-10-27)**; open gaps are listed in the register
 - Earliest reliably documented point: 2026-10-20 (first captured session); first commit 2026-10-22 (`e900708`)
-- Current lifecycle position (updated 2026-11-13): Plan 4 Task 4 implemented locally and awaiting owner-run evidence; API 37 legs fixed (#124), required-check change held for PR 2; release-smoke fixed twice (#119, issue #126). Earlier (2026-11-04): Plan 3 (app) complete (PR #94), full screen done (#106), Plan 4 (release) Tasks 1 to 3 merged and the plan reviewed and fixed (issue #115); Task 4 awaits owner steps. Earlier position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
-- Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), per-PR evidence not re-read; see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
-- Last documentation checkpoint: 2026-11-13 (sixth fold-in, issue #126). Before that: 2026-11-05 (fifth fold-in, in the release-smoke resume PR, issue #117). Before that: 2026-11-04 (fourth fold-in, issue #115); 2026-10-28 (third fold-in)
-- Last folded session: 154bc22a-c328-4f67-b352-4ccb8535fd77 (2026-11-06, Plan 4 Task 4 start) and 3e97d016-08e8-488e-9c01-2e877be1195d (2026-11-06, issue #82 API 37 fix), plus the coordinator's issue #126 work, in the sixth fold-in. Before that: 3c11e9a7-1ec2-4ab6-836f-18a7e76e7b29 (2026-11-05, plugin reload only, no-op), in the fifth fold-in. Before that: c5ff6184-56b9-4a90-be4e-05c70df7fc31 (2026-10-28 to 2026-11-02, Plan 3 execution and Plan 4 start), in the fourth fold-in. Before that: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
+- Current lifecycle position (updated 2026-11-20, project end): the project is complete apart from Play publishing. Release 1.0.0 (2026-11-18) and 1.0.1 (2026-11-20) are published, signed, attested and immutable; Plans 1 to 5 are done; Plan 4 closed in #182. Open: issue #181 (emulator flakes) and the owner items in section 12 (Prospective). Earlier: Plan 4 Task 4 implemented locally and awaiting owner-run evidence; API 37 legs fixed (#124), required-check change held for PR 2; release-smoke fixed twice (#119, issue #126). Earlier (2026-11-04): Plan 3 (app) complete (PR #94), full screen done (#106), Plan 4 (release) Tasks 1 to 3 merged and the plan reviewed and fixed (issue #115); Task 4 awaits owner steps. Earlier position: Plan 1 (foundation) complete on 2026-10-26; plugin `adlc-docs` released and adopted on 2026-10-27; Plan 2 (game engine) complete on 2026-10-28; Plan 3 (app) written and approved on 2026-10-28; AGP 9.5.0 bump (issue #71) in progress before Task 1
+- Major known gaps: day-one conversation, the ADLC feature session's prompts (not captured), nothing captured automatically between 2026-11-09 and the final re-capture (GAP-027), #152's crash never reproduced (GAP-028), the owner's final steps Prospective (GAP-029); see [register](SOURCE_AND_UNCERTAINTY_REGISTER.md)
+- Last documentation checkpoint: 2026-11-20 (seventh and final fold-in, issue #183, Plan 5 Task 6). Before that: 2026-11-13 (sixth fold-in, issue #126). Before that: 2026-11-05 (fifth fold-in, in the release-smoke resume PR, issue #117). Before that: 2026-11-04 (fourth fold-in, issue #115); 2026-10-28 (third fold-in)
+- Last folded session: 35559d8c-dea6-4515-a650-94781a5140a4 (re-captured: orchestrator, 2026-10-28 to 2026-11-20) and 154bc22a-c328-4f67-b352-4ccb8535fd77 (re-captured: Plan 4 executor, 2026-11-06 to 2026-11-19), plus one reconstructed record for 2026-11-13 to 2026-11-20 (`sessions/2026-11-19-finish-up-reconstructed.md`), in the final fold-in. Before that: 154bc22a-c328-4f67-b352-4ccb8535fd77 (2026-11-06, Plan 4 Task 4 start) and 3e97d016-08e8-488e-9c01-2e877be1195d (2026-11-06, issue #82 API 37 fix), plus the coordinator's issue #126 work, in the sixth fold-in. Before that: 3c11e9a7-1ec2-4ab6-836f-18a7e76e7b29 (2026-11-05, plugin reload only, no-op), in the fifth fold-in. Before that: c5ff6184-56b9-4a90-be4e-05c70df7fc31 (2026-10-28 to 2026-11-02, Plan 3 execution and Plan 4 start), in the fourth fold-in. Before that: 35559d8c-dea6-4515-a650-94781a5140a4 (2026-10-28, Plan 3 planning) and ea322ed1-6e1c-4b6f-a10c-b553a417707d (2026-10-27, ADLC feature build), in the third fold-in. Before that: dfda0bef-0051-4b38-b52e-29d3857384f8 (2026-10-27 to 2026-10-28), plus one reconstructed record for the Plan 3 planning session (2026-10-28). Earlier: 68b8cc9f-ea4d-4cec-b57b-b8efd66c289f (2026-10-23 to 2026-10-26). Folded in the same pass: 37cc1e57, b283293d, 9666aa57; plus one reconstructed record for 2026-10-27
 
 ## 3. Actual Lifecycle Overview
 
@@ -38,6 +38,11 @@ The owner runs the project solo, with AI agents in every phase. The aim is to le
 | App plan (CYCLE-008) | Plan the Android app | Plan 2 handoff contract | Parallel research, three owner questions | Plan 3, ADR-0009, ADR-0010 | Owner approval | One recommendation rejected; one colour changed | Planned; execution Prospective |
 | App execution (CYCLE-010) | The playable game | Plan 3 | Subagent-driven tasks with review and fix rounds; full screen | PRs #72 to #106, guard script, plugin v0.3.0 | Per-task and whole-range review, CI; API 37 legs informational (#82) | Task 5 took 5 fix rounds; #106 regression fixed | Done |
 | Release plan and its review (CYCLE-011) | Release design and plan | Plan 3 closed, owner research request | Research, ADR-0011/0012, Plan 4, Tasks 1-3, independent plan review and fixes | PRs #108 to #114; issue #115 | Sonnet review (4 critical, 8 important), spot-checks, re-review of the diff | Review came after three tasks merged | Task 4 Prospective |
+| Release execution (CYCLE-015) | Ship v1.0.0 | Plan 4, Tasks 4 and 5 | Settings with `--check`, release-please, approval-gated workflow, first release | #127, #134 to #138, #141, #142, #145; v1.0.0 | Review rounds, fail-closed fingerprint gate, attestation | Fingerprint variable, label exemption, apksigner warning | Done |
+| Playtest and decoupling (CYCLE-016) | Find what tests missed; make the plugin portable | v1.0.0 and the owner's play | Issues #151 to #153; neutral templates | #148, #150 | Hands-on play | Three bugs, none reproduced at filing | Done |
+| Autonomous finish-up (CYCLE-017) | Close every open issue | Owner's autonomy grant | One Sonnet subagent and PR per issue; auto-merge; merge queue helper | 15 fixes, #155 to #175 | CI per PR, owner-veto list | #164 redone; power-down recovered from git | Done |
+| CI flake work (CYCLE-018) | Trustworthy required checks | Intermittent reds | #168, #170, #178, #97 | #169, #176, #179, #173 | Reruns, 13 runs cited | #181 left open | Mostly done |
+| Close-out (CYCLE-019) | Finish and document | Plan 5 | Plan 5, plugin v0.4.1, Plan 4 close, release 1.0.1, final fold-in | #180, #182, #146, #183 | Release run green | Capture gap remedied | Done; owner batch Prospective |
 
 ## 4. Actual Lifecycle Pattern
 
@@ -336,7 +341,7 @@ All in [Decision Log](DECISION_LOG.md).
 - Observed: every rule is meant to be enforced by hook, CI check or GitHub setting, and each gate is proven to bite with real output. TDD for logic tasks; `koverVerify` 100% line and branch on `:domain` and `:data`; `test-hooks.sh`; CodeQL, Dependabot, dependency verification; four required checks on `main`.
 - Observed: an independent review before planning, and a cold-read test of the handoff.
 - Observed (plugin): bash tests with a stub CLI, shellcheck, real-CLI spike and smoke test.
-- Not yet: UI tests, accessibility tests, release manifest and 16 KB checks on a real APK, gameplay validation.
+- Update 2026-11-20: UI tests on three emulators, accessibility tests, release manifest and 16 KB checks, a release smoke test, signature and attestation checks, and `verify-published` now exist. Hands-on play by the owner found bugs the automated tests did not (CYCLE-016). Still open: the emulator flake rate (#181).
 - Limit: this fold-in did not re-read PR bodies, so "proof shown in each PR" is Reconstructed (GAP-007).
 
 ## 9. Feedback Loops and Rework
@@ -403,7 +408,7 @@ CYCLE-012 continued (issue #126, 2026-11-13): after #119 the smoke still timed o
 
 ## 12. Current State and Next Step
 
-- Current lifecycle position: foundation and engine complete; Plan 3 (app) planned and approved, not executed
+- Current lifecycle position (see the final update below): complete apart from Play publishing
 - Current validated state: Plan 1 gates merged on `main`; this documentation awaits the privacy scan
 - Open issues: Dependabot Kotlin PR #41 (capped by CodeQL); issue #44 (ADLC adoption); spec design point on the `release` environment (DEC-030); `docs/release.md` not yet written
 - Next recommended activity (updated 2026-11-04): merge the review-fixes PR (issue #115) and the separate setup-gradle `ci:` bump, then the owner performs Plan 4 Task 4 steps (App, signing key, settings script with `--check`)
@@ -423,3 +428,33 @@ CYCLE-012 continued (issue #126, 2026-11-13): after #119 the smoke still timed o
 ## Update: release-smoke resume fix (fifth fold-in, 2026-11-05)
 
 CYCLE-012 (issue #117): `release-smoke` timed out on PR #116 and on main because an API 31 emulator SIM dialog paused the game; `scripts/release-smoke.sh` now taps the game's own Resume (package-restricted), with two tests (RED 1 failure, GREEN 17 passed, as reported). The agent's "ready" report on #116 ignored red informational legs (#82) until the owner corrected it; the owner merged #116 after the safety classifier blocked the agent's merge. Decisions DEC-053, DEC-054; gaps GAP-019 to GAP-021. Record: [session](sessions/2026-11-05-plugin-reload-no-op.md) (no-op note; the cycle itself is from main-agent context, SRC-014).
+
+## Update: final fold-in (seventh, 2026-11-20)
+
+Status labels: Observed (git, gh, plans), Reconstructed (staged notes and compaction summaries), Prospective (owner items).
+
+### CYCLE-015 to CYCLE-019 in brief
+
+- **CYCLE-015, release (2026-11-13 to 11-18).** Plan 4 Task 4 landed in #127 after the owner's runs of `--check` and secret entry. Task 5 used implementer, reviewer, fix and re-review subagents (#135). The first `sign-publish` failed closed on a wrong fingerprint variable; the re-run of the failed job, owner approval and verification gave v1.0.0. Follow-ups #141, #142, #145 (DEC-063 to DEC-066).
+- **CYCLE-016, playtest and decoupling (2026-11-18 to 11-19).** The owner's play of 1.0.0 produced #151, #152 and #153. A one-line owner prompt made the release files project-neutral (#148, DEC-067) and the admin bypass a project setting (#150).
+- **CYCLE-017, autonomous finish-up (2026-11-19 to 11-20).** Full autonomy (PROMPT-038). The orchestrator ran one Sonnet subagent, worktree and PR per issue and merged with squash and auto-merge. A local helper loop updated branches that were BEHIND, because a merge needs an up-to-date branch. Decisions taken for the owner are stated in each PR and listed in Plan 5 (DEC-070 to DEC-077): record quit games, even via Restart (#163); Back button (#156); `live` stays true on game over until left (#164); the no-decision rule covers composables (#165); Kotlin held at 2.4.20 by a Dependabot ignore (#162); compileSdk 37.2 (#175); only `checks` writes the Gradle cache (#176); sturdier UI tests, font scale before launch and a 120 s timeout (#173). Machine restarts interrupted the run; state was recovered from git and `gh` (the count of restarts and the lost local state are Unknown, GAP-030).
+- **CYCLE-018, CI flakes.** #168 fixed by #169 (portal checksums), #170 by #176 (one cache writer), the Gradle 9.9.2 lint gate by #179, the FontScaleGameTest hang on API 31 by #173. #181 stays open with a lead: `codeql.yml` has no Gradle cache.
+- **CYCLE-019, close-out (2026-11-20).** Plan 5 (#180), plugin v0.4.1 adopted and Plan 4 closed (#182), release 1.0.1 through #146 (run 44709700143 green including `verify-published`; owner approved `sign-publish`; release immutable; attestation verified; versionCode 1000001), and this fold-in (#183).
+
+### The capture gap
+
+A session id already in `captured` is never captured again (android-sdlc-skills#13). The orchestrator and executor sessions were resumed many times, so nothing after 2026-11-09 was captured automatically. The remedy used: remove the ids from `captured` and re-capture at the end, then reconstruct from git (DEC-083, GAP-027). For a future project: fix the plugin first, and compare the date of the last note with the date of the last commit at every fold-in.
+
+### Lessons added
+
+- **Product:** an owner's hands-on play is a test phase of its own. Bugs the agent cannot reproduce still get fixes for what can be found, with an honest statement.
+- **Engineering:** a shared cache needs one writer; a new stable release is a planned bump PR; fail-closed release gates and read-only `--check` modes let agents verify what only humans may do; fix the cause of a warning.
+- **Prompting:** a short owner correction ("decoupled", "fix, not disable", "isn't green") changed the work three times in this project.
+- **Process:** autonomy works when every owner-level decision is written in the PR and the owner-only steps stay owner-only. Progress in git made the machine restarts survivable.
+- **Human-AI collaboration:** do not trust the capture marker; compare note dates with commit dates.
+
+### Current state and next step (updates section 12)
+
+- Complete apart from Play publishing. Plan 5 Tasks 1 to 7 are done; Task 8 is the owner batch (Prospective): (1) run `scripts/github/apply-repo-settings.sh` and then `--check`, which applies #166's required API 37 legs; (2) align the user-settings marketplace entry so plugin 0.4.1 installs locally; (3) play the published 1.0.1 APK for Plan 4 Task 6 Step 7.
+- Open issue: #181. Next documentation need: record the owner's outputs for the three items, and whether #181 shows a root cause.
+- Definition of Done for this documentation: staged notes folded (this PR), durable lessons saved by the main session (pending), unresolved gaps reported (GAP-027 to GAP-036).

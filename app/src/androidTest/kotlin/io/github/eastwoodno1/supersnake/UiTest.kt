@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
+import org.junit.rules.Timeout
 
 object UiTest {
     fun graph(): AppGraph = (InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as SuperSnakeApp).graph
@@ -16,7 +17,8 @@ object UiTest {
         reducedMotion: Boolean = true,
     ): RuleChain =
         RuleChain
-            .outerRule(
+            .outerRule(Timeout.seconds(TEST_TIMEOUT_SECONDS))
+            .around(
                 object : ExternalResource() {
                     private var previousScale: String? = null
                     private var previousConfirmations: String? = null
@@ -38,6 +40,22 @@ object UiTest {
                     }
                 },
             ).around(activityRule)
+
+    fun systemSetting(
+        namespace: String,
+        key: String,
+        value: String,
+    ): TestRule =
+        object : ExternalResource() {
+            private var previous: String? = null
+
+            override fun before() {
+                previous = setting(namespace, key)
+                put(namespace, key, value)
+            }
+
+            override fun after() = restore(namespace, key, previous)
+        }
 
     fun animationsOn() = setScale("1")
 
@@ -74,6 +92,7 @@ object UiTest {
         put("global", SCALE, value)
     }
 
+    private const val TEST_TIMEOUT_SECONDS = 120L
     private const val SCALE = "animator_duration_scale"
     private const val CONFIRMATIONS = "immersive_mode_confirmations"
 

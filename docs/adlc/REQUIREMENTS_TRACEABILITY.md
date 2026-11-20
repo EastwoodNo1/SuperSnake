@@ -83,3 +83,18 @@ Not in the original spec; it appears with the plugin spec of 2026-10-27 (Reconst
 - REQ-011 (release): Task 4 started (issue #121): Design DEC-055 to DEC-057; Implementation local commits `a2edf5e` (RED) and `5333dd7`, unpushed; Test fake-`gh` harness and shellcheck as reported by the agents; Validation Pending the owner's `--check` and apply runs; Outcome Pending validation. The smoke fix (issue #126): Design DEC-061; Implementation `scripts/release-smoke.sh`; Test `tapsPlayAgainWhenTheTapWasLost`, `stopsTappingPlayAfterThreeTries` (RED 2 failed, GREEN 19 passed, as reported); Outcome Pending CI.
 - REQ-008 (CI UI tests): API 37 legs fixed in PR #124 (DEC-059): 61 of 61 on phone-31, phone-37 and tablet-37 over three consecutive runs plus one more. Making them required again is PR 2 (Prospective). Closes the informational status from DEC-043 once that PR merges.
 - REQ-004 (latest versions): AGP 9.5.1 adopted (#123, DEC-058).
+
+## Update (final fold-in, 2026-11-20)
+
+IDs REQ-015 to REQ-017 are documentation identifiers allocated now (Reconstructed from issues and PR bodies).
+
+| ID | Requirement | Acceptance (from the evidence) | Design | Implementation | Test | Validation | Outcome |
+|---|---|---|---|---|---|---|---|
+| REQ-011 (release) | Signed, attested, immutable APK on GitHub Releases through release-please | Spec §8; Plan 4 Task 6 | DEC-047, DEC-063, DEC-065, DEC-066 | PRs #127, #135, #136, #141, #142, #145; v1.0.0; #146; v1.0.1 | `scripts/test-release-scripts.sh` (29, 36, then 38 tests, R); `verify-published`, smoke, signature and attestation checks | Release run 44709700143 green in release-please, build, smoke, sign-publish, verify-published; attestation verified; versionCode 1000001 (O for run and releases list, R for the rest) | Met for the GitHub Release. Play publishing is not done (Prospective). The owner's play check of 1.0.1 is Prospective (GAP-029) |
+| REQ-015 | A game's result is never silently lost, every screen has a way back, and failing platform calls do not crash the app | Owner playtest of 1.0.0 (issues #151 to #153); engine spec: result saved before any screen | DEC-071 to DEC-073, DEC-081 | #163, #156, #164, #167 | Deterministic JVM tests (RED before code); instrumented Back tests (CI only); Monkey run | CI on each PR; #152's original crash was never reproduced | Met as far as testable. The owner's crash is Unknown (GAP-028) |
+| REQ-016 | No decisions in composables: logic in `:domain`, covered at 100% | Owner decision on #102 | DEC-074 | #165 | `OverlayTest` RED then GREEN | CI | Met |
+| REQ-017 | The release and CI files can be adopted by another project through the plugin | Owner: "decoupled from supersnake" (PROMPT-033) | DEC-067, DEC-068 | #148, #150; plugin v0.4.0 and v0.4.1; #182 | `verify-templates` 0 drift (as reported in #182) | Reported in PR #182 | Met; local plugin install needs an owner step (GAP-035) |
+| REQ-008 (CI UI tests) | Three emulators required | All 61 tests pass on phone-31, phone-37 and tablet-37 | DEC-059, DEC-082 | #124, #166 | The instrumented suite; flakes tracked in #181 | 61/61 on three consecutive runs; required on `main` only after the owner runs the settings script (Prospective) | Partly met |
+| REQ-004 (latest stable versions) | Latest stable, verified on the day | Dependabot ignore for Kotlin (#162); Gradle 9.9.2 (#179); compileSdk 37.2 and Compose BOM (#175) | DEC-075, DEC-076, DEC-080 | the PRs | Lint gate, strict build | Met; the lint gate proved to be a gate for each stable release |
+
+Gap: requirement-to-test links for REQ-015 rest on PR bodies, not on a test report.

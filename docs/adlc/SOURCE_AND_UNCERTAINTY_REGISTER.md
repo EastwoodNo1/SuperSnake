@@ -121,3 +121,30 @@ Sources added: SRC-014 main-agent context for issue #117 (Observed as reported);
 | GAP-026 | `release-smoke` flakiness root cause beyond the SIM dialog is Unknown; GAP-021 is superseded by the second timeout (issue #126) | CYCLE-012 | Moderate | SRC-017, SRC-018 | Open |
 
 Sources added: SRC-016 staged note of session 154bc22a (digest-based; no PR or CI output inspected); SRC-017 staged note of session 3e97d016 (Observed run IDs, PR numbers); SRC-018 coordinator report for issue #126 (Observed as reported). Privacy: the exposed key content and App identifiers are deliberately not recorded.
+
+## Update (final fold-in, 2026-11-20)
+
+| Source ID | Source | Availability | Covers | Reliability | Limitations |
+|---|---|---|---|---|---|
+| SRC-019 | Re-captured note of session 35559d8c (orchestrator) | Available | 2026-10-28 to 2026-11-20 | Observed for named PRs and issues; middle Reconstructed | Digest omits most AI text; one session resumed several times |
+| SRC-020 | Re-captured note of session 154bc22a (Plan 4 executor) | Available | 2026-11-06 to 2026-11-19 | Observed at start and end; middle from compaction summaries | Digest size-capped |
+| SRC-021 | `git log` and `gh pr list --state merged` on 2026-11-20 | Available | PRs #123 to #182 | High for titles, dates, numbers | Review comments not read |
+| SRC-022 | PR bodies #156, #162 to #167, #169, #173, #175, #176, #179, #180, #182 | Available | Finish-up decisions and evidence | High as statements; evidence blocks not re-run | Quoted partly |
+| SRC-023 | Issues #151 to #153, #168, #170, #181, #97 | Available | Playtest defects and CI flakes | High | Issue state is as of 2026-11-20 |
+| SRC-024 | Plan 5 and Plan 4 | Available | State at handoff, owner-veto list, Task 8 | High | Written by the main session |
+| SRC-025 | Release list and run 44709700143 (`gh`) | Available | v1.0.0 (2026-11-18), v1.0.1 (2026-11-20) | High for the five job conclusions | Attestation and approval are from the main session's report |
+
+| Gap ID | Gap | Cycle | Impact | Source | Status |
+|---|---|---|---|---|---|
+| GAP-027 | Capture gap: a session id already in `captured` is never captured again (android-sdlc-skills#13), so nothing after 2026-11-09 was captured until this re-capture. The remedy (remove the id, re-capture) recovers digests, not the full conversation | CYCLE-019 | High | SRC-019 | Open until the plugin fix; recorded |
+| GAP-028 | The owner's crash in #152 was never reproduced. #167 fixed the likeliest causes | CYCLE-016 | Moderate | SRC-022, SRC-023 | Open |
+| GAP-029 | Owner outputs for the settings script and the play check on 1.0.1 are not recorded (Prospective) | CYCLE-019 | Moderate | SRC-024 | Open |
+| GAP-030 | Two machine restarts and the lost local state: only one power-down is evidenced in the note, plus the unpushed Plan 4 close-out commit in Plan 5. The count and the full loss are Unknown | CYCLE-017 | Low | SRC-019, SRC-024 | Open |
+| GAP-031 | Subagent outputs, review rounds and the exact sequence of the finish-up are not in the digests; only PR bodies and the plan | CYCLE-017 | Moderate | SRC-019 | Open |
+| GAP-032 | Whether the key exposed in the Plan 4 executor session was rotated: the executor note says the owner rotated it; the orchestrator note says it is unknown. No key material was recorded. Treated as rotated, not verified | CYCLE-013 | Moderate | SRC-019, SRC-020 | Open |
+| GAP-033 | #181: emulator flakes are not root-caused; the `codeql.yml` cache lead is untested | CYCLE-018 | Moderate | SRC-023 | Open at project end |
+| GAP-034 | Which model wrote which commit: both Opus and Sonnet attribution lines appear in the digests | all | Low | SRC-019 | Open |
+| GAP-035 | Plugin 0.4.1 does not install locally until the owner aligns the user-settings marketplace entry (Prospective, reported by the main session) | CYCLE-019 | Low | SRC-024 | Open |
+| GAP-036 | The executor note names #136 as another session's work; git shows #136 as the 1.0.0 release PR. Git is taken as correct. PR #143 (closed unmerged) was not re-read | CYCLE-015 | Low | SRC-020, SRC-021 | Open |
+
+Privacy: the key, the GitHub App identifiers and local paths are deliberately not recorded.

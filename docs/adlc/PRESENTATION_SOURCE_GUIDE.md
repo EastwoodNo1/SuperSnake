@@ -225,3 +225,71 @@ Two parallel sessions ran under a coordinator. One started Plan 4 Task 4 and sto
 - **"Agents have limits the plan sets."** The coordinator declined to run an owner-only script (DEC-062).
 - Visualization: a six-run table of the #82 hypothesis loop; a two-lane diagram of coordinator and parallel sessions.
 - Caveats: GAP-022 to GAP-026.
+
+## Final update: ready for the learning presentation (final fold-in, 2026-11-20)
+
+Status: the project is complete apart from Play publishing. Documentation is complete enough to build the presentation from this folder alone. No presentation has been created. Prospective items are marked and must not be presented as done.
+
+### Project in numbers (Observed on 2026-11-20 with git and gh)
+
+- 2026-10-20 first captured session; first commit 2026-10-22; release 1.0.0 on 2026-11-18; release 1.0.1 on 2026-11-20.
+- 103 commits on `main`, 89 merged pull requests, 12 ADRs, 86 decisions in the decision log, 39 logged prompts, 17 session records.
+- 12 days from the start of Plan 4 Task 4 (2026-11-06) to the signed, attested, immutable release 1.0.0 (2026-11-18). 15 fixes merged in about two days during the autonomous finish-up.
+- Release 1.0.1: run 44709700143 green in release-please, build, smoke, sign-publish and verify-published; versionCode 1000001.
+
+### The story in eight slides (map to the Recommended Narrative)
+
+1. **Rules before code.** Owner non-negotiables (PROMPT-001) became gates (CYCLE-001 to CYCLE-004). Example: 20 PRs of enforcement before the first game type.
+2. **Plans that survive a new session.** "Start here" plus "Progress lives in git" (DEC-013, REQ-014). Proof: the executor and finish-up sessions resumed from the plan, and a laptop power-down cost no state that git could not return (CYCLE-017).
+3. **Research, then ask.** Transitive-dependency research led to the owner's own back stack (DEC-038); an emulator-action recommendation was overruled and recorded.
+4. **Review before build.** An independent review of Plan 4 found 4 critical defects, including a check that could never print success (DEC-049).
+5. **The release gate that failed on purpose.** `sign-publish` failed closed on a wrong fingerprint variable and published nothing (DEC-063).
+6. **Hands-on play finds what 60 tests did not.** The owner's playtest of 1.0.0 produced #151 to #153 (CYCLE-016).
+7. **From one session to a fleet.** Full autonomy (PROMPT-038), one Sonnet subagent per issue, every owner-level decision stated in its PR (DEC-070 to DEC-076), and the owner-only steps kept (release approval, settings script).
+8. **The process documents itself, and has gaps.** Capture lost every session after 2026-11-09 (GAP-027, DEC-083): a good lesson about silent tooling failure.
+
+### Headline candidates with key messages and examples
+
+| Headline | Key message | Example | Evidence |
+|---|---|---|---|
+| "Review the plan before you build it" | An independent review found ordering and contract errors | The settings check order; a tag SHA given as a commit SHA | DEC-049, DEC-052 |
+| "'Ready' means every check" | One owner sentence changed the reporting rule | "PR 116 isn't green" | PROMPT-026, DEC-054 |
+| "Fail closed" | A gate that refuses is a feature | The first `sign-publish` | DEC-063 |
+| "Fix the cause, not the warning" | Suppression hides defects | `-J-enable-native-access` | PROMPT-034 |
+| "Who holds the key?" | The agent plans and verifies; the human performs secret steps | MISMATCH lines to `all settings match`; a key exposed by an @-mention and rotated | DEC-056, PROMPT-035 |
+| "Decoupling by byte-exact templates" | A one-line owner prompt forced a design change | #148 | PROMPT-033, DEC-067 |
+| "The bug we never reproduced" | State what is proven; fix likely causes | #152 and #167 | DEC-081 |
+| "Autonomy with a veto trail" | Decisions taken for the owner are stated in the PR | The seven owner-veto items in Plan 5 | DEC-070 to DEC-077 |
+| "Whose cache is it?" | A shared cache needs one deliberate writer | #170 and #176 | DEC-077 |
+| "A new stable release is an incident" | Lint gate failures from new stables each got a separate bump PR | #123, #129, #175, #179 | DEC-058, DEC-076, DEC-080 |
+| "The documenter missed its own sessions" | A "captured" marker made the long sessions invisible | android-sdlc-skills#13 | DEC-083 |
+
+### Human and AI contribution (summary for a slide)
+
+- Human: purpose, non-negotiables, every choice between options, the owner-only steps (App and key, secret entry, environment approval, settings script), hands-on play, the autonomy grant.
+- AI: research with evidence, plans, independent reviews, subagent implementation with test-first fixes, root-causing CI failures from artifacts, coordination of parallel sessions, and documentation of the process. Agents did not approve the release environment.
+
+### Failures worth showing
+
+Stale model claims (model-selection session); KTX reversed on data; plan with no session independence; 5 fix rounds in Plan 3 Task 5; full screen broke Restart (caught in review); the premature "ready" on #116; the key exposure; the fingerprint paste; the Gradle 9.9.2 lint break; the flaky emulator legs (#181 open); the capture gap.
+
+### Suggested visuals
+
+- A timeline from 2026-10-20 to 2026-11-20 with the five release-related PR clusters (CYCLE-015 to CYCLE-019).
+- The two-lane coordinator diagram (parallel sessions) and the finish-up pipeline: issue, worktree, Sonnet subagent, PR, auto-merge, merge queue helper.
+- A table of the six-run #82 hypothesis loop and the 15-fix table from Plan 5.
+- A requirement-to-outcome table from the traceability file (REQ-011, REQ-015 to REQ-017).
+
+### Speaker-note material
+
+- Plan 5 "Decisions taken on the owner's behalf" lists the owner-veto items.
+- Issue #151 to #153 and PR #163, #156, #167 show the playtest loop.
+- Issue #168, #170, #181 show an unsolved flake honestly left open.
+- ADR-0011 and ADR-0012 and `docs/release.md` show release design.
+
+### Readiness check (supersedes the earlier check)
+
+- Game implementation, testing and release: documented (CYCLE-007, CYCLE-010, CYCLE-015 to CYCLE-019).
+- Validation: documented through PRs and runs; evidence blocks of PR bodies were not re-run (GAP-031).
+- Open and Prospective, not to be claimed as done: the owner's run of the settings script (applies #166), the local plugin install alignment, the owner's play of 1.0.1, Play publishing, and #181.
+- Known weaknesses: the middle of the finish-up rests on digests and PR bodies; #152's crash is Unknown; capture missed work after 2026-11-09.

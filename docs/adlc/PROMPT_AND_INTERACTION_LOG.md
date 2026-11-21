@@ -529,3 +529,21 @@ Reconstructed prompt intent - not verbatim: the owner played 1.0.0 and reported 
 Reconstructed prompt intent - not verbatim: the owner asked whether the capture hook really saves notes. The agent found that a resumed session's id is already in `captured`, so later work is never captured, and filed android-sdlc-skills#13. At the end, the id was removed and the sessions were re-captured (DEC-083). Initial (hook assumed to capture) -> Problem (nothing after 2026-11-09) -> Refinement (re-capture) -> Result (this fold-in, with gaps GAP-027 and GAP-031).
 
 Patterns: **Say the decision in the PR and let the owner veto it.** **Fix the cause, never the symptom** (PROMPT-034). **Keep secrets out of the transcript** (PROMPT-035).
+
+## PROMPT-040 - "nothing more"
+
+Verbatim prompt: "fix the last issue that you can find in github, nothing more". It set a tight scope. The orchestrator fixed #193 only and left release PR #196 untouched until asked (session note, R). Result: #195. Lesson: a scope sentence from the owner is a constraint the agent reports against.
+
+## PROMPT-041 - Is #181 really closed?
+
+Verbatim prompt: "what about the open issue #181, doesnt that needs to be taken care of aswell?". Initial (#185 "closes #181") -> Output (CodeQL fix merged, issue closed) -> Problem (the owner saw it was still open or recurring; #185's own phone-37 leg had failed, and #186, #188 and #189 hit further flakes in the same family) -> Refinement (the agent reopened #181 each time, looked at the failed legs of its own PRs and fixed each cause with a RED) -> Result (#181 closed by #189 at 11:51 UTC; the hang class bounded by #194 and fixed by #195). The issue comments on #181 record the two reopenings (O). Lesson: the owner's question exposed an early close; wait for every leg of the final run.
+
+## PROMPT-042 - Tag and adopt the plugin
+
+Verbatim prompt: "tag the plugin v0.4.2 and adopt it too". Result: tag v0.4.2 (commit `04ca3ae`) and adoption PR #188. The agent dereferenced the annotated tag before pinning (existing memory rule).
+
+## PROMPT-043 - Close the release, and a handover for the plugin agent
+
+Reconstructed prompt intent - not verbatim: (a) close all issues and PRs, then close the release; the orchestrator read this as merging the release PR #196 so that 1.0.2 is published, and stated that reading before acting; (b) the owner asked for a handover document and a ready-to-paste prompt for the plugin agent, then asked for a completeness check against new findings (eight items, outside both repos). A third reconstructed intent, an owner request to fold in the session, started this capture; it put the session id into `captured` before the session ended (DEC-092).
+
+Patterns: **Scope words constrain the agent.** **An owner question can be a defect report** (PROMPT-041). **Ask before a dependency** (DEC-089).
